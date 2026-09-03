@@ -39,8 +39,8 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/niubigeo:${{ github.event.inputs.tag || github.event.release.tag_name || github.ref_name }}
-            ghcr.io/${{ github.repository_owner }}/niubigeo:latest
+            ghcr.io/albert-weasker/niubigeo:${{ github.event.inputs.tag || github.event.release.tag_name || github.ref_name }}
+            ghcr.io/albert-weasker/niubigeo:latest
           labels: |
             org.opencontainers.image.title=NiubiGEO
             org.opencontainers.image.description=Open-source AI brand visibility and competitor reports
