@@ -368,9 +368,15 @@ Contributions are welcome for new providers, entity recognition rules, source fi
 
 Thanks to everyone building NiubiGEO.
 
-<a href="https://github.com/Albert-Weasker/niubigeo/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=Albert-Weasker/niubigeo" alt="NiubiGEO contributors" />
-</a>
+<p>
+  <a href="https://github.com/Albert-Weasker">
+    <img src="https://avatars.githubusercontent.com/u/186366929?v=4" width="56" alt="Albert-Weasker" />
+    <br />
+    <sub><strong>Albert-Weasker</strong></sub>
+  </a>
+</p>
+
+See the full contributor graph on [GitHub](https://github.com/Albert-Weasker/niubigeo/graphs/contributors).
 
 ---
 

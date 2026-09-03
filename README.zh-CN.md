@@ -368,9 +368,15 @@ NiubiGEO 使用 [Apache-2.0](./LICENSE) 许可证。
 
 感谢所有参与建设 NiubiGEO 的贡献者。
 
-<a href="https://github.com/Albert-Weasker/niubigeo/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=Albert-Weasker/niubigeo" alt="NiubiGEO contributors" />
-</a>
+<p>
+  <a href="https://github.com/Albert-Weasker">
+    <img src="https://avatars.githubusercontent.com/u/186366929?v=4" width="56" alt="Albert-Weasker" />
+    <br />
+    <sub><strong>Albert-Weasker</strong></sub>
+  </a>
+</p>
+
+完整贡献者记录见 [GitHub Contributors](https://github.com/Albert-Weasker/niubigeo/graphs/contributors)。
 
 ---
 
