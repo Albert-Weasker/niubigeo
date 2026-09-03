@@ -173,3 +173,4 @@ Public alpha is allowed only when:
 4. Every main conclusion links to an AI answer or source.
 5. No committed file contains provider keys, local machine paths, or sensitive report data.
 6. License, security, contributing, and bilingual README files are present.
+7. Initial GitHub Release and GHCR Docker package are published for the alpha.

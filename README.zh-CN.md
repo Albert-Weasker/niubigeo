@@ -6,7 +6,7 @@
 
 **输入一个域名，看看 AI 是否会推荐你，以及哪些竞争对手更容易出现。**
 
-[English](./README.md) · [快速开始](#3-分钟开始审计) · [查看对比](#niubigeo-与商业-ai-可见度工具) · [工作原理](#它是怎么工作的)
+[English](./README.md) · [快速开始](#3-分钟开始审计) · [Releases](https://github.com/Albert-Weasker/niubigeo/releases) · [Packages](https://github.com/Albert-Weasker/niubigeo/pkgs/container/niubigeo) · [查看对比](#niubigeo-与商业-ai-可见度工具)
 
 <br />
 
@@ -110,7 +110,7 @@ NiubiGEO 让你能够：
 ### Docker
 
 ```bash
-git clone https://github.com/niubistar/niubigeo.git
+git clone https://github.com/Albert-Weasker/niubigeo.git
 cd niubigeo
 cp .env.example .env
 ```
@@ -134,13 +134,19 @@ docker compose up --build
 
 打开 [http://localhost:8787](http://localhost:8787)，输入域名，确认品牌、竞争对手和问题，然后运行审计。
 
+也可以直接拉取已发布镜像：
+
+```bash
+docker pull ghcr.io/albert-weasker/niubigeo:v0.1.0-alpha
+```
+
 <details>
 <summary><strong>使用 Node.js 启动</strong></summary>
 
 NiubiGEO 需要 Node.js 22 或更高版本。
 
 ```bash
-git clone https://github.com/niubistar/niubigeo.git
+git clone https://github.com/Albert-Weasker/niubigeo.git
 cd niubigeo
 cp .env.example .env
 npm install
@@ -186,6 +192,15 @@ npm run audit -- \
 | Perplexity | 支持 | 搜索与引用能力由 Provider 管理 |
 | DeepSeek | 支持 | 能力取决于具体模型与端点 |
 | OpenAI-compatible API | 计划中 | 用于自定义网关和兼容服务 |
+
+## Packages
+
+Docker 镜像已发布到 GitHub Container Registry：
+
+```bash
+docker pull ghcr.io/albert-weasker/niubigeo:v0.1.0-alpha
+docker pull ghcr.io/albert-weasker/niubigeo:latest
+```
 
 ## 中文不是附加功能
 
@@ -346,8 +361,16 @@ NiubiGEO 使用 [Apache-2.0](./LICENSE) 许可证。
 欢迎贡献新的 Provider、实体识别规则、来源过滤规则、报告语言和文档。
 
 - 阅读 [CONTRIBUTING.md](./CONTRIBUTING.md)
-- 提交 Bug：[Issues](https://github.com/niubistar/niubigeo/issues)
-- 讨论功能：[Discussions](https://github.com/niubistar/niubigeo/discussions)
+- 提交 Bug：[Issues](https://github.com/Albert-Weasker/niubigeo/issues)
+- 讨论功能：[Discussions](https://github.com/Albert-Weasker/niubigeo/discussions)
+
+## 贡献者
+
+感谢所有参与建设 NiubiGEO 的贡献者。
+
+<a href="https://github.com/Albert-Weasker/niubigeo/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=Albert-Weasker/niubigeo" alt="NiubiGEO contributors" />
+</a>
 
 ---
 
@@ -355,7 +378,7 @@ NiubiGEO 使用 [Apache-2.0](./LICENSE) 许可证。
 
 **输入一个域名，看看 AI 是否会在关键问题里推荐你的产品。**
 
-[开始使用](#3-分钟开始审计) · [提交 Issue](https://github.com/niubistar/niubigeo/issues) · [查看英文文档](./README.md)
+[开始使用](#3-分钟开始审计) · [提交 Issue](https://github.com/Albert-Weasker/niubigeo/issues) · [查看英文文档](./README.md)
 
 Built by [NiubiStar](https://www.niubistar.com/)
 

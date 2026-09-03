@@ -6,7 +6,7 @@
 
 **Enter a domain and see whether AI recommends you, which competitors appear, and which sources shape the answer.**
 
-[简体中文](./README.zh-CN.md) · [Quick start](#3-minute-audit) · [Compare tools](#niubigeo-vs-commercial-ai-visibility-tools) · [How it works](#how-it-works)
+[简体中文](./README.zh-CN.md) · [Quick start](#3-minute-audit) · [Releases](https://github.com/Albert-Weasker/niubigeo/releases) · [Packages](https://github.com/Albert-Weasker/niubigeo/pkgs/container/niubigeo) · [Compare tools](#niubigeo-vs-commercial-ai-visibility-tools)
 
 <br />
 
@@ -110,7 +110,7 @@ NiubiGEO lets you:
 ### Docker
 
 ```bash
-git clone https://github.com/niubistar/niubigeo.git
+git clone https://github.com/Albert-Weasker/niubigeo.git
 cd niubigeo
 cp .env.example .env
 ```
@@ -134,13 +134,19 @@ docker compose up --build
 
 Open [http://localhost:8787](http://localhost:8787), enter a domain, confirm the brand, competitors, and questions, then run the audit.
 
+You can also pull the published image:
+
+```bash
+docker pull ghcr.io/albert-weasker/niubigeo:v0.1.0-alpha
+```
+
 <details>
 <summary><strong>Run with Node.js</strong></summary>
 
 NiubiGEO requires Node.js 22 or newer.
 
 ```bash
-git clone https://github.com/niubistar/niubigeo.git
+git clone https://github.com/Albert-Weasker/niubigeo.git
 cd niubigeo
 cp .env.example .env
 npm install
@@ -186,6 +192,15 @@ Reports are saved in the local `runs/` directory by default.
 | Perplexity | Supported | Search and citation behavior is controlled by the provider |
 | DeepSeek | Supported | Capabilities depend on the selected model and endpoint |
 | OpenAI-compatible API | Planned | For custom gateways and compatible local services |
+
+## Packages
+
+The Docker image is published on GitHub Container Registry:
+
+```bash
+docker pull ghcr.io/albert-weasker/niubigeo:v0.1.0-alpha
+docker pull ghcr.io/albert-weasker/niubigeo:latest
+```
 
 ## Bilingual by design
 
@@ -346,8 +361,16 @@ NiubiGEO is licensed under [Apache-2.0](./LICENSE).
 Contributions are welcome for new providers, entity recognition rules, source filtering rules, report language improvements, and documentation.
 
 - Read [CONTRIBUTING.md](./CONTRIBUTING.md)
-- File bugs in [Issues](https://github.com/niubistar/niubigeo/issues)
-- Discuss features in [Discussions](https://github.com/niubistar/niubigeo/discussions)
+- File bugs in [Issues](https://github.com/Albert-Weasker/niubigeo/issues)
+- Discuss features in [Discussions](https://github.com/Albert-Weasker/niubigeo/discussions)
+
+## Contributors
+
+Thanks to everyone building NiubiGEO.
+
+<a href="https://github.com/Albert-Weasker/niubigeo/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=Albert-Weasker/niubigeo" alt="NiubiGEO contributors" />
+</a>
 
 ---
 
@@ -355,7 +378,7 @@ Contributions are welcome for new providers, entity recognition rules, source fi
 
 **Enter a domain and see whether AI recommends your product for the questions that matter.**
 
-[Get started](#3-minute-audit) · [File an issue](https://github.com/niubistar/niubigeo/issues) · [Read Chinese docs](./README.zh-CN.md)
+[Get started](#3-minute-audit) · [File an issue](https://github.com/Albert-Weasker/niubigeo/issues) · [Read Chinese docs](./README.zh-CN.md)
 
 Built by [NiubiStar](https://www.niubistar.com/)
 
