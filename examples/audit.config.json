@@ -1,0 +1,10 @@
+{
+  "domain": "vercel.com",
+  "name": "Vercel",
+  "competitors": ["netlify.com", "cloudflare.com"],
+  "provider": "openrouter",
+  "model": "openai/gpt-4o-mini",
+  "promptCount": 8,
+  "language": "en",
+  "intervalMinutes": 1440
+}

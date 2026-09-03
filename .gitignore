@@ -1,0 +1,12 @@
+.env
+.env.*
+!.env.example
+node_modules/
+dist/
+runs/
+PROJECT_CONTEXT.md
+NiubiGEO_README_zh-CN*.md
+docs/assets/demo-frames/
+.codex/
+.DS_Store
+npm-debug.log*

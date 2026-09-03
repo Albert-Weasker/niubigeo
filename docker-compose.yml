@@ -1,0 +1,21 @@
+services:
+  niubistar-geo:
+    build: .
+    ports:
+      - "8787:8787"
+    environment:
+      - PORT=8787
+      - RUNS_DIR=/app/runs
+      - OPENROUTER_API_KEY_FILE=/run/secrets/openrouter_api_key
+      - OPENROUTER_KEY_FILE=/run/secrets/openrouter_key
+    secrets:
+      - openrouter_api_key
+      - openrouter_key
+    volumes:
+      - ./runs:/app/runs
+
+secrets:
+  openrouter_api_key:
+    environment: OPENROUTER_API_KEY
+  openrouter_key:
+    environment: OPENROUTER_KEY

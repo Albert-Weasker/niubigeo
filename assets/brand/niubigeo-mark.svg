@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-labelledby="title desc">
+  <title id="title">niubigeo mark</title>
+  <desc id="desc">A black rounded-square mark with a warm geo pin, yellow star, and blue signal ring.</desc>
+  <rect width="96" height="96" rx="22" fill="#111827"/>
+  <path fill="#FFE0C2" stroke="#FFFFFF" stroke-width="3" stroke-linejoin="round" d="M48 16c-17.12 0-31 13.1-31 29.26C17 66.46 48 86 48 86s31-19.54 31-40.74C79 29.1 65.12 16 48 16Z"/>
+  <path fill="none" stroke="#1597A5" stroke-width="3.8" stroke-linecap="round" d="M26 46c6.5-5.3 13.84-7.95 22-7.95S63.5 40.7 70 46"/>
+  <path fill="none" stroke="#1597A5" stroke-width="3.8" stroke-linecap="round" d="M31.5 60.5C36.3 64.16 41.8 66 48 66s11.7-1.84 16.5-5.5"/>
+  <path fill="#FACC15" stroke="#111827" stroke-width="3" stroke-linejoin="round" d="M48 29.5 53.1 42.9 66.5 48 53.1 53.1 48 66.5 42.9 53.1 29.5 48 42.9 42.9 48 29.5Z"/>
+  <circle cx="62.4" cy="33.8" r="3.2" fill="#FFFFFF"/>
+  <circle cx="36.2" cy="64.2" r="2.6" fill="#FFFFFF"/>
+</svg>

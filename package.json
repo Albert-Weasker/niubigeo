@@ -1,0 +1,31 @@
+{
+  "name": "niubigeo",
+  "version": "0.1.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Albert-Weasker/niubigeo.git"
+  },
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "audit": "tsx src/cli.ts audit",
+    "server": "tsx src/server.ts",
+    "schedule": "tsx src/cli.ts schedule",
+    "self-check": "npm run build && node --test dist/**/*.test.js",
+    "verify:real": "tsx src/cli.ts verify-real --provider openrouter --model openai/gpt-4o-mini",
+    "test": "npm run self-check"
+  },
+  "dependencies": {
+    "marked": "^18.0.11"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.0",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

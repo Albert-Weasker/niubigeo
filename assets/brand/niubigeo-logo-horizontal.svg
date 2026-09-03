@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 128" role="img" aria-labelledby="title desc">
+  <title id="title">niubigeo horizontal logo</title>
+  <desc id="desc">Horizontal niubigeo lockup for dashboards and reports.</desc>
+  <rect x="8" y="8" width="112" height="112" rx="26" fill="#111827"/>
+  <path fill="#FFE0C2" stroke="#FFFFFF" stroke-width="3.6" stroke-linejoin="round" d="M64 25c-19.6 0-35.5 14.99-35.5 33.49C28.5 82.76 64 105 64 105s35.5-22.24 35.5-46.51C99.5 39.99 83.6 25 64 25Z"/>
+  <path fill="none" stroke="#1597A5" stroke-width="4.4" stroke-linecap="round" d="M38.8 59.3c7.43-6.06 15.83-9.1 25.2-9.1s17.77 3.04 25.2 9.1"/>
+  <path fill="none" stroke="#1597A5" stroke-width="4.4" stroke-linecap="round" d="M45 75.9c5.5 4.19 11.83 6.28 19 6.28s13.5-2.09 19-6.28"/>
+  <path fill="#FACC15" stroke="#111827" stroke-width="3.6" stroke-linejoin="round" d="M64 39.8 69.85 55.15 85.2 61 69.85 66.85 64 82.2 58.15 66.85 42.8 61 58.15 55.15 64 39.8Z"/>
+  <circle cx="80.6" cy="44.7" r="3.8" fill="#FFFFFF"/>
+  <circle cx="50.5" cy="79.9" r="3.1" fill="#FFFFFF"/>
+  <text x="145" y="76" fill="#111827" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="58" font-weight="850" letter-spacing="0">niubi</text>
+  <text x="278" y="76" fill="#1597A5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="58" font-weight="850" letter-spacing="0">geo</text>
+  <text x="148" y="101" fill="#5B6472" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="15" font-weight="700" letter-spacing="0">AI visibility monitor</text>
+</svg>

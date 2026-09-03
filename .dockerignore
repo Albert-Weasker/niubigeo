@@ -1,0 +1,11 @@
+node_modules
+dist
+runs
+.env
+.env.*
+!.env.example
+PROJECT_CONTEXT.md
+NiubiGEO_README_zh-CN*.md
+docs/assets/demo-frames
+.codex
+.DS_Store
