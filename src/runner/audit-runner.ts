@@ -13,7 +13,7 @@ import type {
   PromptRun,
   ReportBundle,
 } from "../core/types.js";
-import { resolveProviderKey, runsDir } from "../config/env.js";
+import { hasProviderKey, resolveProviderKey, runsDir } from "../config/env.js";
 import { ProviderCatalog } from "../providers/catalog.js";
 import { PromptGenerator, promptsFromManual } from "../prompts/prompt-generator.js";
 import { buildExecutionPrompt } from "../prompts/execution-prompt.js";
@@ -177,11 +177,12 @@ export class AuditRunner {
 
     const firstTarget = providerTargets[0];
     if (!firstTarget) throw new Error("At least one provider target is required.");
-    const profileTarget = selectProfileTarget(providerTargets);
+    const availableTargets = providerTargets.filter((target) => hasProviderKey(target.providerId));
+    const promptTarget = availableTargets[0] || firstTarget;
+    const profileTarget = selectProfileTarget(availableTargets.length ? availableTargets : providerTargets);
     const profileProvider = this.catalog.get(profileTarget.providerId);
-    const profileApiKey = resolveProviderKey(profileTarget.providerId);
-    const firstProvider = this.catalog.get(firstTarget.providerId);
-    const firstApiKey = resolveProviderKey(firstTarget.providerId);
+    const firstProvider = this.catalog.get(promptTarget.providerId);
+    let profileApiKey: string | undefined;
 
     let effectiveTarget = input.target;
     let effectiveCompetitors = input.competitors;
@@ -208,7 +209,8 @@ export class AuditRunner {
         evidence: input.confirmedPlan.promptGeneration,
       };
     } else {
-      if (input.autoDiscover) {
+      if (input.autoDiscover && hasProviderKey(profileTarget.providerId)) {
+        profileApiKey = resolveProviderKey(profileTarget.providerId);
         const discovered = await this.domainProfiler.discover({
           auditId,
           domain: input.submittedDomain || input.target.domain,
@@ -306,8 +308,8 @@ export class AuditRunner {
                 language: input.language,
                 count: input.promptCount,
                 provider: firstProvider,
-                model: firstTarget.model,
-                apiKey: firstApiKey,
+                model: promptTarget.model,
+                apiKey: resolveProviderKey(promptTarget.providerId),
                 store,
               });
     }
@@ -326,15 +328,21 @@ export class AuditRunner {
       }),
     );
 
-    const discoveredCompetitors = await this.discoverCompetitorsFromAnswers({
-      target: effectiveTarget,
-      existingCompetitors: effectiveCompetitors,
-      runs,
-      language: input.language,
-      provider: profileProvider,
-      model: profileTarget.model,
-      apiKey: profileApiKey,
-    });
+    let discoveredCompetitors: DiscoveredCompetitor[] = [];
+    try {
+      const apiKey = profileApiKey || resolveProviderKey(profileTarget.providerId);
+      discoveredCompetitors = await this.discoverCompetitorsFromAnswers({
+        target: effectiveTarget,
+        existingCompetitors: effectiveCompetitors,
+        runs,
+        language: input.language,
+        provider: profileProvider,
+        model: profileTarget.model,
+        apiKey,
+      });
+    } catch {
+      discoveredCompetitors = [];
+    }
     const mergedCompetitors = mergeDiscoveredCompetitors({
       target: effectiveTarget,
       existing: effectiveCompetitors,
@@ -391,7 +399,6 @@ export class AuditRunner {
   }): Promise<PromptRun> {
     const { prompt, providerTarget } = input.task;
     const provider = this.catalog.get(providerTarget.providerId);
-    const apiKey = resolveProviderKey(providerTarget.providerId);
     const id = runId(prompt, providerTarget);
     const runStartedAt = new Date().toISOString();
     const executionPrompt = buildExecutionPrompt(prompt);
@@ -412,6 +419,7 @@ export class AuditRunner {
     };
 
     try {
+      const apiKey = resolveProviderKey(providerTarget.providerId);
       const result = await provider.run({
         prompt: executionPrompt,
         model: providerTarget.model,
