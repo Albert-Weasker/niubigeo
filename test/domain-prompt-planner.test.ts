@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import type { DomainProfile } from "../src/core/types.js";
 import { DomainPromptPlanner } from "../src/prompts/domain-prompt-planner.js";
 import { entityFromInput } from "../src/utils/domain.js";
+import { promptContainsTarget } from "../src/prompts/prompt-generator.js";
 
 test("builds a mixed NiubiStar prompt plan with organic unbranded prompts", () => {
   const target = entityFromInput({ type: "target", domain: "www.niubistar.com", name: "NiubiStar" });
@@ -31,4 +32,12 @@ test("builds a mixed NiubiStar prompt plan with organic unbranded prompts", () =
   assert.ok(prompts.some((prompt) => prompt.targetIncluded === true));
   assert.ok(prompts.filter((prompt) => prompt.targetIncluded === false).length >= 3);
   assert.ok(prompts.some((prompt) => prompt.type === "comparison"));
+});
+
+test("matches short Latin brand names as standalone terms", () => {
+  const target = entityFromInput({ type: "target", domain: "go.dev", name: "Go" });
+
+  assert.equal(promptContainsTarget("What is a good deployment tool?", target), false);
+  assert.equal(promptContainsTarget("Should I use Go for deployment?", target), true);
+  assert.equal(promptContainsTarget("有哪些适合示例的工具？", entityFromInput({ type: "target", domain: "example.com", name: "示例" })), true);
 });
