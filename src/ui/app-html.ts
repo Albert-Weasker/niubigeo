@@ -908,11 +908,17 @@ export function renderAppHtml(): string {
     }
 
     function promptContainsTarget(text, target) {
-      const haystack = String(text || "").toLowerCase();
+      const value = String(text || "");
       const terms = [target?.name, target?.domain].concat(target?.aliases || [])
-        .map((term) => String(term || "").trim().toLowerCase())
+        .map((term) => String(term || "").trim())
         .filter(Boolean);
-      return terms.some((term) => haystack.includes(term));
+      return terms.some((term) => {
+        if (!/^[\\x00-\\x7F]+$/.test(term) || !/[A-Za-z0-9]/.test(term)) {
+          return value.toLowerCase().includes(term.toLowerCase());
+        }
+        const escaped = term.replace(/[.*+?^\${}()|[\\]\\\\]/g, "\\\\$&");
+        return new RegExp("(?<![A-Za-z0-9])" + escaped + "(?![A-Za-z0-9])", "i").test(value);
+      });
     }
 
     function planCounts(plan) {
