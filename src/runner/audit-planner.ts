@@ -9,7 +9,7 @@ import type {
   ProviderTarget,
 } from "../core/types.js";
 import { ANALYSIS_RULES_VERSION, PROMPT_SET_VERSION } from "../core/version.js";
-import { resolveProviderKey, runsDir } from "../config/env.js";
+import { hasProviderKey, resolveProviderKey, runsDir } from "../config/env.js";
 import { ProviderCatalog } from "../providers/catalog.js";
 import { PromptGenerator, promptsFromManual } from "../prompts/prompt-generator.js";
 import { DomainProfiler } from "../profile/domain-profiler.js";
@@ -130,11 +130,11 @@ export class AuditPlanner {
     const store = new FileStore(input.runsRoot || runsDir());
     const firstTarget = input.providerTargets[0];
     if (!firstTarget) throw new Error("At least one provider target is required.");
-    const firstProvider = this.catalog.get(firstTarget.providerId);
-    const firstApiKey = resolveProviderKey(firstTarget.providerId);
-    const profileTarget = selectProfileTarget(input.providerTargets);
+    const availableTargets = input.providerTargets.filter((target) => hasProviderKey(target.providerId));
+    const promptTarget = availableTargets[0] || firstTarget;
+    const firstProvider = this.catalog.get(promptTarget.providerId);
+    const profileTarget = selectProfileTarget(availableTargets.length ? availableTargets : input.providerTargets);
     const profileProvider = this.catalog.get(profileTarget.providerId);
-    const profileApiKey = resolveProviderKey(profileTarget.providerId);
 
     let effectiveTarget = input.target;
     let effectiveCompetitors = input.competitors;
@@ -142,7 +142,8 @@ export class AuditPlanner {
     let discoveryEvidence: AuditPlan["discoveryEvidence"];
     let discoveredPrompts: MonitoringPrompt[] = [];
 
-    if (input.autoDiscover) {
+    if (input.autoDiscover && hasProviderKey(profileTarget.providerId)) {
+      const profileApiKey = resolveProviderKey(profileTarget.providerId);
       const discovered = await this.domainProfiler.discover({
         auditId: planId,
         domain: input.submittedDomain || input.target.domain,
@@ -232,8 +233,8 @@ export class AuditPlanner {
         language: input.language,
         count: input.promptCount,
         provider: firstProvider,
-        model: firstTarget.model,
-        apiKey: firstApiKey,
+        model: promptTarget.model,
+        apiKey: resolveProviderKey(promptTarget.providerId),
         store,
       });
       generatedPrompts = generated.prompts;
