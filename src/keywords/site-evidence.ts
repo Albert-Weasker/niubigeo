@@ -118,9 +118,9 @@ function valuesFromJsonLd(input: unknown, key: "name" | "description" | "keyword
 }
 
 export function extractSiteEvidencePage(input: { url: string; html: string }): SiteEvidencePage {
+  const jsonLd = jsonLdScripts(input.html);
   const html = stripHtml(input.html);
   const metaKeywords = metaValues(html, ["keywords"]).flatMap(splitKeywords);
-  const jsonLd = jsonLdScripts(html);
   const jsonLdKeywords = jsonLd.flatMap((row) => valuesFromJsonLd(row, "keywords"));
   const jsonLdNames = jsonLd.flatMap((row) => valuesFromJsonLd(row, "name"));
   const jsonLdDescriptions = jsonLd.flatMap((row) => valuesFromJsonLd(row, "description"));
