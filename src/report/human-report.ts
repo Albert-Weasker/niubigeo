@@ -300,7 +300,10 @@ function sourceName(run: PromptRun): string {
 
 function searchSummary(run: PromptRun, locale: HumanReportLocale): string {
   const search = run.search || run.result?.search;
-  if (!search?.used) return fallback(locale, "未联网", "No web search");
+  if (!search?.used) {
+    if (search?.requested) return fallback(locale, "联网未确认", "Search unconfirmed");
+    return fallback(locale, "未联网", "No web search");
+  }
   if (search.usedMode === "provider_always_on") return fallback(locale, "Provider 天然联网", "Provider web-grounded");
   return fallback(locale, "Provider 原生联网", "Provider-native web search");
 }

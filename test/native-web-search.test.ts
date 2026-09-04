@@ -71,7 +71,7 @@ test("OpenRouter sends its web plugin only when web search is enabled", async ()
   mockFetch(
     {
       model: "openai/gpt-4o-mini",
-      choices: [{ message: { content: "NiubiGEO is mentioned.", annotations: [] } }],
+      choices: [{ message: { content: "NiubiGEO is mentioned.", annotations: [{ url: "https://niubigeo.ai/", title: "NiubiGEO" }] } }],
       usage: { prompt_tokens: 1, completion_tokens: 2, total_tokens: 3 },
     },
     captured,
@@ -94,6 +94,33 @@ test("OpenRouter sends its web plugin only when web search is enabled", async ()
   assert.deepEqual(onPlugins, [{ id: "web" }]);
   assert.equal(result.search?.usedMode, "provider_native");
   assert.equal(result.search?.toolName, "openrouter:web");
+});
+
+test("does not report optional web search as used without response evidence", async () => {
+  const captured: CapturedRequest[] = [];
+  mockFetch(
+    {
+      model: "openai/gpt-4o-mini",
+      choices: [{ message: { content: "NiubiGEO is mentioned.", annotations: [] } }],
+      usage: { prompt_tokens: 1, completion_tokens: 2, total_tokens: 3 },
+    },
+    captured,
+  );
+  const provider = new OpenAICompatibleProvider({
+    definition: definition("openrouter", "OpenRouter"),
+    endpoint: "https://openrouter.ai/api/v1/chat/completions",
+    nativeWebSearch: {
+      toolName: "openrouter:web",
+      bodyPatch: { plugins: [{ id: "web" }] },
+    },
+  });
+
+  const result = await provider.run(input({ webSearchEnabled: true }));
+
+  assert.deepEqual(captured[0]?.body.plugins, [{ id: "web" }]);
+  assert.equal(result.search?.requested, true);
+  assert.equal(result.search?.used, false);
+  assert.equal(result.search?.usedMode, "requested_not_confirmed");
 });
 
 test("OpenAI-compatible provider can request JSON object output for analyzer calls", async () => {

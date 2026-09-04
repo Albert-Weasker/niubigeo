@@ -34,9 +34,16 @@ export function makeSearchExecution(input: {
   const requested = Boolean(input.runInput.webSearchEnabled);
   const requestMode = input.runInput.webSearchMode || "auto";
   const alwaysOn = Boolean(input.alwaysOn);
-  const used = requested || alwaysOn;
-  const usedMode: WebSearchUsedMode = used ? (alwaysOn && !requested ? "provider_always_on" : "provider_native") : "none";
   const webQueries = uniqueStrings(input.webQueries || []);
+  const hasExecutionEvidence = webQueries.length > 0 || (input.citationCount || 0) > 0;
+  const used = alwaysOn || (requested && hasExecutionEvidence);
+  const usedMode: WebSearchUsedMode = alwaysOn && !requested
+    ? "provider_always_on"
+    : used
+      ? "provider_native"
+      : requested
+        ? "requested_not_confirmed"
+        : "none";
   return {
     requested,
     requestMode,
@@ -45,9 +52,9 @@ export function makeSearchExecution(input: {
     endpointKind: input.endpointKind,
     endpointProtocol: input.endpointProtocol,
     endpointUrl: input.endpointUrl,
-    toolName: used ? input.toolName : undefined,
+    toolName: requested || alwaysOn ? input.toolName : undefined,
     webQueries,
-    citationCount: used ? input.citationCount || 0 : 0,
+    citationCount: input.citationCount || 0,
     note: input.note,
   };
 }

@@ -44,8 +44,8 @@ Each completed run can store:
 {
   "requested": true,
   "requestMode": "auto",
-  "used": true,
-  "usedMode": "provider_native",
+  "used": false,
+  "usedMode": "requested_not_confirmed",
   "endpointKind": "official_api",
   "endpointProtocol": "responses",
   "endpointUrl": "https://api.openai.com/v1/responses",
@@ -55,4 +55,6 @@ Each completed run can store:
 }
 ```
 
-This metadata is for source transparency. The user-facing report should still explain it in plain language such as `No web search`, `Provider-native web search`, or `Provider web-grounded`.
+`requested` means the provider-native search option was sent. `used` is true only when the response contains search evidence, except for providers that are always web-grounded such as Perplexity. If a provider accepts the option but returns no search evidence, the report shows `Search unconfirmed`.
+
+This metadata is for source transparency. The user-facing report should explain the distinction in plain language such as `No web search`, `Search unconfirmed`, `Provider-native web search`, or `Provider web-grounded`.

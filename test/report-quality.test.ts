@@ -7,6 +7,7 @@ import { GeoGapAnalyzer } from "../src/insights/gap-analyzer.js";
 import { ReportBuilder } from "../src/report/report-builder.js";
 import { ReportModelBuilder } from "../src/report/report-model.js";
 import { validateReport } from "../src/report/report-quality.js";
+import { buildHumanReport } from "../src/report/human-report.js";
 
 const target = entityFromInput({ type: "target", domain: "vercel.com", name: "Vercel" });
 const competitor = entityFromInput({ type: "competitor", domain: "netlify.com", name: "Netlify" });
@@ -246,4 +247,26 @@ test("Chinese audit report renders user-facing Chinese sections and actual answe
   assert.equal(html.includes("技术证据"), false);
   assert.equal(html.includes("原始 JSON"), false);
   assert.equal(html.includes("提及率"), false);
+});
+
+test("report distinguishes requested web search from confirmed execution", () => {
+  const run = makeRun({
+    webSearchEnabled: false,
+    search: {
+      requested: true,
+      requestMode: "auto",
+      used: false,
+      usedMode: "requested_not_confirmed",
+      endpointKind: "official_api",
+      endpointProtocol: "chat_completions",
+      endpointUrl: "https://openrouter.ai/api/v1/chat/completions",
+      toolName: "openrouter:web",
+      webQueries: [],
+      citationCount: 0,
+    },
+  });
+
+  const report = buildHumanReport(buildAudit(run));
+
+  assert.equal(report.sections.answers[0]?.webSearch, "Search unconfirmed");
 });

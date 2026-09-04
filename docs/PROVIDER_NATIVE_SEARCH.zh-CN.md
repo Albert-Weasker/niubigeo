@@ -44,8 +44,8 @@ NiubiGEO 把联网能力放在 Provider 执行层，而不是报告展示层。
 {
   "requested": true,
   "requestMode": "auto",
-  "used": true,
-  "usedMode": "provider_native",
+  "used": false,
+  "usedMode": "requested_not_confirmed",
   "endpointKind": "official_api",
   "endpointProtocol": "responses",
   "endpointUrl": "https://api.openai.com/v1/responses",
@@ -55,4 +55,6 @@ NiubiGEO 把联网能力放在 Provider 执行层，而不是报告展示层。
 }
 ```
 
-这些字段用于来源透明。用户报告里仍然只用普通语言展示，例如“未联网”“Provider 原生联网”或“Provider 天然联网”。
+`requested` 表示请求中发送了 Provider 原生搜索选项；`used` 只有在响应中出现搜索证据时才为 `true`。Perplexity 这类天然联网的 Provider 例外处理。如果 Provider 接受了搜索选项，但响应中没有搜索查询或原生引用，报告会显示“联网未确认”。
+
+这些字段用于来源透明。用户报告里会区分“未联网”“联网未确认”“Provider 原生联网”和“Provider 天然联网”。
