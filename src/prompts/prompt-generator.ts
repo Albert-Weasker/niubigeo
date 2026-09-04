@@ -87,12 +87,53 @@ export function promptContainsTarget(prompt: string, target: Entity): boolean {
   });
 }
 
+function hasAny(value: string, terms: string[]): boolean {
+  return terms.some((term) => value.includes(term));
+}
+
 function inferPromptType(prompt: string): PromptType {
   const lower = prompt.toLowerCase();
-  if (lower.includes("alternative")) return "alternative";
-  if (lower.includes(" vs ") || lower.includes("compare") || lower.includes("difference")) return "comparison";
-  if (lower.includes("recommend") || lower.includes("best")) return "recommendation";
-  if (lower.includes("how ")) return "scenario";
+  if (hasAny(lower, ["alternative", "alternatives", "替代", "替代品", "替代方案", "类似产品", "类似工具"])) return "alternative";
+  if (
+    hasAny(lower, [
+      " vs ",
+      " versus ",
+      "compare",
+      "comparison",
+      "difference",
+      "differences",
+      "对比",
+      "比较",
+      "区别",
+      "差异",
+      "相比",
+      "竞品对比",
+    ])
+  ) {
+    return "comparison";
+  }
+  if (
+    hasAny(lower, [
+      "recommend",
+      "recommendation",
+      "best",
+      "top",
+      "推荐",
+      "最好",
+      "最佳",
+      "值得考虑",
+      "值得关注",
+      "应该选择",
+      "哪款",
+      "哪家",
+    ])
+  ) {
+    return "recommendation";
+  }
+  if (hasAny(lower, ["what is", "what does", "是什么", "是做什么", "提供什么", "解决什么问题", "适合哪些用户"])) {
+    return "brand";
+  }
+  if (hasAny(lower, ["how ", "how can", "how should", "如何", "怎么", "怎样", "该怎么", "应该如何"])) return "scenario";
   return "category";
 }
 
