@@ -35,3 +35,12 @@ test("collects JSON-LD before stripping ordinary scripts from page text", () => 
   assert.deepEqual(page.jsonLdKeywords, ["AI agent audit", "token usage evidence"]);
   assert.equal(page.textSnippet?.includes("this should not appear in the text snippet"), false);
 });
+
+test("accepts valid unquoted JSON-LD type attributes", () => {
+  const page = extractSiteEvidencePage({
+    url: "https://example.dev/",
+    html: `<script TYPE = application/ld+json>{"name":"Unquoted metadata"}</script>`,
+  });
+
+  assert.deepEqual(page.jsonLdNames, ["Unquoted metadata"]);
+});
