@@ -48,7 +48,7 @@ export type CitationSource =
 
 export type WebSearchRequestMode = "auto" | "provider_native";
 
-export type WebSearchUsedMode = "none" | "provider_native" | "provider_always_on";
+export type WebSearchUsedMode = "none" | "requested_not_confirmed" | "provider_native" | "provider_always_on";
 
 export type ProviderEndpointKind = "official_api" | "custom_gateway";
 
