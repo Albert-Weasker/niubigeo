@@ -1,0 +1,30 @@
+name: Feature request
+description: Suggest an improvement for NiubiGEO.
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please describe the user problem first. Clear product context helps keep the project focused.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem should this solve?
+      description: Explain the workflow, report gap, provider gap, or analysis need.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What would you like NiubiGEO to add or change?
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Optional. Mention any workaround or different approach.
+    validations:
+      required: false

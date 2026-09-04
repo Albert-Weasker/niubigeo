@@ -1,0 +1,19 @@
+name: Question
+description: Ask a usage or setup question.
+title: "[Question]: "
+labels: ["question"]
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      description: What are you trying to do?
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Include commands, provider/model, domain, language, or screenshots if relevant.
+    validations:
+      required: false

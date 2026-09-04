@@ -1,0 +1,54 @@
+name: Bug report
+description: Report something that is broken or confusing in NiubiGEO.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve NiubiGEO. Please include enough detail for maintainers to reproduce the issue.
+  - type: input
+    id: version
+    attributes:
+      label: NiubiGEO version or commit
+      description: For example, v0.1.0-alpha or a commit SHA.
+      placeholder: v0.1.0-alpha
+    validations:
+      required: false
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Describe the bug, confusing behavior, or incorrect output.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Include the command, UI steps, domain, provider, model, and language if relevant.
+      placeholder: |
+        1. Run ...
+        2. Open ...
+        3. See ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What did you expect NiubiGEO to do?
+    validations:
+      required: false
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Node.js version, Docker version, OS, browser, and provider used.
+      placeholder: |
+        OS:
+        Node:
+        Docker:
+        Provider/model:
+    validations:
+      required: false
