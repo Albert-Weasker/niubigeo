@@ -47,7 +47,7 @@ function profileTargetScore(target: ProviderTarget): number {
   const model = target.model.toLowerCase();
   if (target.webSearchEnabled) return 4;
   if (target.providerId === "perplexity" || model.includes("perplexity/") || model.includes("sonar")) return 3;
-  if (target.providerId === "openrouter" && /search|online|web/i.test(target.model)) return 2;
+  if (target.providerId === "openrouter" && (model.includes("search") || model.includes("online") || model.includes("web"))) return 2;
   return 1;
 }
 
@@ -66,6 +66,7 @@ function promptSetHash(input: { prompts: MonitoringPrompt[]; providerTargets: Pr
         providerId: target.providerId,
         model: target.model,
         webSearchEnabled: Boolean(target.webSearchEnabled),
+        webSearchMode: target.webSearchMode || "auto",
       })),
       prompts: input.prompts.map((prompt) => ({
         type: prompt.type,

@@ -15,6 +15,7 @@ import type {
 } from "../core/types.js";
 import { resolveProviderKey, runsDir } from "../config/env.js";
 import { ProviderCatalog } from "../providers/catalog.js";
+import { runProviderWithRetry } from "../providers/provider-retry.js";
 import { PromptGenerator, promptsFromManual } from "../prompts/prompt-generator.js";
 import { buildExecutionPrompt } from "../prompts/execution-prompt.js";
 import { DomainProfiler } from "../profile/domain-profiler.js";
@@ -32,6 +33,7 @@ import { KeywordUniverseBuilder } from "../keywords/keyword-universe.js";
 import { KeywordRelevanceScorer } from "../keywords/keyword-relevance.js";
 import { KeywordPromptPlanner } from "../prompts/keyword-prompt-planner.js";
 import { ANALYSIS_RULES_VERSION, PROMPT_SET_VERSION } from "../core/version.js";
+import { IntentResultPipeline } from "../intent/intent-result-pipeline.js";
 
 export interface AuditRunnerInput {
   target: Entity;
@@ -165,6 +167,7 @@ export class AuditRunner {
   private readonly keywordPromptPlanner = new KeywordPromptPlanner();
   private readonly reportModelBuilder = new ReportModelBuilder();
   private readonly reportBuilder = new ReportBuilder();
+  private readonly intentResultPipeline = new IntentResultPipeline();
 
   async run(input: AuditRunnerInput): Promise<AuditRunnerOutput> {
     const providerTargets = input.confirmedPlan?.providerTargets || input.providerTargets;
@@ -404,6 +407,7 @@ export class AuditRunner {
       providerId: providerTarget.providerId,
       model: providerTarget.model,
       webSearchEnabled: providerTarget.webSearchEnabled ?? false,
+      search: undefined,
       sourceType: provider.definition.sourceType,
       sourceLabel: `Source: ${provider.definition.label} API`,
       status: "failed",
@@ -412,13 +416,14 @@ export class AuditRunner {
     };
 
     try {
-      const result = await provider.run({
+      const result = await runProviderWithRetry(provider, {
         prompt: executionPrompt,
         model: providerTarget.model,
         apiKey,
         maxTokens: input.maxTokens,
         temperature: input.temperature,
         webSearchEnabled: providerTarget.webSearchEnabled ?? false,
+        webSearchMode: providerTarget.webSearchMode || "auto",
       });
       const citations = result.citations.map((citation) => ({ ...citation, promptId: prompt.id, runId: id }));
       const analysis = this.analyzer.analyze({
@@ -427,12 +432,25 @@ export class AuditRunner {
         target: input.target,
         competitors: input.competitors,
       });
+      const intentAnalysis = await this.intentResultPipeline.analyze({
+        userQuestion: prompt.text,
+        target: input.target,
+        answerText: result.text,
+        citations: analysis.citations,
+        provider,
+        model: providerTarget.model,
+        apiKey,
+        language: prompt.language,
+      });
       run = {
         ...run,
         status: "completed",
         finishedAt: new Date().toISOString(),
+        webSearchEnabled: result.search?.used ?? (providerTarget.webSearchEnabled ?? false),
+        search: result.search,
         result: { ...result, rawJson: null, citations: analysis.citations },
         analysis,
+        intentAnalysis,
       };
     } catch (error) {
       run = {

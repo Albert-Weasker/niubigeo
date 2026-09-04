@@ -80,6 +80,66 @@ export function extractAnnotationCitations(raw: unknown): Citation[] {
   return dedupeCitations(citations);
 }
 
+function collectAnnotationCitations(annotations: unknown[], citations: Citation[]): void {
+  for (const annotation of annotations) {
+    const obj = asObject(annotation);
+    if (!obj) continue;
+    const directUrl = typeof obj.url === "string" ? obj.url : undefined;
+    const directTitle = typeof obj.title === "string" ? obj.title : undefined;
+    if (directUrl) {
+      const citation = citationFromUrl(directUrl, directTitle, citations.length, "provider_annotation");
+      if (citation) citations.push(citation);
+      continue;
+    }
+    const nested = asObject(obj.url_citation);
+    const nestedUrl = typeof nested?.url === "string" ? nested.url : undefined;
+    const nestedTitle = typeof nested?.title === "string" ? nested.title : undefined;
+    if (nestedUrl) {
+      const citation = citationFromUrl(nestedUrl, nestedTitle, citations.length, "provider_annotation");
+      if (citation) citations.push(citation);
+    }
+  }
+}
+
+export function extractResponseCitations(raw: unknown): Citation[] {
+  const root = asObject(raw);
+  const output = Array.isArray(root?.output) ? root.output : [];
+  const citations: Citation[] = [];
+
+  for (const item of output) {
+    const itemObject = asObject(item);
+    const content = Array.isArray(itemObject?.content) ? itemObject.content : [];
+    for (const part of content) {
+      const partObject = asObject(part);
+      const annotations = Array.isArray(partObject?.annotations) ? partObject.annotations : [];
+      collectAnnotationCitations(annotations, citations);
+    }
+  }
+
+  return dedupeCitations(citations);
+}
+
+export function extractAnthropicCitations(raw: unknown): Citation[] {
+  const root = asObject(raw);
+  const content = Array.isArray(root?.content) ? root.content : [];
+  const citations: Citation[] = [];
+
+  for (const part of content) {
+    const block = asObject(part);
+    const blockCitations = Array.isArray(block?.citations) ? block.citations : [];
+    for (const citationValue of blockCitations) {
+      const citationObject = asObject(citationValue);
+      const url = typeof citationObject?.url === "string" ? citationObject.url : undefined;
+      const title = typeof citationObject?.title === "string" ? citationObject.title : undefined;
+      if (!url) continue;
+      const citation = citationFromUrl(url, title, citations.length, "provider_annotation");
+      if (citation) citations.push(citation);
+    }
+  }
+
+  return dedupeCitations(citations);
+}
+
 export function extractPerplexityCitations(raw: unknown): Citation[] {
   const root = asObject(raw);
   const citations: Citation[] = [];

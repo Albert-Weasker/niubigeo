@@ -1,7 +1,7 @@
 import type { AuditReportModel } from "./report-model.js";
 import { htmlEscape } from "./format.js";
 import { PRODUCT_NAME, renderNiubigeoMarkSvg } from "../ui/brand.js";
-import type { EvidenceStatement, HumanReport, SourceStory } from "./human-report.js";
+import type { AnswerStory, EvidenceStatement, HumanReport, SourceStory } from "./human-report.js";
 import { buildHumanReport } from "./human-report.js";
 
 type Copy = {
@@ -41,10 +41,19 @@ type Copy = {
     question: string;
     aiSource: string;
     model: string;
+    webSearch: string;
     mentionsBrand: string;
     competitorsMentioned: string;
     citedSources: string;
     actualAnswer: string;
+    questionResult: string;
+    userAskedFor: string;
+    aiAnswered: string;
+    aiMissed: string;
+    uncertain: string;
+    taskCompletion: string;
+    entityRelationships: string;
+    evidenceQuote: string;
     yes: string;
     no: string;
     none: string;
@@ -90,10 +99,19 @@ const COPY: Record<HumanReport["locale"], Copy> = {
       question: "用户问题",
       aiSource: "AI来源",
       model: "模型",
+      webSearch: "联网状态",
       mentionsBrand: "是否提到你的品牌",
       competitorsMentioned: "提到的竞争对手",
       citedSources: "引用来源",
       actualAnswer: "AI实际回答",
+      questionResult: "这条问题的结果",
+      userAskedFor: "用户想知道",
+      aiAnswered: "AI回答了什么",
+      aiMissed: "AI漏了什么",
+      uncertain: "不确定",
+      taskCompletion: "任务完成情况",
+      entityRelationships: "实体关系",
+      evidenceQuote: "证据片段",
       yes: "是",
       no: "否",
       none: "无",
@@ -137,10 +155,19 @@ const COPY: Record<HumanReport["locale"], Copy> = {
       question: "User question",
       aiSource: "AI source",
       model: "Model",
+      webSearch: "Web access",
       mentionsBrand: "Mentions your brand",
       competitorsMentioned: "Competitors mentioned",
       citedSources: "Cited sources",
       actualAnswer: "Actual AI answer",
+      questionResult: "Question result",
+      userAskedFor: "User asked for",
+      aiAnswered: "What AI answered",
+      aiMissed: "What AI missed",
+      uncertain: "Uncertain",
+      taskCompletion: "Task completion",
+      entityRelationships: "Entity relationships",
+      evidenceQuote: "Evidence quote",
       yes: "Yes",
       no: "No",
       none: "None",
@@ -318,6 +345,66 @@ function renderCompetitionSection(report: HumanReport, copy: Copy): string {
   </div>`;
 }
 
+function renderMiniList(title: string, items: string[], copy: Copy): string {
+  if (items.length === 0) return "";
+  return `<div class="intent-block">
+    <h4>${htmlEscape(title)}</h4>
+    <ul>${items.map((item) => `<li>${htmlEscape(item)}</li>`).join("")}</ul>
+  </div>`;
+}
+
+function taskStatusLabel(status: string, copy: Copy): string {
+  if (status === "completed") return copy.lang === "zh-CN" ? "已完成" : "Completed";
+  if (status === "partial") return copy.lang === "zh-CN" ? "部分完成" : "Partial";
+  if (status === "missing") return copy.lang === "zh-CN" ? "未完成" : "Missing";
+  return copy.lang === "zh-CN" ? "无法判断" : "Unknown";
+}
+
+function renderIntentDetails(answer: AnswerStory, copy: Copy): string {
+  const intent = answer.intentAnalysis;
+  if (!intent || intent.status !== "completed") return "";
+  const result = intent.adaptedResult;
+  const requested = intent.promptIntent.requestedOutputs.length ? intent.promptIntent.requestedOutputs : [result.userQuestion];
+  const taskItems = intent.tasks.map((task) => {
+    const assessment = intent.taskResults.find((item) => item.taskId === task.id);
+    const quote = assessment?.evidenceQuote
+      ? `<blockquote><strong>${htmlEscape(copy.labels.evidenceQuote)}：</strong>${htmlEscape(assessment.evidenceQuote)}</blockquote>`
+      : "";
+    const explanation = assessment?.explanation ? `<p>${htmlEscape(assessment.explanation)}</p>` : "";
+    return `<li>
+      <strong>${htmlEscape(task.requirement)}</strong>
+      <span>${htmlEscape(taskStatusLabel(assessment?.status || "unknown", copy))}</span>
+      ${explanation}
+      ${quote}
+    </li>`;
+  });
+  const entityItems = intent.entities.slice(0, 8).map((entity) => {
+    const detail = entity.explanation || `${entity.name}: ${entity.relationshipToQuestion}`;
+    return `<li>
+      <strong>${htmlEscape(entity.name)}</strong>
+      <span>${htmlEscape(detail)}</span>
+    </li>`;
+  });
+  return `<div class="intent-result">
+    <h4>${htmlEscape(copy.labels.questionResult)}</h4>
+    <p class="intent-one">${htmlEscape(result.oneSentence)}</p>
+    ${renderMiniList(copy.labels.userAskedFor, requested, copy)}
+    ${renderMiniList(copy.labels.aiAnswered, result.answered, copy)}
+    ${renderMiniList(copy.labels.aiMissed, result.missing, copy)}
+    ${renderMiniList(copy.labels.uncertain, result.uncertain, copy)}
+    ${
+      taskItems.length
+        ? `<div class="intent-block task-block"><h4>${htmlEscape(copy.labels.taskCompletion)}</h4><ul>${taskItems.join("")}</ul></div>`
+        : ""
+    }
+    ${
+      entityItems.length
+        ? `<div class="intent-block entity-block"><h4>${htmlEscape(copy.labels.entityRelationships)}</h4><ul>${entityItems.join("")}</ul></div>`
+        : ""
+    }
+  </div>`;
+}
+
 function renderAnswers(report: HumanReport, copy: Copy): string {
   if (report.sections.answers.length === 0) {
     return `<p class="empty">${htmlEscape(report.locale === "zh" ? "本次没有可展示的 AI 回答。" : "No AI answers are available for this run.")}</p>`;
@@ -334,9 +421,15 @@ function renderAnswers(report: HumanReport, copy: Copy): string {
             <div><dt>${htmlEscape(copy.labels.question)}</dt><dd>${htmlEscape(answer.prompt)}</dd></div>
             <div><dt>${htmlEscape(copy.labels.aiSource)}</dt><dd>${htmlEscape(answer.sourceName)}</dd></div>
             <div><dt>${htmlEscape(copy.labels.model)}</dt><dd>${htmlEscape(answer.model)}</dd></div>
-            <div><dt>${htmlEscape(copy.labels.mentionsBrand)}</dt><dd>${htmlEscape(answer.targetMentioned ? copy.labels.yes : copy.labels.no)}</dd></div>
-            <div><dt>${htmlEscape(copy.labels.competitorsMentioned)}</dt><dd>${htmlEscape(answer.competitorsMentioned.join(", ") || copy.labels.none)}</dd></div>
+            <div><dt>${htmlEscape(copy.labels.webSearch)}</dt><dd>${htmlEscape(answer.webSearch)}</dd></div>
+            ${
+              answer.intentAnalysis?.status === "completed"
+                ? ""
+                : `<div><dt>${htmlEscape(copy.labels.mentionsBrand)}</dt><dd>${htmlEscape(answer.targetMentioned ? copy.labels.yes : copy.labels.no)}</dd></div>
+            <div><dt>${htmlEscape(copy.labels.competitorsMentioned)}</dt><dd>${htmlEscape(answer.competitorsMentioned.join(", ") || copy.labels.none)}</dd></div>`
+            }
           </dl>
+          ${renderIntentDetails(answer, copy)}
           <div class="answer-sources">
             <h4>${htmlEscape(copy.labels.citedSources)}</h4>
             ${
@@ -715,6 +808,62 @@ function renderStyle(): string {
       margin: 2px 0 0;
       font-weight: 650;
       overflow-wrap: anywhere;
+    }
+    .intent-result {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: #fbfaf5;
+      display: grid;
+      gap: 12px;
+    }
+    .intent-result h4,
+    .intent-block h4 {
+      margin: 0;
+      font-size: 13px;
+      letter-spacing: 0;
+    }
+    .intent-one {
+      margin: 0;
+      font-weight: 760;
+    }
+    .intent-block {
+      display: grid;
+      gap: 6px;
+    }
+    .intent-block ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+    .intent-block li {
+      margin: 5px 0;
+    }
+    .task-block li,
+    .entity-block li {
+      display: grid;
+      gap: 4px;
+      padding: 8px 0;
+      border-top: 1px solid #ece6d9;
+    }
+    .task-block li:first-child,
+    .entity-block li:first-child {
+      border-top: 0;
+    }
+    .task-block span,
+    .entity-block span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .task-block p {
+      margin: 0;
+      color: #282622;
+    }
+    blockquote {
+      margin: 0;
+      padding: 9px 10px;
+      border-left: 3px solid var(--strong);
+      background: #fffefa;
+      color: #38342f;
     }
     .answer-sources ul {
       margin: 0;

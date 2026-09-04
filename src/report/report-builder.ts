@@ -2,7 +2,7 @@ import type { AuditMetrics, AuditRun, Citation } from "../core/types.js";
 import type { AuditReportModel } from "./report-model.js";
 import { csvEscape, mdEscape } from "./format.js";
 import { renderDashboardHtml } from "./report-html.js";
-import type { EvidenceStatement, HumanReport, SourceStory } from "./human-report.js";
+import type { AnswerStory, EvidenceStatement, HumanReport, SourceStory } from "./human-report.js";
 import { buildHumanReport } from "./human-report.js";
 
 function completedCitations(audit: AuditRun): Citation[] {
@@ -139,6 +139,52 @@ function renderAllSources(report: HumanReport): string[] {
   ];
 }
 
+function statusLabel(status: string, report: HumanReport): string {
+  if (status === "completed") return report.locale === "zh" ? "已完成" : "Completed";
+  if (status === "partial") return report.locale === "zh" ? "部分完成" : "Partial";
+  if (status === "missing") return report.locale === "zh" ? "未完成" : "Missing";
+  return report.locale === "zh" ? "无法判断" : "Unknown";
+}
+
+function renderIntentAnswerDetails(answer: AnswerStory, report: HumanReport): string[] {
+  const intent = answer.intentAnalysis;
+  if (!intent || intent.status !== "completed") {
+    return [
+      `- ${report.locale === "zh" ? "提到的竞争对手" : "Competitors mentioned"}：${mdEscape(answer.competitorsMentioned.join(", ") || (report.locale === "zh" ? "无" : "None"))}`,
+    ];
+  }
+  const labels =
+    report.locale === "zh"
+      ? { asked: "用户想知道", answered: "AI回答了什么", missed: "AI漏了什么", uncertain: "不确定", tasks: "任务完成情况", entities: "实体关系", quote: "证据片段" }
+      : { asked: "User asked for", answered: "What AI answered", missed: "What AI missed", uncertain: "Uncertain", tasks: "Task completion", entities: "Entity relationships", quote: "Evidence quote" };
+  const requested = intent.promptIntent.requestedOutputs.length ? intent.promptIntent.requestedOutputs : [answer.prompt];
+  const taskLines = intent.tasks.flatMap((task) => {
+    const assessment = intent.taskResults.find((item) => item.taskId === task.id);
+    const lines = [`  - ${mdEscape(task.requirement)}：${mdEscape(statusLabel(assessment?.status || "unknown", report))}`];
+    if (assessment?.explanation) lines.push(`    - ${mdEscape(assessment.explanation)}`);
+    if (assessment?.evidenceQuote) lines.push(`    - ${labels.quote}：${mdEscape(assessment.evidenceQuote)}`);
+    return lines;
+  });
+  return [
+    `- ${report.locale === "zh" ? "这条问题的结果" : "Question result"}：${mdEscape(intent.adaptedResult.oneSentence)}`,
+    `- ${labels.asked}：${mdEscape(requested.join(report.locale === "zh" ? "；" : "; "))}`,
+    ...(intent.adaptedResult.answered.length ? [`- ${labels.answered}：${mdEscape(intent.adaptedResult.answered.join(report.locale === "zh" ? "；" : "; "))}`] : []),
+    ...(intent.adaptedResult.missing.length ? [`- ${labels.missed}：${mdEscape(intent.adaptedResult.missing.join(report.locale === "zh" ? "；" : "; "))}`] : []),
+    ...(intent.adaptedResult.uncertain.length ? [`- ${labels.uncertain}：${mdEscape(intent.adaptedResult.uncertain.join(report.locale === "zh" ? "；" : "; "))}`] : []),
+    ...(taskLines.length ? [`- ${labels.tasks}：`, ...taskLines] : []),
+    ...(intent.entities.length
+      ? [
+          `- ${labels.entities}：${mdEscape(
+            intent.entities
+              .slice(0, 8)
+              .map((entity) => `${entity.name}: ${entity.explanation || entity.relationshipToQuestion}`)
+              .join(report.locale === "zh" ? "；" : "; "),
+          )}`,
+        ]
+      : []),
+  ];
+}
+
 function renderAnswers(report: HumanReport): string[] {
   if (report.sections.answers.length === 0) return [noEvidence(report.locale, "本次没有可展示的 AI 回答。", "No AI answers are available for this run.")];
   return report.sections.answers.flatMap((answer) => [
@@ -149,7 +195,8 @@ function renderAnswers(report: HumanReport): string[] {
     `- ${report.locale === "zh" ? "结论" : "Result"}：${mdEscape(answer.summary)}`,
     `- ${report.locale === "zh" ? "AI来源" : "AI source"}：${mdEscape(answer.sourceName)}`,
     `- ${report.locale === "zh" ? "模型" : "Model"}：${mdEscape(answer.model)}`,
-    `- ${report.locale === "zh" ? "提到的竞争对手" : "Competitors mentioned"}：${mdEscape(answer.competitorsMentioned.join(", ") || (report.locale === "zh" ? "无" : "None"))}`,
+    `- ${report.locale === "zh" ? "联网状态" : "Web access"}：${mdEscape(answer.webSearch)}`,
+    ...renderIntentAnswerDetails(answer, report),
     "",
     report.locale === "zh" ? "AI实际回答：" : "Actual AI answer:",
     "",

@@ -80,14 +80,27 @@ function optionalNumberOption(options: Record<string, string | boolean>, key: st
   return value;
 }
 
+function webSearchEnabledOption(options: Record<string, string | boolean>): boolean {
+  return options["web-search"] === true || option(options, "web-search") === "true";
+}
+
+function webSearchModeOption(options: Record<string, string | boolean>): "auto" | "provider_native" {
+  const value = option(options, "web-search-mode");
+  if (!value || value === "auto") return "auto";
+  if (value === "provider_native") return "provider_native";
+  throw new Error("--web-search-mode must be auto or provider_native");
+}
+
 function parseProviderTargets(options: Record<string, string | boolean>): ProviderTarget[] {
+  const webSearchEnabled = webSearchEnabledOption(options);
+  const webSearchMode = webSearchModeOption(options);
   const targets = option(options, "targets");
   if (targets) {
     return targets.split(",").map((pair) => {
       const [providerId, ...modelParts] = pair.split(":");
       const model = modelParts.join(":");
       if (!providerId || !model) throw new Error(`Invalid target "${pair}". Use provider:model.`);
-      return { providerId, model };
+      return { providerId, model, webSearchEnabled, webSearchMode };
     });
   }
   const providerId = option(options, "provider") || "openrouter";
@@ -97,10 +110,10 @@ function parseProviderTargets(options: Record<string, string | boolean>): Provid
       .split(",")
       .map((model) => model.trim())
       .filter(Boolean)
-      .map((model) => ({ providerId, model }));
+      .map((model) => ({ providerId, model, webSearchEnabled, webSearchMode }));
   }
   const model = option(options, "model") || "openai/gpt-4o-mini";
-  return [{ providerId, model }];
+  return [{ providerId, model, webSearchEnabled, webSearchMode }];
 }
 
 function competitorsFromDomains(domains: string): Entity[] {
@@ -218,7 +231,7 @@ async function verifyReal(options: Record<string, string | boolean>): Promise<vo
     });
     completed += 1;
     console.log(
-      `[verify:${completed}/${limit}:${item.domain}] mention=${percent(output.metrics.mentionRate)} citation=${percent(output.metrics.citationRate)} recommendation=${percent(output.metrics.recommendationRate)} sov=${percent(output.metrics.shareOfVoice)} report=${output.paths.reportMd}`,
+      `[verify:${completed}/${limit}:${item.domain}] mention=${percent(output.metrics.mentionRate)} citation=${percent(output.metrics.citationRate)} recommendation=${percent(output.metrics.recommendationRate)} sov=${percent(output.metrics.shareOfVoice)} web=${providerTarget.webSearchEnabled ? "on" : "off"} report=${output.paths.reportMd}`,
     );
   }
   console.log(`Real provider verification passed: completed=${completed}, failed=0, provider=${providerTarget.providerId}, model=${providerTarget.model}`);
@@ -243,6 +256,8 @@ async function schedule(options: Record<string, string | boolean>): Promise<void
     if (typeof config.keywordMode === "string") optionsFromConfig["keyword-mode"] = config.keywordMode;
     if (typeof config.keywordLimit === "number") optionsFromConfig["keyword-limit"] = String(config.keywordLimit);
     if (typeof config.promptsPerKeyword === "number") optionsFromConfig["prompts-per-keyword"] = String(config.promptsPerKeyword);
+    if (config.webSearchEnabled === true) optionsFromConfig["web-search"] = true;
+    if (typeof config.webSearchMode === "string") optionsFromConfig["web-search-mode"] = config.webSearchMode;
     await runAudit({
       ...optionsFromConfig,
     });
@@ -259,7 +274,7 @@ async function main(): Promise<void> {
   if (command === "verify-real") return verifyReal(options);
   if (command === "schedule") return schedule(options);
   console.log("Usage:");
-  console.log("  npm run audit -- --domain www.niubistar.com --targets openrouter:openai/gpt-4o-mini,openrouter:perplexity/sonar --prompt-count 8");
+  console.log("  npm run audit -- --domain www.niubistar.com --targets openrouter:openai/gpt-4o-mini,openrouter:perplexity/sonar --prompt-count 8 --web-search");
   console.log("  npm run audit -- --domain www.niubistar.com --keywords \"GitHub project promotion,GitHub star growth\" --keyword-limit 4 --prompts-per-keyword 2");
   console.log("  npm run audit -- --domain vercel.com --provider openrouter --models openai/gpt-4o-mini,perplexity/sonar --prompt-count 8");
   console.log("  npm run verify:real");

@@ -185,13 +185,15 @@ npm run audit -- \
 
 | Provider | 状态 | 使用方式 |
 |---|:---:|---|
-| OpenRouter | 支持 | 一个 Key 运行多个提供商的模型 |
-| OpenAI | 支持 | 使用 OpenAI 官方 API Key |
-| Anthropic | 支持 | 使用 Anthropic 官方 API Key |
-| Google Gemini | 支持 | 使用 Gemini 官方 API Key |
-| Perplexity | 支持 | 搜索与引用能力由 Provider 管理 |
-| DeepSeek | 支持 | 能力取决于具体模型与端点 |
-| OpenAI-compatible API | 计划中 | 用于自定义网关和兼容服务 |
+| OpenRouter | 支持 | 一个 Key 运行多个提供商的模型；支持 OpenRouter 原生 web 插件 |
+| OpenAI | 支持 | 使用 OpenAI 官方 Responses API；支持原生 `web_search` |
+| Anthropic | 支持 | 使用 Anthropic 官方 Messages API；支持 Claude 原生联网搜索 |
+| Google Gemini | 支持 | 使用 Gemini 官方 API；支持 Google Search grounding |
+| Perplexity | 支持 | 使用 Sonar 天然联网回答和 Provider 返回引用 |
+| DeepSeek | 支持 | 使用 DeepSeek Responses 兼容 API；支持原生 `web_search` |
+| OpenAI-compatible API | 支持 | 通过 `OPENAI_COMPATIBLE_BASE_URL` 和 `OPENAI_COMPATIBLE_API_KEY` 接入自定义中转 |
+
+每个 Provider 的具体联网执行路径见 [Provider 原生联网搜索](docs/PROVIDER_NATIVE_SEARCH.zh-CN.md)。
 
 ## Packages
 

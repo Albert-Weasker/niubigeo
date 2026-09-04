@@ -88,6 +88,9 @@ Provider rules:
 - Missing keys block real audit execution.
 - Direct provider keys cannot call other providers.
 - OpenRouter-routed models must still be labeled as OpenRouter API output.
+- Web search is Provider-native: OpenAI uses Responses `web_search`, OpenRouter uses its web plugin, Claude uses the Anthropic web search server tool, Gemini uses Google Search grounding, Perplexity uses Sonar web-grounded output, and DeepSeek uses Responses-compatible `web_search`.
+- If web search is off, NiubiGEO must not send a search, grounding, or web plugin tool.
+- Ordinary web search must not be used as a substitute for Provider-returned citations.
 - API output must never be described as consumer web UI output.
 
 Every run records:
@@ -95,6 +98,7 @@ Every run records:
 - Provider.
 - Model.
 - Source label.
+- Requested and actual web-search behavior.
 - Execution prompt.
 - Completion status.
 - AI answer text when completed.

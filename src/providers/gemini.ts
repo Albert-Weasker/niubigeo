@@ -1,6 +1,8 @@
 import type { AnswerProvider, AnswerResult, ProviderDefinition, ProviderRunInput, TokenUsage } from "../core/types.js";
 import { dedupeCitations, extractGeminiGroundingCitations, extractTextUrlCitations } from "./citation-extractors.js";
 import { postJsonWithRetry } from "./http.js";
+import { makeSearchExecution } from "./search-execution.js";
+import { extractGeminiWebQueries } from "./web-query-extractors.js";
 
 function asObject(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" ? (value as Record<string, unknown>) : null;
@@ -35,16 +37,21 @@ export class GeminiProvider implements AnswerProvider {
 
   async run(input: ProviderRunInput): Promise<AnswerResult> {
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(input.model)}:generateContent?key=${encodeURIComponent(input.apiKey)}`;
+    const publicEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(input.model)}:generateContent`;
+    const body: Record<string, unknown> = {
+      contents: [{ role: "user", parts: [{ text: input.prompt }] }],
+      generationConfig: {
+        temperature: input.temperature,
+        maxOutputTokens: input.maxTokens,
+      },
+    };
+    if (input.webSearchEnabled) {
+      body.tools = [{ google_search: {} }];
+    }
     const response = await postJsonWithRetry(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ role: "user", parts: [{ text: input.prompt }] }],
-        generationConfig: {
-          temperature: input.temperature,
-          maxOutputTokens: input.maxTokens,
-        },
-      }),
+      body: JSON.stringify(body),
     });
 
     const raw = response.data;
@@ -58,6 +65,18 @@ export class GeminiProvider implements AnswerProvider {
     if (!text) throw new Error("Gemini returned an empty answer.");
     const nativeCitations = extractGeminiGroundingCitations(raw);
     const citations = dedupeCitations([...nativeCitations, ...extractTextUrlCitations(text, nativeCitations.length)]);
+    const webQueries = input.webSearchEnabled ? extractGeminiWebQueries(raw) : [];
+    const search = makeSearchExecution({
+      definition: this.definition,
+      runInput: input,
+      endpointKind: "official_api",
+      endpointProtocol: "gemini_generate_content",
+      endpointUrl: publicEndpoint,
+      toolName: "google_search",
+      webQueries,
+      citationCount: nativeCitations.length,
+      note: input.webSearchEnabled ? "Provider-native Google Search grounding tool was supplied on the Gemini request." : undefined,
+    });
 
     return {
       providerId: this.definition.id,
@@ -70,7 +89,8 @@ export class GeminiProvider implements AnswerProvider {
       text,
       rawJson: raw,
       citations,
-      webQueries: [],
+      webQueries,
+      search,
       tokenUsage: normalizeUsage(raw),
       latencyMs: response.latencyMs,
       createdAt: new Date().toISOString(),

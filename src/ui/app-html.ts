@@ -392,6 +392,21 @@ export function renderAppHtml(): string {
                 <input id="maxTokens" name="maxTokens" type="number" min="200" max="4000" value="700" required>
               </div>
               <div class="field">
+                <label for="webSearchEnabled" data-i18n="webSearch">Web search</label>
+                <select id="webSearchEnabled" name="webSearchEnabled">
+                  <option value="false" data-i18n="webSearchOff">Off</option>
+                  <option value="true" data-i18n="webSearchOn">On</option>
+                </select>
+                <p class="field-help" data-i18n="webSearchHelp">Off sends no web-search tool. On uses the provider's native search path.</p>
+              </div>
+              <div class="field">
+                <label for="webSearchMode" data-i18n="searchMode">Search mode</label>
+                <select id="webSearchMode" name="webSearchMode">
+                  <option value="auto" data-i18n="searchModeAuto">Auto</option>
+                  <option value="provider_native" data-i18n="searchModeNative">Provider native only</option>
+                </select>
+              </div>
+              <div class="field">
                 <label id="language-label" data-i18n="languageLabel">Audit language</label>
                 <div class="language-control" role="group" aria-labelledby="language-label">
                   <button class="language-button" type="button" data-language-choice="zh" aria-pressed="false">中文</button>
@@ -524,6 +539,13 @@ export function renderAppHtml(): string {
         disabledPrompts: "Disabled questions",
         providerRuns: "Provider requests",
         webSearch: "Web search",
+        webSearchOff: "Off",
+        webSearchOn: "On",
+        webSearchHelp: "Off sends no web-search tool. On uses the provider's native search path.",
+        searchMode: "Search mode",
+        searchModeAuto: "Auto",
+        searchModeNative: "Provider native only",
+        nativeSearch: "Native search",
         promptSet: "Prompt Set",
         analysisRules: "Analysis rules",
         confirmAndRun: "Confirm and run API audit",
@@ -665,6 +687,13 @@ export function renderAppHtml(): string {
         disabledPrompts: "暂停问题",
         providerRuns: "预计请求",
         webSearch: "联网搜索",
+        webSearchOff: "关闭",
+        webSearchOn: "开启",
+        webSearchHelp: "关闭时不发送联网搜索工具。开启时使用当前 Provider 的原生搜索路径。",
+        searchMode: "搜索方式",
+        searchModeAuto: "自动",
+        searchModeNative: "只用 Provider 原生",
+        nativeSearch: "原生联网",
         promptSet: "Prompt Set",
         analysisRules: "分析规则",
         confirmAndRun: "确认并运行 API 审计",
@@ -841,7 +870,7 @@ export function renderAppHtml(): string {
       }
       $("provider-list").innerHTML = state.providers.map((provider) =>
         '<div class="provider-row">' +
-          '<div><strong>' + html(provider.label) + '</strong><span>' + html(provider.envKeys.join(", ")) + ' · ' + html(provider.defaultModels.join(", ")) + '</span></div>' +
+          '<div><strong>' + html(provider.label) + '</strong><span>' + html(provider.envKeys.join(", ")) + ' · ' + html(provider.defaultModels.join(", ")) + ' · ' + html(provider.supportsWebSearch ? t("nativeSearch") : t("webSearchOff")) + '</span></div>' +
           '<span class="pill ' + (provider.keyConfigured ? 'ok' : 'missing') + '">' + (provider.keyConfigured ? t('configured') : t('missing')) + '</span>' +
         '</div>'
       ).join("");
@@ -1140,7 +1169,7 @@ export function renderAppHtml(): string {
       syncRunButton();
     });
 
-    ["domain", "keywords", "competitors", "githubRepo", "models", "promptCount", "keywordMode", "keywordLimit", "promptsPerKeyword", "autoDiscover"].forEach((id) => {
+    ["domain", "keywords", "competitors", "githubRepo", "models", "promptCount", "keywordMode", "keywordLimit", "promptsPerKeyword", "webSearchEnabled", "webSearchMode", "autoDiscover"].forEach((id) => {
       const node = $(id);
       if (node) node.addEventListener("change", invalidatePlan);
     });
@@ -1165,6 +1194,8 @@ export function renderAppHtml(): string {
         keywordMode: $("keywordMode").value,
         keywordLimit: Number($("keywordLimit").value),
         promptsPerKeyword: Number($("promptsPerKeyword").value),
+        webSearchEnabled: $("webSearchEnabled").value === "true",
+        webSearchMode: $("webSearchMode").value,
         maxTokens: Number($("maxTokens").value),
         language: locale(),
         autoDiscover: $("autoDiscover").value === "true"

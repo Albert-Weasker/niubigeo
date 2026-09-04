@@ -7,7 +7,7 @@ import { ProviderCatalog } from "./providers/catalog.js";
 import { AuditRunner } from "./runner/audit-runner.js";
 import { AuditPlanner } from "./runner/audit-planner.js";
 import { entityFromInput } from "./utils/domain.js";
-import type { AuditPlan, Entity, KeywordMode, MonitoringPrompt, PromptAuditCategory, PromptType, ProviderTarget } from "./core/types.js";
+import type { AuditPlan, Entity, KeywordMode, MonitoringPrompt, PromptAuditCategory, PromptType, ProviderTarget, WebSearchRequestMode } from "./core/types.js";
 import { renderAppHtml } from "./ui/app-html.js";
 import { sha256 } from "./utils/hash.js";
 import { ANALYSIS_RULES_VERSION, PROMPT_SET_VERSION } from "./core/version.js";
@@ -44,28 +44,36 @@ async function readJson(req: IncomingMessage): Promise<Record<string, unknown>> 
 }
 
 function providerTargetsFromBody(body: Record<string, unknown>): ProviderTarget[] {
+  const webSearchEnabled = typeof body.webSearchEnabled === "boolean" ? body.webSearchEnabled : undefined;
+  const webSearchMode = webSearchModeFromBody(body.webSearchMode);
   if (Array.isArray(body.providerTargets)) {
     return body.providerTargets.map((item) => {
       const row = item as Record<string, unknown>;
       return {
         providerId: String(row.providerId),
         model: String(row.model),
-        webSearchEnabled: typeof row.webSearchEnabled === "boolean" ? row.webSearchEnabled : undefined,
+        webSearchEnabled: typeof row.webSearchEnabled === "boolean" ? row.webSearchEnabled : webSearchEnabled,
+        webSearchMode: webSearchModeFromBody(row.webSearchMode) || webSearchMode,
       };
     });
   }
   const providerId = String(body.provider || "openrouter");
   if (Array.isArray(body.models)) {
-    return body.models.map((model) => ({ providerId, model: String(model) }));
+    return body.models.map((model) => ({ providerId, model: String(model), webSearchEnabled, webSearchMode }));
   }
   if (typeof body.models === "string") {
     return body.models
       .split(",")
       .map((model) => model.trim())
       .filter(Boolean)
-      .map((model) => ({ providerId, model }));
+      .map((model) => ({ providerId, model, webSearchEnabled, webSearchMode }));
   }
-  return [{ providerId, model: String(body.model || "openai/gpt-4o-mini") }];
+  return [{ providerId, model: String(body.model || "openai/gpt-4o-mini"), webSearchEnabled, webSearchMode }];
+}
+
+function webSearchModeFromBody(value: unknown): WebSearchRequestMode | undefined {
+  if (value === "auto" || value === "provider_native") return value;
+  return undefined;
 }
 
 function stringListFromBody(value: unknown): string[] {
@@ -159,6 +167,7 @@ function confirmedPromptSetHash(input: { prompts: MonitoringPrompt[]; providerTa
         providerId: target.providerId,
         model: target.model,
         webSearchEnabled: Boolean(target.webSearchEnabled),
+        webSearchMode: target.webSearchMode || "auto",
       })),
       prompts: input.prompts.map((prompt) => ({
         type: prompt.type,
@@ -249,7 +258,7 @@ function conditionSignature(report: any): string {
   const audit = report.audit || {};
   const promptHash = audit.promptSetHash || "";
   const providerModels = (audit.providerTargets || [])
-    .map((target: any) => `${target.providerId}:${target.model}:${Boolean(target.webSearchEnabled)}`)
+    .map((target: any) => `${target.providerId}:${target.model}:${Boolean(target.webSearchEnabled)}:${target.webSearchMode || "auto"}`)
     .sort()
     .join("|");
   const language = audit.prompts?.[0]?.language || "";

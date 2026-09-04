@@ -74,6 +74,7 @@ function promptOutcome(run: PromptRun): PromptOutcome {
     model: run.model,
     sourceLabel: run.sourceLabel,
     webSearchEnabled: runWebSearchEnabled(run),
+    search: run.search,
     status: run.status,
     startedAt: run.startedAt,
     finishedAt: run.finishedAt,

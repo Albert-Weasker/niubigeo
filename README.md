@@ -185,13 +185,15 @@ Reports are saved in the local `runs/` directory by default.
 
 | Provider | Status | How it is used |
 |---|:---:|---|
-| OpenRouter | Supported | One key can run models from multiple providers |
-| OpenAI | Supported | Uses the official OpenAI API key |
-| Anthropic | Supported | Uses the official Anthropic API key |
-| Google Gemini | Supported | Uses the official Gemini API key |
-| Perplexity | Supported | Search and citation behavior is controlled by the provider |
-| DeepSeek | Supported | Capabilities depend on the selected model and endpoint |
-| OpenAI-compatible API | Planned | For custom gateways and compatible local services |
+| OpenRouter | Supported | One key can run models from multiple providers; native web plugin supported |
+| OpenAI | Supported | Uses the official OpenAI Responses API; native `web_search` supported |
+| Anthropic | Supported | Uses the official Anthropic Messages API; native Claude web search supported |
+| Google Gemini | Supported | Uses the official Gemini API; Google Search grounding supported |
+| Perplexity | Supported | Uses Sonar web-grounded answers and Provider-returned citations |
+| DeepSeek | Supported | Uses DeepSeek Responses-compatible API; native `web_search` supported |
+| OpenAI-compatible API | Supported | Custom gateways via `OPENAI_COMPATIBLE_BASE_URL` and `OPENAI_COMPATIBLE_API_KEY` |
+
+See [Provider-native web search](docs/PROVIDER_NATIVE_SEARCH.md) for the exact execution paths and source-labeling rules.
 
 ## Packages
 

@@ -8,6 +8,7 @@ const PROVIDER_ENV_KEYS: Record<string, string[]> = {
   gemini: ["GEMINI_API_KEY"],
   perplexity: ["PERPLEXITY_API_KEY"],
   deepseek: ["DEEPSEEK_API_KEY"],
+  "openai-compatible": ["OPENAI_COMPATIBLE_API_KEY"],
 };
 
 export function loadDotEnv(cwd = process.cwd()): void {
@@ -28,6 +29,11 @@ export function loadDotEnv(cwd = process.cwd()): void {
 
 export function providerEnvKeys(providerId: string): string[] {
   return PROVIDER_ENV_KEYS[providerId] || [];
+}
+
+export function openAICompatibleBaseUrl(): string | undefined {
+  const value = process.env.OPENAI_COMPATIBLE_BASE_URL || process.env.OPENAI_COMPATIBLE_BASEURL;
+  return value?.trim() || undefined;
 }
 
 function envSecretValue(key: string): string | undefined {
@@ -54,6 +60,9 @@ export function resolveProviderKey(providerId: string, explicitKey?: string): st
 }
 
 export function hasProviderKey(providerId: string): boolean {
+  if (providerId === "openai-compatible") {
+    return Boolean(openAICompatibleBaseUrl()) && providerEnvKeys(providerId).some((key) => Boolean(envSecretValue(key)));
+  }
   return providerEnvKeys(providerId).some((key) => Boolean(envSecretValue(key)));
 }
 

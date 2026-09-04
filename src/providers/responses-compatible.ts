@@ -4,47 +4,51 @@ import type {
   Citation,
   ProviderDefinition,
   ProviderEndpointKind,
-  ProviderEndpointProtocol,
   ProviderRunInput,
   TokenUsage,
 } from "../core/types.js";
-import {
-  dedupeCitations,
-  extractAnnotationCitations,
-  extractPerplexityCitations,
-  extractTextUrlCitations,
-} from "./citation-extractors.js";
+import { dedupeCitations, extractResponseCitations, extractTextUrlCitations } from "./citation-extractors.js";
 import { postJsonWithRetry } from "./http.js";
 import { makeSearchExecution } from "./search-execution.js";
-import { extractPerplexityWebQueries } from "./web-query-extractors.js";
+import { extractResponseWebQueries } from "./web-query-extractors.js";
 
-interface OpenAICompatibleOptions {
+interface ResponsesCompatibleOptions {
   definition: ProviderDefinition;
   endpoint: string;
   endpointKind?: ProviderEndpointKind | undefined;
-  endpointProtocol?: ProviderEndpointProtocol | undefined;
-  extraHeaders?: Record<string, string>;
-  extraBody?: Record<string, unknown>;
+  extraHeaders?: Record<string, string> | undefined;
+  webSearchToolName?: string | undefined;
   citationExtractor?: (raw: unknown) => Citation[];
-  costExtractor?: (raw: unknown) => number | undefined;
-  nativeWebSearch?: {
-    toolName: string;
-    bodyPatch?: Record<string, unknown> | undefined;
-    alwaysOn?: boolean | undefined;
-    note?: string | undefined;
-  } | undefined;
 }
 
 function asObject(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" ? (value as Record<string, unknown>) : null;
 }
 
+function extractTextFromContent(content: unknown): string[] {
+  if (typeof content === "string") return [content];
+  if (!Array.isArray(content)) return [];
+  return content
+    .map((part) => {
+      const obj = asObject(part);
+      if (typeof obj?.text === "string") return obj.text;
+      if (typeof obj?.output_text === "string") return obj.output_text;
+      return "";
+    })
+    .filter(Boolean);
+}
+
 function extractText(raw: unknown): string {
   const root = asObject(raw);
-  const choices = Array.isArray(root?.choices) ? root.choices : [];
-  const first = asObject(choices[0]);
-  const message = asObject(first?.message);
-  return typeof message?.content === "string" ? message.content.trim() : "";
+  if (typeof root?.output_text === "string" && root.output_text.trim()) return root.output_text.trim();
+  const output = Array.isArray(root?.output) ? root.output : [];
+  const parts: string[] = [];
+  for (const item of output) {
+    const obj = asObject(item);
+    if (typeof obj?.text === "string") parts.push(obj.text);
+    parts.push(...extractTextFromContent(obj?.content));
+  }
+  return parts.filter(Boolean).join("\n").trim();
 }
 
 function extractModelVersion(raw: unknown, fallback: string): string {
@@ -55,50 +59,40 @@ function extractModelVersion(raw: unknown, fallback: string): string {
 function normalizeUsage(raw: unknown): TokenUsage | undefined {
   const usage = asObject(asObject(raw)?.usage);
   if (!usage) return undefined;
-  const input = typeof usage.prompt_tokens === "number" ? usage.prompt_tokens : 0;
-  const output = typeof usage.completion_tokens === "number" ? usage.completion_tokens : 0;
+  const input = typeof usage.input_tokens === "number" ? usage.input_tokens : 0;
+  const output = typeof usage.output_tokens === "number" ? usage.output_tokens : 0;
   const total = typeof usage.total_tokens === "number" ? usage.total_tokens : input + output;
   return { input, output, total };
 }
 
-function defaultCostExtractor(raw: unknown): number | undefined {
-  const usage = asObject(asObject(raw)?.usage);
-  return typeof usage?.cost === "number" ? usage.cost : undefined;
-}
-
-export class OpenAICompatibleProvider implements AnswerProvider {
+export class ResponsesCompatibleProvider implements AnswerProvider {
   readonly definition: ProviderDefinition;
   private readonly endpoint: string;
   private readonly endpointKind: ProviderEndpointKind;
-  private readonly endpointProtocol: ProviderEndpointProtocol;
   private readonly extraHeaders: Record<string, string>;
-  private readonly extraBody: Record<string, unknown>;
+  private readonly webSearchToolName: string;
   private readonly citationExtractor: (raw: unknown) => Citation[];
-  private readonly costExtractor: (raw: unknown) => number | undefined;
-  private readonly nativeWebSearch: OpenAICompatibleOptions["nativeWebSearch"];
 
-  constructor(options: OpenAICompatibleOptions) {
+  constructor(options: ResponsesCompatibleOptions) {
     this.definition = options.definition;
     this.endpoint = options.endpoint;
     this.endpointKind = options.endpointKind || "official_api";
-    this.endpointProtocol = options.endpointProtocol || "chat_completions";
     this.extraHeaders = options.extraHeaders || {};
-    this.extraBody = options.extraBody || {};
-    this.citationExtractor = options.citationExtractor || extractAnnotationCitations;
-    this.costExtractor = options.costExtractor || defaultCostExtractor;
-    this.nativeWebSearch = options.nativeWebSearch;
+    this.webSearchToolName = options.webSearchToolName || "web_search";
+    this.citationExtractor = options.citationExtractor || extractResponseCitations;
   }
 
   async run(input: ProviderRunInput): Promise<AnswerResult> {
-    const body = {
+    const body: Record<string, unknown> = {
       model: input.model,
-      messages: [{ role: "user", content: input.prompt }],
+      input: input.prompt,
       temperature: input.temperature,
-      max_tokens: input.maxTokens,
-      ...(input.responseFormat === "json_object" ? { response_format: { type: "json_object" } } : {}),
-      ...this.extraBody,
-      ...(input.webSearchEnabled && this.nativeWebSearch?.bodyPatch ? this.nativeWebSearch.bodyPatch : {}),
+      max_output_tokens: input.maxTokens,
     };
+    if (input.webSearchEnabled) {
+      body.tools = [{ type: this.webSearchToolName }];
+    }
+
     const response = await postJsonWithRetry(this.endpoint, {
       method: "POST",
       headers: {
@@ -120,19 +114,17 @@ export class OpenAICompatibleProvider implements AnswerProvider {
     if (!text) throw new Error(`Provider ${this.definition.id} returned an empty answer.`);
     const nativeCitations = this.citationExtractor(raw);
     const citations = dedupeCitations([...nativeCitations, ...extractTextUrlCitations(text, nativeCitations.length)]);
-    const alwaysOn = Boolean(this.nativeWebSearch?.alwaysOn);
-    const webQueries = input.webSearchEnabled || alwaysOn ? extractPerplexityWebQueries(raw) : [];
+    const webQueries = extractResponseWebQueries(raw);
     const search = makeSearchExecution({
       definition: this.definition,
       runInput: input,
       endpointKind: this.endpointKind,
-      endpointProtocol: this.endpointProtocol,
+      endpointProtocol: "responses",
       endpointUrl: this.endpoint,
-      toolName: this.nativeWebSearch?.toolName,
+      toolName: this.webSearchToolName,
       webQueries,
       citationCount: nativeCitations.length,
-      alwaysOn,
-      note: input.webSearchEnabled || alwaysOn ? this.nativeWebSearch?.note : undefined,
+      note: input.webSearchEnabled ? "Provider-native web search tool was supplied on the Responses API request." : undefined,
     });
 
     return {
@@ -149,13 +141,8 @@ export class OpenAICompatibleProvider implements AnswerProvider {
       webQueries,
       search,
       tokenUsage: normalizeUsage(raw),
-      costUsd: this.costExtractor(raw),
       latencyMs: response.latencyMs,
       createdAt: new Date().toISOString(),
     };
   }
-}
-
-export function perplexityCitationExtractor(raw: unknown): Citation[] {
-  return extractPerplexityCitations(raw);
 }

@@ -1,4 +1,5 @@
 import type { AuditRun, Citation, Entity, Mention, PromptRun } from "../core/types.js";
+import type { IntentRunAnalysis } from "../intent/intent-schema.js";
 
 export type HumanReportLocale = "en" | "zh";
 
@@ -51,6 +52,8 @@ export interface AnswerStory {
   citations: Citation[];
   sourceName: string;
   model: string;
+  webSearch: string;
+  intentAnalysis?: IntentRunAnalysis | undefined;
 }
 
 export interface HumanReport {
@@ -293,6 +296,13 @@ function sourceName(run: PromptRun): string {
   const prefix = "Source: ";
   if (label.startsWith(prefix)) label = label.slice(prefix.length);
   return compactSpaces(`${label} / ${run.model}`);
+}
+
+function searchSummary(run: PromptRun, locale: HumanReportLocale): string {
+  const search = run.search || run.result?.search;
+  if (!search?.used) return fallback(locale, "未联网", "No web search");
+  if (search.usedMode === "provider_always_on") return fallback(locale, "Provider 天然联网", "Provider web-grounded");
+  return fallback(locale, "Provider 原生联网", "Provider-native web search");
 }
 
 function categoryIsBrand(run: PromptRun): boolean {
@@ -1007,17 +1017,20 @@ function buildAnswers(audit: AuditRun, runs: IndexedRun[], locale: HumanReportLo
         citations: [],
         sourceName: sourceName(item.run),
         model: item.run.model,
+        webSearch: searchSummary(item.run, locale),
+        intentAnalysis: item.run.intentAnalysis,
       };
     }
     const targetMentioned = targetIsMentioned(item.run);
     const competitors = uniqueStrings(competitorMentions(item.run).map((mention) => mention.entityName));
-    const summary = targetMentioned && competitors.length
+    const intentSummary = item.run.intentAnalysis?.status === "completed" ? item.run.intentAnalysis.adaptedResult.oneSentence : "";
+    const summary = intentSummary || (targetMentioned && competitors.length
       ? fallback(locale, `AI同时提到了 ${audit.target.name} 和 ${competitors.slice(0, 4).join("、")}。`, `AI mentions both ${audit.target.name} and ${competitors.slice(0, 4).join(", ")}.`)
       : targetMentioned
         ? fallback(locale, `AI提到了 ${audit.target.name}。`, `AI mentions ${audit.target.name}.`)
         : competitors.length
           ? fallback(locale, `AI提到了 ${competitors.slice(0, 4).join("、")}，但没有提到 ${audit.target.name}。`, `AI mentions ${competitors.slice(0, 4).join(", ")} but not ${audit.target.name}.`)
-          : fallback(locale, `AI没有提到 ${audit.target.name} 或已监测竞争对手。`, `AI does not mention ${audit.target.name} or monitored competitors.`);
+          : fallback(locale, `AI没有提到 ${audit.target.name} 或已监测竞争对手。`, `AI does not mention ${audit.target.name} or monitored competitors.`));
     return {
       index: item.index,
       prompt: item.run.prompt.text,
@@ -1029,6 +1042,8 @@ function buildAnswers(audit: AuditRun, runs: IndexedRun[], locale: HumanReportLo
       citations: citationsForRun(item.run).filter((citation) => visibleSourceKeys.has(canonicalSourceKey(citation.url))),
       sourceName: sourceName(item.run),
       model: item.run.model,
+      webSearch: searchSummary(item.run, locale),
+      intentAnalysis: item.run.intentAnalysis,
     };
   });
 }

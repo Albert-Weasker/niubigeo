@@ -1,3 +1,5 @@
+import type { IntentRunAnalysis } from "../intent/intent-schema.js";
+
 export type SourceType = "api" | "browser" | "human_verified";
 
 export type EntityType = "target" | "competitor";
@@ -43,6 +45,25 @@ export type CitationSource =
   | "provider_search_result"
   | "provider_grounding_chunk"
   | "answer_text_url";
+
+export type WebSearchRequestMode = "auto" | "provider_native";
+
+export type WebSearchUsedMode = "none" | "provider_native" | "provider_always_on";
+
+export type ProviderEndpointKind = "official_api" | "custom_gateway";
+
+export type ProviderEndpointProtocol =
+  | "chat_completions"
+  | "responses"
+  | "messages"
+  | "gemini_generate_content"
+  | "perplexity_sonar";
+
+export interface NativeWebSearchCapability {
+  endpointProtocol: ProviderEndpointProtocol;
+  toolName: string;
+  alwaysOn?: boolean | undefined;
+}
 
 export type CitationType =
   | "target_official"
@@ -117,6 +138,7 @@ export interface ProviderDefinition {
   supportsAnyModel?: boolean | undefined;
   supportsNativeCitations: boolean;
   supportsWebSearch: boolean;
+  nativeWebSearch?: NativeWebSearchCapability | undefined;
   resultCaveat: string;
 }
 
@@ -127,6 +149,22 @@ export interface ProviderRunInput {
   maxTokens: number;
   temperature: number;
   webSearchEnabled: boolean;
+  webSearchMode?: WebSearchRequestMode | undefined;
+  responseFormat?: "json_object" | undefined;
+}
+
+export interface SearchExecution {
+  requested: boolean;
+  requestMode: WebSearchRequestMode;
+  used: boolean;
+  usedMode: WebSearchUsedMode;
+  endpointKind: ProviderEndpointKind;
+  endpointProtocol: ProviderEndpointProtocol;
+  endpointUrl: string;
+  toolName?: string | undefined;
+  webQueries: string[];
+  citationCount: number;
+  note?: string | undefined;
 }
 
 export interface AnswerResult {
@@ -141,6 +179,7 @@ export interface AnswerResult {
   rawJson: unknown;
   citations: Citation[];
   webQueries: string[];
+  search?: SearchExecution | undefined;
   tokenUsage?: TokenUsage | undefined;
   costUsd?: number | undefined;
   latencyMs: number;
@@ -179,6 +218,7 @@ export interface ProviderTarget {
   providerId: string;
   model: string;
   webSearchEnabled?: boolean | undefined;
+  webSearchMode?: WebSearchRequestMode | undefined;
 }
 
 export interface PromptGenerationEvidence {
@@ -307,6 +347,7 @@ export interface PromptRun {
   providerId: string;
   model: string;
   webSearchEnabled: boolean;
+  search?: SearchExecution | undefined;
   sourceType: SourceType;
   sourceLabel: string;
   status: "completed" | "failed";
@@ -315,6 +356,7 @@ export interface PromptRun {
   result?: AnswerResult | undefined;
   rawJsonPath?: string | undefined;
   analysis?: PromptRunAnalysis | undefined;
+  intentAnalysis?: IntentRunAnalysis | undefined;
   error?: string | undefined;
 }
 
@@ -413,6 +455,7 @@ export interface PromptOutcome {
   model: string;
   sourceLabel: string;
   webSearchEnabled: boolean;
+  search?: SearchExecution | undefined;
   status: "completed" | "failed";
   startedAt: string;
   finishedAt: string;
