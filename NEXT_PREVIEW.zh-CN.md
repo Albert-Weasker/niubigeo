@@ -332,7 +332,7 @@ NiubiGEO 的开源开发由以下赞助方提供支持：
       <strong>NiubiStar</strong>
     </td>
     <td align="center" width="33%">
-      <a href="https://waer.ltd/">
+      <a href="https://welight.fyi/">
         <img src="./assets/sponsors/welight.png" width="96" alt="Welight logo" />
       </a>
       <br />
@@ -376,6 +376,6 @@ NiubiGEO 的开源开发由以下赞助方提供支持：
 
 [查看当前版本](./README.zh-CN.md) · [English](./NEXT_PREVIEW.md) · [关注进展](https://github.com/Albert-Weasker/niubigeo) · [提交建议](https://github.com/Albert-Weasker/niubigeo/issues)
 
-Open-source development sponsored by [NiubiStar](https://www.niubistar.com/), [Welight](https://waer.ltd/), and [Hoolo](https://hoolo.cc/)
+Open-source development sponsored by [NiubiStar](https://www.niubistar.com/), [Welight](https://welight.fyi/), and [Hoolo](https://hoolo.cc/)
 
 </div>

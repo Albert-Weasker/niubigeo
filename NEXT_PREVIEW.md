@@ -332,7 +332,7 @@ Open-source development of NiubiGEO is supported by the following sponsors:
       <strong>NiubiStar</strong>
     </td>
     <td align="center" width="33%">
-      <a href="https://waer.ltd/">
+      <a href="https://welight.fyi/">
         <img src="./assets/sponsors/welight.png" width="96" alt="Welight logo" />
       </a>
       <br />
@@ -376,6 +376,6 @@ Sponsorship does not change the Community Edition license, evidence boundaries, 
 
 [View current version](./README.md) · [简体中文](./NEXT_PREVIEW.zh-CN.md) · [Follow progress](https://github.com/Albert-Weasker/niubigeo) · [Suggest changes](https://github.com/Albert-Weasker/niubigeo/issues)
 
-Open-source development sponsored by [NiubiStar](https://www.niubistar.com/), [Welight](https://waer.ltd/), and [Hoolo](https://hoolo.cc/)
+Open-source development sponsored by [NiubiStar](https://www.niubistar.com/), [Welight](https://welight.fyi/), and [Hoolo](https://hoolo.cc/)
 
 </div>
