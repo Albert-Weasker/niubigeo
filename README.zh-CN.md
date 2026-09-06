@@ -6,7 +6,14 @@
 
 **输入一个域名，看看 AI 是否会推荐你，以及哪些竞争对手更容易出现。**
 
-[English](./README.md) · [快速开始](#3-分钟开始审计) · [Releases](https://github.com/Albert-Weasker/niubigeo/releases) · [Packages](https://github.com/Albert-Weasker/niubigeo/pkgs/container/niubigeo) · [查看对比](#niubigeo-与商业-ai-可见度工具)
+[Next 预告版](./NEXT_PREVIEW.zh-CN.md) · [English](./README.md) · [快速开始](#3-分钟开始审计) · [Releases](https://github.com/Albert-Weasker/niubigeo/releases) · [Packages](https://github.com/Albert-Weasker/niubigeo/pkgs/container/niubigeo) · [查看对比](#niubigeo-与商业-ai-可见度工具)
+
+<p>
+  <strong>NiubiGEO Next 预告版已发布：</strong><br />
+  <a href="./NEXT_PREVIEW.zh-CN.md"><strong>查看新版 AI 域名认知监测方向</strong></a>
+  ·
+  <a href="./NEXT_PREVIEW.md">Read in English</a>
+</p>
 
 <br />
 
@@ -19,6 +26,9 @@
 </div>
 
 ---
+
+> [!IMPORTANT]
+> **NiubiGEO Next 预告版已发布。** 下一版本将从一次性 AI 可见度审计转向长期 AI 域名认知监测。[查看预告版](./NEXT_PREVIEW.zh-CN.md) / [English](./NEXT_PREVIEW.md)。
 
 ## 你发布了产品，但 AI 知道吗？
 

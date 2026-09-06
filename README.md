@@ -6,7 +6,14 @@
 
 **Enter a domain and see whether AI recommends you, which competitors appear, and which sources shape the answer.**
 
-[简体中文](./README.zh-CN.md) · [Quick start](#3-minute-audit) · [Releases](https://github.com/Albert-Weasker/niubigeo/releases) · [Packages](https://github.com/Albert-Weasker/niubigeo/pkgs/container/niubigeo) · [Compare tools](#niubigeo-vs-commercial-ai-visibility-tools)
+[Next Preview](./NEXT_PREVIEW.md) · [简体中文](./README.zh-CN.md) · [Quick start](#3-minute-audit) · [Releases](https://github.com/Albert-Weasker/niubigeo/releases) · [Packages](https://github.com/Albert-Weasker/niubigeo/pkgs/container/niubigeo) · [Compare tools](#niubigeo-vs-commercial-ai-visibility-tools)
+
+<p>
+  <strong>NiubiGEO Next Preview is available:</strong><br />
+  <a href="./NEXT_PREVIEW.md"><strong>Read the redesigned AI domain-recognition monitor</strong></a>
+  ·
+  <a href="./NEXT_PREVIEW.zh-CN.md">查看简体中文预告</a>
+</p>
 
 <br />
 
@@ -19,6 +26,9 @@
 </div>
 
 ---
+
+> [!IMPORTANT]
+> **NiubiGEO Next Preview is available.** The next version moves from one-time AI visibility audits to long-term AI domain-recognition monitoring. [Read the preview](./NEXT_PREVIEW.md) / [简体中文](./NEXT_PREVIEW.zh-CN.md).
 
 ## You shipped a product. Does AI know it exists?
 
