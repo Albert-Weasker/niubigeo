@@ -78,7 +78,7 @@ function splitKeywords(value: string): string[] {
 
 function jsonLdScripts(html: string): unknown[] {
   const rows: unknown[] = [];
-  for (const match of html.matchAll(/<script\b[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)) {
+  for (const match of html.matchAll(/<script\b[^>]*\btype\s*=\s*(?:"application\/ld\+json"|'application\/ld\+json'|application\/ld\+json(?=[\s>]))[^>]*>([\s\S]*?)<\/script>/gi)) {
     const raw = decodeEntities((match[1] || "").trim());
     if (!raw) continue;
     try {
