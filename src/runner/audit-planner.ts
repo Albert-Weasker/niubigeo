@@ -16,6 +16,7 @@ import { DomainProfiler } from "../profile/domain-profiler.js";
 import { FileStore } from "../store/file-store.js";
 import { slugify } from "../utils/domain.js";
 import { sha256 } from "../utils/hash.js";
+import { containsTextTerm } from "../utils/text-match.js";
 import { SiteEvidenceCollector } from "../keywords/site-evidence.js";
 import { KeywordUniverseBuilder } from "../keywords/keyword-universe.js";
 import { KeywordRelevanceScorer } from "../keywords/keyword-relevance.js";
@@ -97,7 +98,7 @@ function dedupePrompts(prompts: MonitoringPrompt[], target: Entity): MonitoringP
           [target.name, target.domain, ...target.aliases]
             .map((term) => term.trim().toLowerCase())
             .filter(Boolean)
-            .some((term) => text.toLowerCase().includes(term)),
+            .some((term) => containsTextTerm(text, term)),
       }),
     );
   }

@@ -1,5 +1,6 @@
 import type { AnswerProvider, Entity, MonitoringPrompt, PromptGenerationEvidence, PromptType } from "../core/types.js";
 import { FileStore } from "../store/file-store.js";
+import { containsTextTerm } from "../utils/text-match.js";
 import { withAuditCategory } from "./audit-category.js";
 
 interface GeneratedPromptRow {
@@ -80,11 +81,7 @@ export function promptsFromManual(input: { target: Entity; language: string; pro
 }
 
 export function promptContainsTarget(prompt: string, target: Entity): boolean {
-  const lower = prompt.toLowerCase();
-  return [target.name, target.domain, ...target.aliases].some((term) => {
-    const normalized = term.trim().toLowerCase();
-    return normalized.length > 0 && lower.includes(normalized);
-  });
+  return [target.name, target.domain, ...target.aliases].some((term) => containsTextTerm(prompt, term));
 }
 
 function hasAny(value: string, terms: string[]): boolean {
