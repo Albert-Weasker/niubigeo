@@ -479,3 +479,11 @@ test("custom OpenAI-compatible gateway uses chat completions offline and Respons
   assert.equal(captured[0]?.body.messages !== undefined, true);
   assert.deepEqual(captured[1]?.body.tools, [{ type: "web_search" }]);
 });
+
+test("empty unstructured answers remain errors even when token-limited", async () => {
+  const captured: CapturedRequest[] = [];
+  mockFetch({ choices: [{ finish_reason: "length", message: { content: null } }] }, captured);
+  const provider = new OpenAICompatibleProvider({ definition: definition("openrouter"), endpoint: "https://provider.example/chat/completions" });
+  await assert.rejects(provider.run(input()), { code: "empty_answer" });
+  assert.equal(captured.length, 1);
+});

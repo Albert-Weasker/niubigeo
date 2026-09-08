@@ -215,7 +215,11 @@ export class OpenAICompatibleProvider implements AnswerProvider {
       ? extractStructuredToolArguments(raw, input.structuredOutputTool.name)
       : undefined;
     const text = toolArguments || extractOpenAICompatibleText(raw);
-    if (!text) throw new ProviderRequestError({ code: "empty_answer", message: `Provider ${this.definition.id} returned an empty answer.` });
+    // 结构化输出可能在生成正文前耗尽额度；保留原始响应，交给调用方执行有上限的截断恢复。
+    const choices = asObject(raw)?.choices;
+    const firstChoice = asObject(Array.isArray(choices) ? choices[0] : undefined);
+    const emptyStructuredTruncation = input.responseJsonSchema && !outputTool && firstChoice?.finish_reason === "length";
+    if (!text && !emptyStructuredTruncation) throw new ProviderRequestError({ code: "empty_answer", message: `Provider ${this.definition.id} returned an empty answer.` });
     const structuredOutput = toolArguments
       ? { transport: "function_tool" as const, value: toolArguments }
       : input.responseJsonSchema
