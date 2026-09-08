@@ -1,0 +1,98 @@
+name: Verify and finish an existing release image
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing published GitHub release tag
+        type: string
+        required: true
+      digest:
+        description: Exact image digest from the original build's acceptance artifact
+        type: string
+        required: true
+      source_sha:
+        description: Original build commit (full SHA)
+        type: string
+        required: true
+      built_run_id:
+        description: Original release workflow run ID
+        type: string
+        required: true
+      built_run_attempt:
+        description: Original workflow attempt number
+        type: string
+        default: '1'
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: niubigeo-container-publication
+  cancel-in-progress: false
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      packages: write
+    defaults:
+      run:
+        working-directory: release
+    env:
+      RECOVERY_TAG: ${{ inputs.tag }}
+      RECOVERY_DIGEST: ${{ inputs.digest }}
+      RECOVERY_SOURCE: ${{ inputs.source_sha }}
+      ORIGINAL_RUN: ${{ inputs.built_run_id }}
+      ORIGINAL_ATTEMPT: ${{ inputs.built_run_attempt }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      RELEASE_PLAN_FILE: release-image-plan.json
+      RELEASE_RECEIPT_FILE: release-image-receipt.json
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          path: policy
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+          path: release
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check original tag, workflow and archived digest
+        id: original
+        run: node ../policy/scripts/recover-release-image.mjs prepare
+      - name: Verify unchanged image on both platforms
+        env:
+          RELEASE_IMAGE: ${{ steps.original.outputs.image }}
+          RELEASE_VERSION: ${{ inputs.tag }}
+          RELEASE_SOURCE_SHA: ${{ inputs.source_sha }}
+        run: |
+          node scripts/verify-release-container.mjs linux/amd64
+          docker image rm "$RELEASE_IMAGE"
+          node scripts/verify-release-container.mjs linux/arm64
+      - name: Publish previously built digest without rebuilding
+        run: node ../policy/scripts/recover-release-image.mjs publish
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: image-release-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            release/release-image-plan.json
+            release/release-image-receipt.json
+            release/release-container-*.json
+            release/recovery-provenance.json

@@ -119,6 +119,7 @@ jobs:
           RELEASE_SOURCE_SHA: ${{ github.sha }}
         run: |
           node scripts/verify-release-container.mjs linux/amd64
+          docker image rm "$RELEASE_IMAGE"
           node scripts/verify-release-container.mjs linux/arm64
 
       - name: Publish checked tags from the exact digest and verify them
