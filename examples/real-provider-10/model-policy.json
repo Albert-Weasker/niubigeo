@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "real-provider-10-model-policy/v1",
+  "providerId": "openrouter",
+  "offline": {
+    "modelId": "openai/gpt-4o-mini",
+    "webSearchMode": "off",
+    "requireSupportedParameters": ["response_format", "structured_outputs"]
+  },
+  "online": {
+    "modelId": "openai/gpt-5.6-luna",
+    "webSearchMode": "provider_native",
+    "requireSupportedParameters": ["tools", "structured_outputs"],
+    "requirePricedWebSearch": true
+  },
+  "requestUpperBound": {
+    "maxInputTokens": 12000,
+    "maxOutputTokens": 900
+  }
+}

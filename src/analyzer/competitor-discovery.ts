@@ -1,5 +1,8 @@
 import type { AnswerProvider, DiscoveredCompetitor, Entity, PromptRun } from "../core/types.js";
+import type { ProviderCallContext, ProviderCallLedger } from "../telemetry/provider-call-ledger.js";
 import { normalizeDomain } from "../utils/domain.js";
+import { parseJsonObjectFromText } from "../intent/json-parser.js";
+import { runProviderWithRetry } from "../providers/provider-retry.js";
 
 interface CompetitorDiscoveryInput {
   target: Entity;
@@ -9,6 +12,8 @@ interface CompetitorDiscoveryInput {
   provider: AnswerProvider;
   model: string;
   apiKey: string;
+  callLedger?: ProviderCallLedger | undefined;
+  callContext?: Omit<ProviderCallContext, "purpose"> | undefined;
 }
 
 interface CompetitorRow {
@@ -33,15 +38,6 @@ function compactSpaces(value: string): string {
     }
   }
   return output.join("").trim();
-}
-
-function parseJsonArray(text: string): unknown {
-  const trimmed = text.trim();
-  if (trimmed.startsWith("[")) return JSON.parse(trimmed);
-  const start = trimmed.indexOf("[");
-  const end = trimmed.lastIndexOf("]");
-  if (start >= 0 && end > start) return JSON.parse(trimmed.slice(start, end + 1));
-  throw new Error("Competitor discovery did not return a JSON array.");
 }
 
 function textFromRow(value: unknown, key: string): string {
@@ -105,8 +101,7 @@ function discoveryPrompt(input: CompetitorDiscoveryInput): string {
     : "none";
   return [
     "Extract true competitors for the target brand using only the AI answers and citation URLs below.",
-    "Return only a JSON array. No markdown, no prose.",
-    "Each item must be: {\"name\":\"...\",\"domain\":\"...\",\"reason\":\"...\",\"relationship\":\"direct_competitor|adjacent|category|infrastructure|unknown\",\"confidence\":0.0}.",
+    "Return only one JSON object with a competitors array. No markdown, no prose.",
     "Rules:",
     "- Include only brands, products, or services that compete for the same buyer or user need as the target.",
     "- Prefer competitors with a real domain shown in citations or clearly named in the answers.",
@@ -125,12 +120,14 @@ function discoveryPrompt(input: CompetitorDiscoveryInput): string {
 }
 
 function parseRows(text: string, target: Entity): CompetitorRow[] {
-  const parsed = parseJsonArray(text);
-  if (!Array.isArray(parsed)) return [];
+  const parsed = parseJsonObjectFromText(text);
+  if (!parsed || typeof parsed !== "object") return [];
+  const candidates = (parsed as Record<string, unknown>).competitors;
+  if (!Array.isArray(candidates)) return [];
   const targetDomain = normalizeDomain(target.domain);
   const rows: CompetitorRow[] = [];
   const seen = new Set<string>();
-  for (const item of parsed) {
+  for (const item of candidates) {
     const name = textFromRow(item, "name");
     const domain = normalizeDomain(textFromRow(item, "domain"));
     const reason = textFromRow(item, "reason");
@@ -150,16 +147,56 @@ function parseRows(text: string, target: Entity): CompetitorRow[] {
   return rows;
 }
 
+function competitorDiscoverySchema(): Record<string, unknown> {
+  return {
+    type: "object",
+    additionalProperties: false,
+    required: ["competitors"],
+    properties: {
+      competitors: {
+        type: "array",
+        maxItems: 5,
+        items: {
+          type: "object",
+          additionalProperties: false,
+          required: ["name", "domain", "reason", "relationship", "confidence"],
+          properties: {
+            name: { type: "string" },
+            domain: { type: "string" },
+            reason: { type: "string" },
+            relationship: {
+              type: "string",
+              enum: ["direct_competitor", "adjacent", "category", "infrastructure", "unknown"],
+            },
+            confidence: { type: "number", minimum: 0, maximum: 1 },
+          },
+        },
+      },
+    },
+  };
+}
+
 export class CompetitorDiscovery {
   async discover(input: CompetitorDiscoveryInput): Promise<DiscoveredCompetitor[]> {
     if (completedRuns(input.runs).length === 0) return [];
-    const result = await input.provider.run({
+    const result = await runProviderWithRetry(input.provider, {
       prompt: discoveryPrompt(input),
       model: input.model,
       apiKey: input.apiKey,
       maxTokens: 900,
       temperature: 0,
       webSearchEnabled: false,
+      responseJsonSchema: {
+        name: "competitor_discovery",
+        schema: competitorDiscoverySchema(),
+      },
+    }, {
+      callId: input.callLedger?.createCallId(),
+      context: {
+        purpose: "report_analysis",
+        ...input.callContext,
+      },
+      onAttempt: input.callLedger ? (event) => input.callLedger?.record(event) : undefined,
     });
     return parseRows(result.text, input.target).map((row) => ({
       name: row.name,

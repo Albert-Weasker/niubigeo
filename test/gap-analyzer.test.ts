@@ -1,110 +1,116 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import type { AuditRun, Mention, MonitoringPrompt, PromptRun } from "../src/core/types.js";
+import type { AuditRun, MonitoringPrompt, PromptRun } from "../src/core/types.js";
+import type { IntentRunAnalysis } from "../src/intent/intent-schema.js";
 import { GeoGapAnalyzer } from "../src/insights/gap-analyzer.js";
 import { MetricsEngine } from "../src/metrics/metrics-engine.js";
 import { entityFromInput } from "../src/utils/domain.js";
 
-const target = entityFromInput({ type: "target", domain: "niubistar.com", name: "NiubiStar" });
-const competitor = entityFromInput({ type: "competitor", domain: "competitor.example", name: "Competitor A" });
+const target = entityFromInput({ type: "target", domain: "acme.example", name: "Acme" });
 
-function mention(input: Partial<Mention> & Pick<Mention, "entityId" | "entityName" | "entityType">): Mention {
+function prompt(): MonitoringPrompt {
   return {
-    count: 0,
-    firstPosition: null,
-    rankPosition: null,
-    mentionType: "not_mentioned",
-    sentiment: "neutral",
-    isMentioned: false,
-    isRecommendation: false,
-    isFirstPosition: false,
-    hasCitation: false,
-    hasOfficialLink: false,
-    context: null,
-    paragraph: null,
-    ...input,
+    id: "p1",
+    type: "recommendation",
+    topic: "selection",
+    language: "en",
+    text: "Which option fits this requirement, and what sources support it?",
+    enabled: true,
+    auditCategory: "organic_discovery",
+    targetIncluded: false,
   };
 }
 
-function prompt(id: string, text: string): MonitoringPrompt {
-  return { id, type: "recommendation", topic: "recommendation", language: "en", text, enabled: true };
+function intentAnalysis(): IntentRunAnalysis {
+  return {
+    schemaVersion: "intent-v2",
+    status: "completed",
+    promptIntent: {
+      primaryIntent: "recommendation",
+      secondaryIntents: ["source_analysis"],
+      requestedOutputs: ["Recommend an option", "Provide supporting sources"],
+      targetBrandRole: "not_mentioned",
+      requiresSources: true,
+      requiresComparison: false,
+      requiresRecommendation: true,
+      candidateApplicable: true,
+      recommendationApplicable: true,
+      uncertainty: "low",
+    },
+    tasks: [
+      { id: "task_1", requirement: "Recommend an option", expectedAnswerType: "list_of_options" },
+      { id: "task_2", requirement: "Provide supporting sources", expectedAnswerType: "source_list" },
+    ],
+    taskResults: [
+      { taskId: "task_1", status: "completed", evidenceQuote: "Acme is one option.", explanation: "The answer names one option.", sourceUrls: [] },
+      { taskId: "task_2", status: "missing", explanation: "No supporting source was provided.", sourceUrls: [] },
+    ],
+    entities: [],
+    adaptedResult: {
+      displayMode: "brand_question",
+      oneSentence: "The answer recommends one option but does not provide a source.",
+      userQuestion: "Which option fits this requirement, and what sources support it?",
+      answered: ["An option was recommended."],
+      missing: ["No supporting source was provided."],
+      uncertain: [],
+      entityInsights: [],
+    },
+    analyzer: { providerId: "openrouter", model: "test-model", sourceLabel: "Source: OpenRouter API" },
+  };
 }
 
-function run(id: string, promptRow: MonitoringPrompt, mentions: Mention[]): PromptRun {
+function completedRun(): PromptRun {
+  const promptRow = prompt();
   return {
-    id,
+    id: "r1",
     prompt: promptRow,
     target,
-    competitors: [competitor],
+    competitors: [],
     providerId: "openrouter",
-    model: "openai/gpt-4o-mini",
+    model: "test-model",
     webSearchEnabled: false,
     sourceType: "api",
     sourceLabel: "Source: OpenRouter API",
     status: "completed",
     startedAt: "2026-09-03T00:00:00.000Z",
     finishedAt: "2026-09-03T00:00:01.000Z",
-    rawJsonPath: `/tmp/${id}.json`,
-    analysis: { mentions, citations: [] },
+    result: {
+      providerId: "openrouter",
+      providerName: "OpenRouter",
+      sourceType: "api",
+      sourceLabel: "Source: OpenRouter API",
+      resultCaveat: "Provider API result",
+      model: "test-model",
+      modelVersion: "test-model",
+      text: "Acme is one option.",
+      citations: [],
+      webQueries: [],
+      latencyMs: 10,
+      createdAt: "2026-09-03T00:00:01.000Z",
+    },
+    analysis: { mentions: [], citations: [] },
+    intentAnalysis: intentAnalysis(),
   };
 }
 
-test("detects provider, prompt, and citation gaps from structured run evidence", () => {
-  const p1 = prompt("p1", "best tools");
-  const p2 = prompt("p2", "which tool should I use");
+test("reports only verifiable execution, task-completion, and source-evidence gaps", () => {
+  const run = completedRun();
   const audit: AuditRun = {
     id: "audit-gap",
     target,
-    competitors: [competitor],
-    prompts: [p1, p2],
-    providerTargets: [{ providerId: "openrouter", model: "openai/gpt-4o-mini" }],
-    runs: [
-      run("r1", p1, [
-        mention({ entityId: target.id, entityName: target.name, entityType: "target" }),
-        mention({
-          entityId: competitor.id,
-          entityName: competitor.name,
-          entityType: "competitor",
-          count: 1,
-          firstPosition: 0,
-          rankPosition: 1,
-          mentionType: "recommendation",
-          sentiment: "positive",
-          isMentioned: true,
-          isRecommendation: true,
-          isFirstPosition: true,
-          context: "Competitor A is recommended.",
-          paragraph: "Competitor A is recommended.",
-        }),
-      ]),
-      run("r2", p2, [
-        mention({
-          entityId: target.id,
-          entityName: target.name,
-          entityType: "target",
-          count: 1,
-          firstPosition: 0,
-          rankPosition: 1,
-          mentionType: "recommendation",
-          sentiment: "positive",
-          isMentioned: true,
-          isRecommendation: true,
-          isFirstPosition: true,
-          context: "NiubiStar is recommended.",
-          paragraph: "NiubiStar is recommended.",
-        }),
-        mention({ entityId: competitor.id, entityName: competitor.name, entityType: "competitor" }),
-      ]),
-    ],
+    competitors: [],
+    prompts: [run.prompt],
+    providerTargets: [{ providerId: "openrouter", model: "test-model" }],
+    runs: [run],
     startedAt: "2026-09-03T00:00:00.000Z",
     finishedAt: "2026-09-03T00:00:02.000Z",
   };
 
-  const metrics = new MetricsEngine().compute(audit.runs);
-  const gaps = new GeoGapAnalyzer().analyze(audit, metrics);
+  const gaps = new GeoGapAnalyzer().analyze(audit, new MetricsEngine().compute(audit.runs));
   const titles = gaps.findings.map((finding) => finding.title);
 
-  assert.ok(titles.some((title) => title.includes("rarely cites official target sources")));
-  assert.ok(titles.some((title) => title.includes("competitors but not the target")));
-  assert.ok(titles.some((title) => title.includes("mentioned without official citations")));
+  assert.ok(titles.includes("The AI answer did not fully satisfy every requested task"));
+  assert.ok(titles.includes("The question required sources but the provider returned none"));
+  assert.equal(gaps.findings.some((finding) => finding.recommendation.includes("comparison page")), false);
+  assert.equal(gaps.findings.some((finding) => finding.recommendation.includes("keyword")), false);
 });

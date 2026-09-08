@@ -90,7 +90,6 @@ function promptOutcome(run: PromptRun): PromptOutcome {
     keywordIds: run.prompt.keywordIds || [],
     keywordIntent: run.prompt.keywordIntent,
     winner: winner(run),
-    rawJsonPath: run.rawJsonPath || null,
     costUsd: run.result?.costUsd,
   };
 }

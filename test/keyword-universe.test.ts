@@ -1,9 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import type { SiteEvidence } from "../src/core/types.js";
-import { KeywordUniverseBuilder } from "../src/keywords/keyword-universe.js";
-import { KeywordRelevanceScorer } from "../src/keywords/keyword-relevance.js";
-import { KeywordPromptPlanner } from "../src/prompts/keyword-prompt-planner.js";
+import type { AnswerProvider, AnswerResult, ProviderDefinition, ProviderRunInput, SiteEvidence } from "../src/core/types.js";
+import { KeywordAnalyzer } from "../src/keywords/keyword-analyzer.js";
+import { parseGeneratedPrompts } from "../src/prompts/prompt-generator.js";
 import { entityFromInput } from "../src/utils/domain.js";
 
 const siteEvidence: SiteEvidence = {
@@ -30,55 +29,126 @@ const siteEvidence: SiteEvidence = {
   collectedAt: "2026-09-03T00:00:00.000Z",
 };
 
-test("keeps user keywords first and scores owned-site relevance from site evidence", () => {
-  const universe = new KeywordUniverseBuilder().build({
+class KeywordAnalysisProvider implements AnswerProvider {
+  readonly definition: ProviderDefinition = {
+    id: "test",
+    label: "Test",
+    sourceType: "api",
+    envKeys: [],
+    defaultModels: ["test-model"],
+    supportsAnyModel: true,
+    supportsNativeCitations: false,
+    supportsWebSearch: false,
+    resultCaveat: "test",
+  };
+
+  async run(input: ProviderRunInput): Promise<AnswerResult> {
+    assert.equal(input.prompt.includes("Evidence catalog"), true);
+    const output = {
+      keywords: [
+        { phrase: "AI agent audit", userSeedId: "user-keyword-1", relevance: 0.96, evidenceIds: ["evidence-1", "evidence-3"] },
+        { phrase: "unmentioned buyer keyword", userSeedId: "user-keyword-2", relevance: 0.08, evidenceIds: [] },
+        { phrase: "agent observability", relevance: 0.91, evidenceIds: ["evidence-8"] },
+      ],
+    };
+    return {
+      providerId: this.definition.id,
+      providerName: this.definition.label,
+      sourceType: "api",
+      sourceLabel: "Source: Test API",
+      resultCaveat: "test",
+      model: input.model,
+      modelVersion: input.model,
+      text: JSON.stringify(output),
+      citations: [],
+      webQueries: [],
+      latencyMs: 1,
+      createdAt: new Date().toISOString(),
+    };
+  }
+}
+
+async function analyzedKeywords() {
+  return new KeywordAnalyzer().analyze({
+    target: entityFromInput({ type: "target", domain: "www.example.dev", name: "ExampleDev" }),
     siteEvidence,
     userKeywords: ["AI agent audit", "unmentioned buyer keyword"],
     language: "en",
     mode: "site_plus_user",
-    limit: 1,
+    limit: 3,
+    provider: new KeywordAnalysisProvider(),
+    model: "test-model",
+    apiKey: "test-key",
   });
+}
 
-  assert.equal(universe.keywords.length, 2);
+test("uses Provider judgments and verified site evidence for keyword relevance", async () => {
+  const analyzed = await analyzedKeywords();
   assert.deepEqual(
-    universe.keywords.map((keyword) => keyword.phrase),
-    ["AI agent audit", "unmentioned buyer keyword"],
+    analyzed.keywords.map((keyword) => keyword.phrase),
+    ["AI agent audit", "unmentioned buyer keyword", "agent observability"],
   );
-  assert.ok(universe.keywords.every((keyword) => keyword.userDefined));
-
-  const relevance = new KeywordRelevanceScorer().score({ keywords: universe.keywords, siteEvidence });
-  const aiAgentAudit = relevance.find((row) => row.keywordId === universe.keywords[0]?.id);
-  const unmentioned = relevance.find((row) => row.keywordId === universe.keywords[1]?.id);
-  assert.ok(aiAgentAudit);
-  assert.ok(unmentioned);
-  assert.ok(aiAgentAudit.score > unmentioned.score);
-  assert.ok(aiAgentAudit.evidenceCount > 0);
-  assert.equal(unmentioned.evidenceCount, 0);
+  assert.equal(analyzed.keywords[0]?.userDefined, true);
+  assert.equal(analyzed.keywords[2]?.userDefined, false);
+  assert.equal(analyzed.relevance[0]?.score, 0.96);
+  assert.equal(analyzed.relevance[1]?.score, 0.08);
+  assert.equal(analyzed.relevance[1]?.evidenceCount, 0);
+  assert.equal(analyzed.relevance[2]?.evidence[0]?.text, "agent observability");
 });
 
-test("builds keyword prompts that remain traceable to keyword ids", () => {
+test("validates provider-generated keyword prompts and preserves keyword lineage", async () => {
   const target = entityFromInput({ type: "target", domain: "www.example.dev", name: "ExampleDev" });
-  const competitor = entityFromInput({ type: "competitor", domain: "other.dev", name: "OtherDev" });
-  const universe = new KeywordUniverseBuilder().build({
-    siteEvidence,
-    userKeywords: ["AI agent audit"],
-    language: "en",
-    mode: "site_plus_user",
-    limit: 3,
-  });
-  const prompts = new KeywordPromptPlanner().build({
-    target,
-    competitors: [competitor],
-    keywords: universe.keywords,
-    language: "en",
-    promptsPerKeyword: 2,
-  });
+  const analyzed = await analyzedKeywords();
+  const rows = analyzed.keywords.flatMap((keyword, index) => [
+    {
+      type: "keyword_category",
+      topic: keyword.phrase,
+      prompt: `Question ${index + 1} for ${keyword.phrase}`,
+      auditCategory: "organic_discovery",
+      targetIncluded: false,
+      keywordIds: [keyword.id],
+      keywordIntent: "category",
+    },
+    {
+      type: "keyword_comparison",
+      topic: keyword.phrase,
+      prompt: `Comparison ${index + 1} for ${keyword.phrase}`,
+      auditCategory: "comparison",
+      targetIncluded: false,
+      keywordIds: [keyword.id],
+      keywordIntent: "comparison",
+    },
+  ]);
+  const prompts = parseGeneratedPrompts(JSON.stringify(rows), target, "en", rows.length, analyzed.keywords);
 
-  assert.ok(prompts.length >= 2);
-  for (const keyword of universe.keywords) {
-    assert.ok(prompts.some((prompt) => prompt.keywordIds?.includes(keyword.id)), `missing prompts for ${keyword.phrase}`);
+  for (const keyword of analyzed.keywords) {
+    assert.equal(prompts.some((prompt) => prompt.keywordIds?.includes(keyword.id)), true);
   }
-  assert.ok(prompts.some((prompt) => prompt.targetIncluded === false));
-  assert.ok(prompts.every((prompt) => prompt.keywordIntent));
-  assert.ok(prompts.every((prompt) => prompt.seedSource));
+  assert.equal(prompts.some((prompt) => prompt.targetIncluded === false), true);
+  assert.equal(prompts.every((prompt) => Boolean(prompt.keywordIntent)), true);
+  assert.equal(prompts.every((prompt) => Boolean(prompt.seedSource)), true);
+});
+
+test("rejects incomplete Provider analysis instead of inventing a missing user keyword", async () => {
+  class IncompleteProvider extends KeywordAnalysisProvider {
+    override async run(input: ProviderRunInput): Promise<AnswerResult> {
+      const result = await super.run(input);
+      const output = { keywords: [{ phrase: "AI agent audit", userSeedId: "user-keyword-1", relevance: 0.9, evidenceIds: ["evidence-1"] }] };
+      return { ...result, text: JSON.stringify(output) };
+    }
+  }
+  await assert.rejects(
+    new KeywordAnalyzer().analyze({
+      target: entityFromInput({ type: "target", domain: "www.example.dev", name: "ExampleDev" }),
+      siteEvidence,
+      userKeywords: ["AI agent audit", "unmentioned buyer keyword"],
+      language: "en",
+      mode: "site_plus_user",
+      limit: 3,
+      provider: new IncompleteProvider(),
+      model: "test-model",
+      apiKey: "test-key",
+    }),
+    (error) => error instanceof Error && error.message === "Keyword analyzer did not return every user keyword.",
+  );
 });

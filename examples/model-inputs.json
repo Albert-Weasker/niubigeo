@@ -1,0 +1,5 @@
+[
+  {"modelId":"openai/gpt-4o-mini","webSearchMode":"off"},
+  {"modelId":"google/gemini-2.5-flash-lite","webSearchMode":"off"},
+  {"modelId":"openai/gpt-4.1-mini","webSearchMode":"provider_native"}
+]

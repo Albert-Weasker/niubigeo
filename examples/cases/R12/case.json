@@ -1,0 +1,11 @@
+{
+  "id": "R12",
+  "domain": "gitlab.com",
+  "category": {
+    "zh": "软件开发协作",
+    "en": "Software development collaboration"
+  },
+  "language": "en",
+  "studyPlan": "../../study-plan.json",
+  "evidenceIndex": "./evidence-index.json"
+}

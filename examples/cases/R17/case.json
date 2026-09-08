@@ -1,0 +1,11 @@
+{
+  "id": "R17",
+  "domain": "airtable.com",
+  "category": {
+    "zh": "数据与协作",
+    "en": "Data and collaboration"
+  },
+  "language": "zh",
+  "studyPlan": "../../study-plan.json",
+  "evidenceIndex": "./evidence-index.json"
+}

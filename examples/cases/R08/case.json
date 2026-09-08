@@ -1,0 +1,11 @@
+{
+  "id": "R08",
+  "domain": "notion.so",
+  "category": {
+    "zh": "文档协作",
+    "en": "Document collaboration"
+  },
+  "language": "en",
+  "studyPlan": "../../study-plan.json",
+  "evidenceIndex": "./evidence-index.json"
+}

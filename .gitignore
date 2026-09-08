@@ -4,6 +4,13 @@
 node_modules/
 dist/
 runs/
+data/
+validation/
+test-results/
+playwright-report/
+blob-report/
+*.trace.zip
+*.webm
 PROJECT_CONTEXT.md
 NiubiGEO_README_zh-CN*.md
 docs/assets/demo-frames/

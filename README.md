@@ -1,403 +1,242 @@
-<div align="center">
-
-<img src="./assets/brand/niubigeo-readme-hero.svg" width="100%" alt="NiubiGEO - open-source AI brand visibility and competitor reports" />
-
-### Does AI recommend your product? Who shows up instead?
-
-**Enter a domain and see whether AI recommends you, which competitors appear, and which sources shape the answer.**
-
-[Next Preview](./NEXT_PREVIEW.md) · [简体中文](./README.zh-CN.md) · [Quick start](#3-minute-audit) · [Releases](https://github.com/Albert-Weasker/niubigeo/releases) · [Packages](https://github.com/Albert-Weasker/niubigeo/pkgs/container/niubigeo) · [Compare tools](#niubigeo-vs-commercial-ai-visibility-tools)
-
-<p>
-  <strong>NiubiGEO Next Preview is available:</strong><br />
-  <a href="./NEXT_PREVIEW.md"><strong>Read the redesigned AI domain-recognition monitor</strong></a>
-  ·
-  <a href="./NEXT_PREVIEW.zh-CN.md">查看简体中文预告</a>
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/brand/niubigeo-lockup.svg">
+    <source media="(prefers-color-scheme: light)" srcset="assets/brand/niubigeo-lockup-light.svg">
+    <img src="assets/brand/niubigeo-lockup-light.svg" width="336" alt="NiubiGEO">
+  </picture>
 </p>
 
-<br />
+<p align="center">
+  <a href="https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.2.0"><img src="assets/readme/version.svg" alt="NiubiGEO v0.2.0" width="172" height="28"></a>
+  <a href="LICENSE"><img src="assets/readme/license.svg" alt="Apache-2.0" width="172" height="28"></a>
+  <a href="docs/deployment/docker.md"><img src="assets/readme/self-hosted.svg" alt="Self-hosted" width="132" height="28"></a>
+</p>
 
-![Alpha](https://img.shields.io/badge/ALPHA-v0.1.0-51FFB7?style=flat-square&labelColor=07110F)
-![Open Source](https://img.shields.io/badge/OPEN_SOURCE-COMMUNITY-31D7FF?style=flat-square&labelColor=07110F)
-![Self-hosted](https://img.shields.io/badge/SELF_HOSTED-YES-B5FF3D?style=flat-square&labelColor=07110F)
-![BYOK](https://img.shields.io/badge/BYOK-SUPPORTED-51FFB7?style=flat-square&labelColor=07110F)
-![English](https://img.shields.io/badge/English-supported-31D7FF?style=flat-square&labelColor=07110F)
+# Does AI recommend your product? Who shows up instead?
 
-</div>
+**Enter a domain. Compare how models describe your product, who they recommend, and which sources they cite.**
+
+<p align="center">
+  <strong><a href="https://github.com/Albert-Weasker/niubigeo">GitHub</a> · <a href="README.zh-CN.md">简体中文</a> · <a href="#quick-start">Quick start</a> · <a href="#cases">20 real cases</a> · <a href="https://github.com/Albert-Weasker/niubigeo/releases">Releases</a> · <a href="https://github.com/Albert-Weasker/niubigeo/pkgs/container/niubigeo">Packages</a> · <a href="#docs">Docs</a></strong>
+  <br>
+  <a href="#features">Features</a> · <a href="#how-to">How to use it</a> · <a href="#monitoring">Monitoring</a> · <a href="#niubigeo-vs-commercial-ai-visibility-tools">Compare tools</a> · <a href="#why">Why NiubiGEO</a> · <a href="#sponsors">Sponsors</a>
+</p>
+
+You have built a product, written the docs and worked to get the word out. When people ask AI for tools, does your product make it into the answer?
+
+**NiubiGEO is an open-source tool for tracking brand visibility and competitors in AI answers.** Start with a domain to see how different models describe your product and which competitors they name. Then test keywords to find out who appears in the answers. Open any result to inspect the original response and returned sources.
+
+> **Open the GEO reporting black box. Put evidence in your hands.**
 
 ---
 
-> [!IMPORTANT]
-> **NiubiGEO Next Preview is available.** The next version moves from one-time AI visibility audits to long-term AI domain-recognition monitoring. [Read the preview](./NEXT_PREVIEW.md) / [简体中文](./NEXT_PREVIEW.zh-CN.md).
+## What can you find out?
 
-## You shipped a product. Does AI know it exists?
-
-More users now ask AI directly instead of clicking through a page of search results:
-
-> What tools should I use?  
-> What products exist in this category?  
-> What are the alternatives to this product?  
-> Which one should I choose?
-
-Your website may already be indexed by search engines, but AI may still:
-
-- miss your brand entirely;
-- misunderstand your positioning;
-- remember only part of your product;
-- recommend competitors first;
-- cite third-party pages while ignoring your official site.
-
-NiubiGEO does not hide this behind an unexplained score. It shows the questions, answers, competitors, and sources so you can understand how AI sees your market.
-
-## What you get from one audit
-
-<table>
-<tr>
-<td width="50%" valign="top">
-
-### How AI understands your brand
-
-See which models recognize your brand, how they describe your product, and what they leave out.
-
-</td>
-<td width="50%" valign="top">
-
-### Who AI treats as competitors
-
-When users do not mention your brand, see which products AI brings up instead. NiubiGEO separates confirmed competitors from loosely related names.
-
-</td>
-</tr>
-<tr>
-<td width="50%" valign="top">
-
-### Where your brand is missing
-
-Find customer questions where competing products appear and your product does not.
-
-</td>
-<td width="50%" valign="top">
-
-### Which sources shape the answer
-
-Review the official, community, and third-party sources cited by AI, then open the original answer behind each conclusion.
-
-</td>
-</tr>
-</table>
-
-**Data source:** Community Edition generates results with the provider API you configure. Every conclusion links back to the question, model answer, and citation sources behind it.
-
-## A report founders can actually read
-
-NiubiGEO does not require you to understand a pile of GEO metrics. The report answers plain business questions:
-
-```text
-Summary
-├── Does AI recognize your product?
-├── How does AI describe your brand?
-├── Who are the confirmed competitors?
-├── Which questions surface competitors more often?
-├── Which important questions miss your brand?
-└── Which sources support these conclusions?
-```
-
-The main report stays focused on readable conclusions. Full AI answers are collapsed by default and can be opened when you want to inspect the evidence.
-
-## Why open source?
-
-We want every team to understand how they appear in AI answers at a low cost, with a way to verify every conclusion.
-
-NiubiGEO lets you:
-
-- self-host for free and use your own provider keys;
-- review every test question before it runs;
-- open the original AI answer behind each conclusion;
-- inspect how brands, competitors, and citation sources were identified.
-
-## 3-minute audit
-
-### Docker
-
-```bash
-git clone https://github.com/Albert-Weasker/niubigeo.git
-cd niubigeo
-cp .env.example .env
-```
-
-Add at least one provider key to `.env`:
-
-```env
-OPENROUTER_API_KEY=
-OPENAI_API_KEY=
-ANTHROPIC_API_KEY=
-GEMINI_API_KEY=
-PERPLEXITY_API_KEY=
-DEEPSEEK_API_KEY=
-```
-
-Start the app:
-
-```bash
-docker compose up --build
-```
-
-Open [http://localhost:8787](http://localhost:8787), enter a domain, confirm the brand, competitors, and questions, then run the audit.
-
-You can also pull the published image:
-
-```bash
-docker pull ghcr.io/albert-weasker/niubigeo:v0.1.0-alpha
-```
+- **How AI sees your product.** What does it call your brand, and what does it think you do? Do different models agree?
+- **Who else appears.** Which products does each model associate with yours? Do you or your competitors appear in keyword tests?
+- **Which words it associates with you.** Compare the keywords models connect to your brand and other products to find differences worth investigating.
+- **Where the results come from.** Inspect original answers, returned citations and changes across repeated tests.
 
 <details>
-<summary><strong>Run with Node.js</strong></summary>
+<summary><strong>See the workbench: PostHog model answers and evidence links</strong></summary>
 
-NiubiGEO requires Node.js 22 or newer.
+[![PostHog: individual domain recognition results, descriptions, competing products and evidence links](assets/screenshots/v0.2.0-rc.1/R04-models.png)](examples/cases/R04/README.md)
+
+*Read what each model actually said, then open the sources to check. An original screenshot from the September 8, 2026 study. [Read the PostHog case](examples/cases/R04/README.md).*
+
+</details>
+
+<a id="quick-start"></a>
+<a id="3-minute-audit"></a>
+
+## Get started
+
+**Want to see it in action first? [Explore 20 real cases](examples/README.md).** No installation or API key needed.
+
+To test your own product, you will need Node.js 22+ and your own OpenRouter API key:
 
 ```bash
-git clone https://github.com/Albert-Weasker/niubigeo.git
+git clone --branch v0.2.0 --depth 1 https://github.com/Albert-Weasker/niubigeo.git
 cd niubigeo
+npm ci
 cp .env.example .env
-npm install
-npm run self-check
+```
+
+Set `OPENROUTER_API_KEY` in `.env`, then start the app:
+
+```bash
 npm run server
 ```
 
-</details>
+Open [**http://localhost:8787**](http://localhost:8787) to create your first project.
+
+Prefer a container? Follow the [Docker guide](docs/deployment/docker.md). Existing users should read [Backups and upgrades](docs/upgrade.md).
+
+<a id="how-to"></a>
+
+## How to use it
+
+1. **Enter a domain.** Create a project for your product. It is saved before you start testing.
+2. **Choose your models.** Search for and select one or more models, then set web search separately for each.
+3. **Save your configuration and start a test.** Models answer independently. If one fails, the other results remain available.
+4. **Open the results.** Review descriptions, competitors, keywords and sources. Open the original answer to check a finding.
+5. **Keep observing.** Confirm the keywords you want to test, then run keyword tests. Repeat measurements or set up scheduled monitoring to collect comparable records.
+
+Start with one model, then add more once you know what to look for. Reading the cases is free; testing your own project incurs model and search API charges.
+
+<a id="features"></a>
+
+## From one answer to ongoing observation
+
+| What you want to do | What NiubiGEO provides |
+| :--- | :--- |
+| **Manage several products** | Each domain has its own project, configuration, runs and evidence. Switch projects without mixing products into one report. |
+| **Compare models** | Search, filter and select OpenRouter models. Inspect each model’s answer, result and errors, and retry a failed model separately. |
+| **Choose whether to use web search** | Set each model to offline or its supported native search mode. Results retain the actual execution conditions. |
+| **Understand brand and competitor descriptions** | Read business descriptions, categories, competing products and their associated keywords side by side. |
+| **See who appears without naming your brand** | Confirm keywords, then test them without including your target brand’s name. Inspect actual mentions, recommendations and original wording. |
+| **Check the evidence** | Original answers, text locations, Provider citations and ordinary answer URLs are shown separately. Failures and uncertainty remain on record. |
+| **Build a history** | Save what you want to measure, repeat tests or schedule them. Follow historical records and data points back to the answers behind them. |
+
+<a id="monitoring"></a>
+
+### Repeated measurements and scheduled monitoring
+
+The first domain test shows how models describe your product now. Confirm the competing products and keywords to measure that scope again or create a schedule. Previous records remain when your model selection changes; new models do not acquire invented history.
+
+Scheduled execution requires the [monitoring worker](docs/deployment/docker.md#显式启用-worker) to be running. [PostHog’s three recorded measurements](examples/cases/R04/README.md) include a scheduled run, with answers and failures available for each. A few minutes of repeated tests do not establish long-term growth.
+
+**[How it works in detail](docs/how-it-works.md)** · [Metrics and comparison conditions](docs/measurement-methodology.md) · [Known issues](docs/known-issues.md)
+
+<a id="cases"></a>
+
+## Three real examples
+
+| Notion | Figma | PostHog |
+| :--- | :--- | :--- |
+| [How models describe a product](#case-notion) | [Who appears without naming a brand](#case-figma) | [Sources and repeated tests](#case-posthog) |
+
+<a id="case-notion"></a>
+
+### Notion · One product, different descriptions
+
+In the `notion.so` test, models emphasized different aspects of the product: notes, a workspace and collaboration. They also named different competing products.
+
+Reading the answers side by side shows which capabilities each model mentioned, which it left out and which products it associated with Notion.
+
+These are descriptions from this test. Recognizing a domain after being asked about it is not the same as recommending it unprompted.
+
+**[Read Notion’s descriptions and competing products](examples/cases/R08/README.md)**
 
 <details>
-<summary><strong>Run from CLI</strong></summary>
+<summary>View Notion’s original model-results screenshot</summary>
 
-```bash
-npm run audit -- \
-  --domain example.com \
-  --provider openrouter \
-  --models openai/gpt-4o-mini,perplexity/sonar \
-  --prompt-count 8
-```
-
-Add keywords and your own customer questions:
-
-```bash
-npm run audit -- \
-  --domain example.com \
-  --keywords "category keyword,buyer intent keyword" \
-  --competitors rival.com,other.com \
-  --prompts "What are the best tools in this category?|What are the alternatives?"
-```
-
-Reports are saved in the local `runs/` directory by default.
+![Notion: descriptions, competing products and keywords returned by three models](assets/screenshots/v0.2.0-rc.1/R08-models.png)
 
 </details>
 
-## Supported providers
+<a id="case-figma"></a>
 
-| Provider | Status | How it is used |
-|---|:---:|---|
-| OpenRouter | Supported | One key can run models from multiple providers; native web plugin supported |
-| OpenAI | Supported | Uses the official OpenAI Responses API; native `web_search` supported |
-| Anthropic | Supported | Uses the official Anthropic Messages API; native Claude web search supported |
-| Google Gemini | Supported | Uses the official Gemini API; Google Search grounding supported |
-| Perplexity | Supported | Uses Sonar web-grounded answers and Provider-returned citations |
-| DeepSeek | Supported | Uses DeepSeek Responses-compatible API; native `web_search` supported |
-| OpenAI-compatible API | Supported | Custom gateways via `OPENAI_COMPATIBLE_BASE_URL` and `OPENAI_COMPATIBLE_API_KEY` |
+### Figma · Who appears when the brand is not named?
 
-See [Provider-native web search](docs/PROVIDER_NATIVE_SEARCH.md) for the exact execution paths and source-labeling rules.
+In a **Prototyping** keyword test that did not name Figma, two offline answers mainly explained the concept of prototyping. An answer with web search requested named Figma and described its prototyping features.
 
-## Packages
+This reveals which answers named an actual product and which only explained a concept. A brand mention, a positive description and an explicit recommendation are different things.
 
-The Docker image is published on GitHub Container Registry:
+> Figma’s prototyping tools make it easy to build and share high-fidelity, no-code, interactive prototypes.
 
-```bash
-docker pull ghcr.io/albert-weasker/niubigeo:v0.1.0-alpha
-docker pull ghcr.io/albert-weasker/niubigeo:latest
-```
+*Excerpt from the original answer: [GPT-4.1 mini · native search requested](examples/cases/R14/README.md#attempt-2afd57bb-3566-40f2-b339-995bd17b3687).*
 
-## Bilingual by design
+**[Explore the Figma keyword test](examples/cases/R14/README.md)**
 
-NiubiGEO supports English and Simplified Chinese. The language setting affects:
+<a id="case-posthog"></a>
 
-- the product interface;
-- automatically generated monitoring questions;
-- prompts sent to the provider;
-- brand and competitor analysis;
-- the final report.
+### PostHog · Follow a source back to the answer
 
-## NiubiGEO vs commercial AI visibility tools
+In the **Feature Flags** test for PostHog, model responses returned citations to pages including a Splunk blog post. NiubiGEO stores these separately from ordinary URLs in the answer text.
 
-Commercial AI visibility platforms are usually a better fit for teams ready to buy hosted software, proprietary datasets, and team workflows. NiubiGEO is for teams that want to start with open source, control their models and questions, and keep the evidence close.
+Follow a source to the corresponding answer and check where it appeared. A citation helps you inspect the response; it does not, by itself, explain why a model recommended something.
 
-The comparison below is based on public information from each product's official website, last checked on **2026-09-03**. Product capabilities change over time; verify current details on the vendor's own website.
+The case also includes three closely spaced measurements, one triggered by a schedule. Each run includes its results and failures. These records demonstrate repeated testing, not long-term growth.
 
-### NiubiGEO vs Profound
+**[Explore PostHog’s sources and repeated measurements](examples/cases/R04/README.md)**
 
-- **Choose Profound:** Best for organizations that need hosted enterprise monitoring, mature marketing workflows, and large-scale data capabilities.
-- **Choose NiubiGEO:** Best for teams that want to start free, self-host, choose their own models, and inspect the underlying evidence.
+### 17 more products
 
-[View Profound](https://www.tryprofound.com/)
+The collection covers **20 real domains**, each with at least one analyzable domain answer. **11 cases also ran keyword tests.** Every case includes its test conditions, results, original answers and screenshots, along with failures and unresolved findings.
 
-### NiubiGEO vs Peec AI
-
-- **Choose Peec AI:** Best for marketing teams that want a hosted product for continuous brand tracking out of the box.
-- **Choose NiubiGEO:** Best for users who do not want to start with a SaaS subscription and want control over questions, models, and data.
-
-[View Peec AI](https://peec.ai/)
-
-### NiubiGEO vs Otterly.AI
-
-- **Choose Otterly.AI:** Best for teams that need hosted AI search monitoring, scheduled reports, and optimization workflows.
-- **Choose NiubiGEO:** Best for teams that want to use their own API keys to quickly verify whether AI recommends their brand.
-
-[View Otterly.AI](https://otterly.ai/)
-
-### NiubiGEO vs Semrush AI Visibility
-
-- **Choose Semrush:** Best for teams already using Semrush that want AI visibility inside a broader SEO and marketing data stack.
-- **Choose NiubiGEO:** Best for users who do not need proprietary SEO data and want an inspectable report around their own questions and models.
-
-[View Semrush AI Visibility](https://www.semrush.com/pricing/ai/)
-
-### NiubiGEO vs Ahrefs Brand Radar
-
-- **Choose Ahrefs:** Best for SEO teams that need large-scale keyword data, search demand, and AI visibility indexes.
-- **Choose NiubiGEO:** Best for teams that want to define their own questions, run their own models, and start from a local auditable report.
-
-[View Ahrefs Brand Radar](https://ahrefs.com/brand-radar)
-
-### NiubiGEO vs AthenaHQ
-
-- **Choose AthenaHQ:** Best for organizations that need a full GEO workflow, action recommendations, and team collaboration.
-- **Choose NiubiGEO:** Best for teams that first want to understand whether AI knows their brand, which sources it cites, and who the competitors are.
-
-[View AthenaHQ](https://athenahq.ai/)
-
-### NiubiGEO vs Scrunch
-
-- **Choose Scrunch:** Best for teams that need enterprise monitoring, optimization guidance, and AI-agent content delivery.
-- **Choose NiubiGEO:** Best for users who want to start with an open-source AI brand audit and keep the evidence chain visible.
-
-[View Scrunch](https://scrunch.com/)
-
-<details>
-<summary><strong>View quick comparison table</strong></summary>
-
-| Capability | NiubiGEO | Commercial platforms |
-|---|:---:|:---:|
-| AI brand visibility | Supported | Usually supported |
-| Competitor analysis | Supported | Usually supported |
-| Citation/source analysis | Supported | Usually supported |
-| Open source | Supported | Usually not offered |
-| Self-hosting | Supported | Usually not offered |
-| Bring your own provider key | Supported | Usually not offered |
-| Hosted infrastructure | Not included | Usually included |
-| Proprietary datasets | Not included | Usually included |
-| Team workflows | Planned | Usually included |
-
-Trademarks and product names belong to their respective owners.
-
-</details>
-
-## How it works
-
-```mermaid
-flowchart LR
-    A[Enter domain] --> B[Discover brand and competitors]
-    B --> C[Confirm real customer questions]
-    C --> D[Call provider APIs]
-    D --> E[Analyze answers and sources]
-    E --> F[Generate readable report]
-```
-
-1. Enter a domain or product page.
-2. NiubiGEO identifies the brand, aliases, category, keywords, and possible competitors.
-3. The user confirms or edits the questions before any provider call.
-4. The system calls the configured provider API.
-5. NiubiGEO analyzes the target brand, competitors, recommendations, and provider-returned sources.
-6. It generates a short, readable report where every conclusion links back to evidence.
-
-## Project status
-
-NiubiGEO is currently `v0.1.0-alpha`: the core flow works, while interfaces, data structures, and report rules may still change.
-
-- [x] Multi-provider API audits
-- [x] Question confirmation before audit
-- [x] Brand and competitor discovery
-- [x] Confirmed competitors separated from possibly related brands
-- [x] Relevant source filtering
-- [x] Reports traceable to AI answers
-- [x] English and Simplified Chinese
-- [ ] Scheduled monitoring
-- [ ] Report comparison under the same audit conditions
-- [ ] Report export package
-- [ ] Provider Plugin SDK
-- [ ] More providers and compatible endpoints
-
-## Need to verify what real users see?
-
-Community Edition is for running your own API visibility audits. If you also need:
-
-- human testing across countries and regions;
-- consumer web UI checks for ChatGPT, Gemini, Claude, Perplexity, and similar products;
-- screenshots, sources, and complete evidence packages;
-- GEO optimization plans based on the competitive gaps found in the audit;
-
-you can explore **NiubiGEO Managed Service, powered by the NiubiStar global user network.**
-
-<details>
-<summary><strong>View data source and result boundaries</strong></summary>
-
-- Community Edition uses provider APIs and does not simulate consumer web UI results.
-- API answers can differ from consumer product answers.
-- Citations only come from provider responses or sources that appear in the AI answer.
-- OpenRouter can call models from different providers, but the result is still labeled as OpenRouter API.
-- Provider keys do not cross boundaries. For example, an OpenAI key only calls OpenAI, and a Gemini key only calls Gemini.
-- Without a provider key, NiubiGEO does not produce AI visibility results.
-- The core audit path never treats mock data as a substitute for real provider answers.
-- AI answers are stochastic; one audit is not a permanent ranking.
-- Human regional testing and consumer web UI verification are separate services.
-
-</details>
-
-<details>
-<summary><strong>View security and license notes</strong></summary>
-
-Do not commit provider keys, customer reports, private prompts, or run data containing sensitive information. Report security issues privately through [SECURITY.md](./SECURITY.md).
-
-NiubiGEO is licensed under [Apache-2.0](./LICENSE).
-
-</details>
-
-## Contributing
-
-Contributions are welcome for new providers, entity recognition rules, source filtering rules, report language improvements, and documentation.
-
-- Read [CONTRIBUTING.md](./CONTRIBUTING.md)
-- File bugs in [Issues](https://github.com/Albert-Weasker/niubigeo/issues)
-- Discuss features in [Discussions](https://github.com/Albert-Weasker/niubigeo/discussions)
-
-## Contributors
-
-Thanks to everyone building NiubiGEO.
-
-<p>
-  <a href="https://github.com/Albert-Weasker">
-    <img src="https://avatars.githubusercontent.com/u/186366929?v=4" width="56" alt="Albert-Weasker" />
-    <br />
-    <sub><strong>Albert-Weasker</strong></sub>
-  </a>
-</p>
-
-See the full contributor graph on [GitHub](https://github.com/Albert-Weasker/niubigeo/graphs/contributors).
+**[Browse all cases](examples/README.md)** · [Known issues](docs/known-issues.md)
 
 ---
 
-<div align="center">
+<a id="niubigeo-vs-commercial-ai-visibility-tools"></a>
 
-**Enter a domain and see whether AI recommends your product for the questions that matter.**
+## Which AI visibility tool fits your team?
 
-[Get started](#3-minute-audit) · [File an issue](https://github.com/Albert-Weasker/niubigeo/issues) · [Read Chinese docs](./README.zh-CN.md)
+**Choose NiubiGEO** when you want free access to the source, self-hosting, model choice with your own API key, and domain and keyword tests that you can trace back to the original evidence. You cover model, search and hosting costs.
 
-Built by [NiubiStar](https://www.niubistar.com/)
+**Consider a commercial platform** when hosted services, marketing workflows or an existing search dataset matter more to you. The priorities below offer a starting point.
 
-</div>
+| Tool and official site | Consider it when you need |
+| :--- | :--- |
+| [Profound](https://www.tryprofound.com/) | AI brand monitoring, prompt-demand data and content marketing workflows. |
+| [Peec AI](https://peec.ai/) | AI search analytics and brand-performance tracking for marketing teams. |
+| [Otterly.AI](https://otterly.ai/) | AI search monitoring, content audits and optimization guidance. |
+| [Semrush AI Visibility](https://www.semrush.com/pricing/ai/) | AI visibility and brand-performance tracking within the Semrush product suite. |
+| [Ahrefs Brand Radar](https://ahrefs.com/brand-radar) | A brand visibility index, custom prompt tracking and search data. |
+| [AthenaHQ](https://athenahq.ai/) | AI search citation analysis, content-gap discovery and action guidance. |
+| [Scrunch](https://scrunch.com/) | Brand monitoring, citation analysis and content delivery for AI agents. |
+
+*These are selection suggestions based on the linked official sites, checked on September 8, 2026, not a controlled benchmark or ranking. Check each vendor’s site for current plans and capabilities.*
+
+<a id="why"></a>
+
+## Why we built NiubiGEO
+
+Product teams need more than a score. We want to know whether our product is being seen, where it is misunderstood, why a competitor appears in an answer and what to investigate next.
+
+Without the original answers, sources and test conditions, it is hard to know which findings to trust or where to spend your time and budget.
+
+NiubiGEO makes those questions easier to investigate: read different models’ answers, spot differences in descriptions and keywords, check the sources and keep observing. Where the evidence is missing, the result stays uncertain. Failed runs stay on record, too.
+
+### Where we want to go
+
+Give developers, small teams and brands a way to check for themselves how AI describes their products.
+
+An inaccurate description can point you back to your website or docs. Different keywords associated with competitors may reveal something worth investigating. After changing your content, you can test again and observe subsequent answers.
+
+We want NiubiGEO to help you find questions worth acting on and keep a record you can revisit. Publishing an article does not guarantee an AI recommendation, and one answer is not a permanent ranking.
+
+<a id="community"></a>
+
+## Open source, costs and community
+
+Community Edition is free, open source and self-hosted under **[Apache-2.0](LICENSE)**. Bring your own API key and pay for the models, search services and hosting you use.
+
+To contribute code, report an issue or join the discussion, open an [Issue](https://github.com/Albert-Weasker/niubigeo/issues) or a [Pull Request](https://github.com/Albert-Weasker/niubigeo/pulls).
+
+<a id="sponsors"></a>
+
+## Sponsors
+
+Thank you to the sponsors supporting NiubiGEO’s open-source development.
+
+<p align="center">
+  <a href="https://www.niubistar.com/"><strong>NiubiStar</strong></a>
+</p>
+
+<a id="docs"></a>
+
+## Documentation and project links
+
+[GitHub repository](https://github.com/Albert-Weasker/niubigeo) · [Releases](https://github.com/Albert-Weasker/niubigeo/releases) · [Container packages](https://github.com/Albert-Weasker/niubigeo/pkgs/container/niubigeo) · [Report an issue](https://github.com/Albert-Weasker/niubigeo/issues) · [Contribute code](https://github.com/Albert-Weasker/niubigeo/pulls)
+
+- [How it works](docs/how-it-works.md) · [Architecture](docs/ARCHITECTURE.md)
+- [Measurement methodology](docs/measurement-methodology.md) · [Sources and evidence](docs/evidence-model.md)
+- [Deployment](docs/deployment/docker.md) · [Backups and upgrades](docs/upgrade.md)
+- [Known issues](docs/known-issues.md) · [Limitations](docs/limitations.md) · [Release notes](https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.2.0)
+- [Contributing](CONTRIBUTING.md) · [Security policy](SECURITY.md) · [License](LICENSE)
+
+---
+
+NiubiGEO observes Provider API responses, not results from consumer chat interfaces. Offline and web-enabled tests should be interpreted separately. Traditional search-engine rank tracking is not included.

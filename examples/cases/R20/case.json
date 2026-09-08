@@ -1,0 +1,11 @@
+{
+  "id": "R20",
+  "domain": "plausible.io",
+  "category": {
+    "zh": "网站分析",
+    "en": "Website analytics"
+  },
+  "language": "en",
+  "studyPlan": "../../study-plan.json",
+  "evidenceIndex": "./evidence-index.json"
+}

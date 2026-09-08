@@ -7,10 +7,10 @@ function list(values: readonly string[]): string {
 export function intentAnalyzerInstructions(): string {
   return [
     "Intent Analyzer",
-    "Decide what the user is trying to get from the question.",
+    "Decide which supported brand-question outcomes the user is requesting.",
     "A question may have one primary intent and multiple secondary intents.",
     "Do not infer business relationships from name co-occurrence.",
-    "Use only the user's question, target brand, and language context.",
+    "Use only the user's question, target brand, validated brand-question classification, and language context.",
     "",
     "Return JSON fields:",
     `primaryIntent: ${list(INTENT_NAMES)}`,
@@ -20,6 +20,8 @@ export function intentAnalyzerInstructions(): string {
     "requiresSources: boolean",
     "requiresComparison: boolean",
     "requiresRecommendation: boolean",
+    "candidateApplicable: boolean indicating whether the target can be included in a set of options in this question",
+    "recommendationApplicable: boolean indicating whether the question asks for a recommendation or choice involving the target",
     `uncertainty: ${list(UNCERTAINTY_LEVELS)}`,
   ].join("\n");
 }

@@ -2,6 +2,7 @@ import type { AnswerProvider, AnswerResult, Citation, ProviderDefinition, Provid
 import { dedupeCitations, extractAnthropicCitations, extractTextUrlCitations } from "./citation-extractors.js";
 import { postJsonWithRetry } from "./http.js";
 import { makeSearchExecution } from "./search-execution.js";
+import { failureCodeForStatus, ProviderRequestError } from "./provider-error.js";
 import { extractAnthropicWebQueries } from "./web-query-extractors.js";
 
 function asObject(value: unknown): Record<string, unknown> | null {
@@ -56,11 +57,11 @@ export class AnthropicProvider implements AnswerProvider {
     const error = asObject(asObject(raw)?.error);
     if (!response.ok || error) {
       const message = typeof error?.message === "string" ? error.message : `Anthropic failed with HTTP ${response.status}`;
-      throw new Error(message);
+      throw new ProviderRequestError({ code: failureCodeForStatus(response.status), message, status: response.status });
     }
 
     const text = extractText(raw);
-    if (!text) throw new Error("Anthropic returned an empty answer.");
+    if (!text) throw new ProviderRequestError({ code: "empty_answer", message: "Anthropic returned an empty answer." });
     const nativeCitations = extractAnthropicCitations(raw);
     const citations: Citation[] = dedupeCitations([...nativeCitations, ...extractTextUrlCitations(text, nativeCitations.length)]);
     const webQueries = input.webSearchEnabled ? extractAnthropicWebQueries(raw) : [];
@@ -86,7 +87,6 @@ export class AnthropicProvider implements AnswerProvider {
       model: input.model,
       modelVersion,
       text,
-      rawJson: raw,
       citations,
       webQueries,
       search,

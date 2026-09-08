@@ -14,11 +14,17 @@ function requestTimeoutMs(): number {
   return Number.isFinite(configured) && configured > 0 ? configured : 45000;
 }
 
+function requestAttempts(): number {
+  const configured = Number(process.env.PROVIDER_HTTP_ATTEMPTS || 3);
+  if (!Number.isInteger(configured) || configured < 1) return 3;
+  return Math.min(configured, 8);
+}
+
 function isTransient(status: number): boolean {
   return status === 408 || status === 409 || status === 425 || status === 429 || status >= 500;
 }
 
-export async function postJsonWithRetry(url: string, init: RequestInit, attempts = 3): Promise<JsonResponse> {
+export async function postJsonWithRetry(url: string, init: RequestInit, attempts = requestAttempts()): Promise<JsonResponse> {
   let lastError: unknown;
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     const started = Date.now();

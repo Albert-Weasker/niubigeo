@@ -1,0 +1,11 @@
+{
+  "id": "R19",
+  "domain": "n8n.io",
+  "category": {
+    "zh": "工作流自动化",
+    "en": "Workflow automation"
+  },
+  "language": "zh",
+  "studyPlan": "../../study-plan.json",
+  "evidenceIndex": "./evidence-index.json"
+}

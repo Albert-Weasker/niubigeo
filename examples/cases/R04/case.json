@@ -1,0 +1,11 @@
+{
+  "id": "R04",
+  "domain": "posthog.com",
+  "category": {
+    "zh": "产品分析",
+    "en": "Product analytics"
+  },
+  "language": "en",
+  "studyPlan": "../../study-plan.json",
+  "evidenceIndex": "./evidence-index.json"
+}

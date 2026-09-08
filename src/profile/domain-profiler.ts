@@ -1,7 +1,10 @@
-import type { AnswerProvider, DiscoveryEvidence, DomainProfile, Entity, MonitoringPrompt, PromptType } from "../core/types.js";
+import type { AnswerProvider, DiscoveryEvidence, DomainProfile, Entity, MonitoringPrompt, PromptAuditCategory, PromptType } from "../core/types.js";
 import { FileStore } from "../store/file-store.js";
-import { entityFromInput, normalizeDomain, titleFromDomain } from "../utils/domain.js";
+import { entityFromInput, normalizeDomain } from "../utils/domain.js";
 import { DomainPromptPlanner } from "../prompts/domain-prompt-planner.js";
+import { load } from "cheerio";
+import { compactWhitespace, jsonContainer, lastPathExtension, trimTrailingCharacters } from "../utils/text.js";
+import { runProviderWithRetry } from "../providers/provider-retry.js";
 
 interface HomepageMetadata {
   url: string;
@@ -22,52 +25,31 @@ interface FetchedEvidencePage extends DomainEvidencePage {
   html: string;
 }
 
-const EXTRA_PAGE_HINT =
-  /(?:^|[-_/])(alternative|alternatives|best|case|cases|compare|comparison|competitor|competitors|customer|customers|docs|documentation|guide|guides|help|learn|pricing|resource|resources|review|reviews|solution|solutions|use-case|use-cases)(?:[-_/]|$)/i;
-
-function stripHtml(value: string): string {
-  return value.replace(/<script[\s\S]*?<\/script>/gi, "").replace(/<style[\s\S]*?<\/style>/gi, "");
-}
-
-function decodeEntities(value: string): string {
-  return value
-    .replace(/&amp;/g, "&")
-    .replace(/&quot;/g, "\"")
-    .replace(/&#39;/g, "'")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">");
-}
+const NON_HTML_EXTENSIONS = new Set(["avif", "css", "gif", "ico", "jpg", "jpeg", "js", "json", "pdf", "png", "svg", "webp", "xml"]);
+const TRAILING_SLASH = new Set(["/"]);
 
 function metaContent(html: string, name: string): string | undefined {
-  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const patterns = [
-    new RegExp(`<meta[^>]+name=["']${escaped}["'][^>]+content=["']([^"']+)["'][^>]*>`, "i"),
-    new RegExp(`<meta[^>]+property=["']${escaped}["'][^>]+content=["']([^"']+)["'][^>]*>`, "i"),
-    new RegExp(`<meta[^>]+content=["']([^"']+)["'][^>]+name=["']${escaped}["'][^>]*>`, "i"),
-    new RegExp(`<meta[^>]+content=["']([^"']+)["'][^>]+property=["']${escaped}["'][^>]*>`, "i"),
-  ];
-  for (const pattern of patterns) {
-    const match = html.match(pattern);
-    if (match?.[1]) return decodeEntities(match[1].trim());
-  }
-  return undefined;
+  const document = load(html);
+  let result: string | undefined;
+  document("meta").each((_index, element) => {
+    if (result) return;
+    const row = document(element);
+    const key = (row.attr("name") || row.attr("property") || "").toLowerCase();
+    const content = row.attr("content");
+    if (key === name.toLowerCase() && content) result = compactWhitespace(content);
+  });
+  return result;
 }
 
 function titleContent(html: string): string | undefined {
-  const match = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
-  if (!match?.[1]) return undefined;
-  return decodeEntities(match[1].replace(/\s+/g, " ").trim());
+  const title = compactWhitespace(load(html)("title").first().text());
+  return title || undefined;
 }
 
 function htmlTextSnippet(html: string): string | undefined {
-  const text = decodeEntities(
-    html
-      .replace(/<noscript[\s\S]*?<\/noscript>/gi, " ")
-      .replace(/<svg[\s\S]*?<\/svg>/gi, " ")
-      .replace(/<[^>]+>/g, " ")
-      .replace(/\s+/g, " ")
-      .trim(),
-  );
+  const document = load(html);
+  document("script, style, noscript, svg").remove();
+  const text = compactWhitespace(document.root().text());
   return text ? text.slice(0, 8000) : undefined;
 }
 
@@ -75,10 +57,10 @@ function hostForFetch(value: string): string {
   const trimmed = value.trim();
   if (!trimmed) return "";
   try {
-    const url = new URL(trimmed.startsWith("http") ? trimmed : `https://${trimmed}`);
+    const url = new URL(trimmed.includes("://") ? trimmed : `https://${trimmed}`);
     return url.hostname.toLowerCase();
   } catch {
-    return trimmed.replace(/^https?:\/\//i, "").replace(/\/.*$/, "").toLowerCase();
+    return "";
   }
 }
 
@@ -95,7 +77,7 @@ async function fetchEvidencePage(url: string): Promise<FetchedEvidencePage | nul
   if (!response.ok) return null;
   const contentType = response.headers.get("content-type") || "";
   if (!contentType.includes("text/html") && !contentType.includes("application/xhtml")) return null;
-  const html = stripHtml((await response.text()).slice(0, 260_000));
+  const html = (await response.text()).slice(0, 260_000);
   return {
     url: response.url || url,
     title: titleContent(html) || metaContent(html, "og:title"),
@@ -107,26 +89,28 @@ async function fetchEvidencePage(url: string): Promise<FetchedEvidencePage | nul
 
 function extractSameDomainLinks(html: string, baseUrl: string, rootDomain: string): string[] {
   const links = new Map<string, number>();
-  for (const match of html.matchAll(/\bhref=["']([^"']+)["']/gi)) {
-    const raw = match[1]?.trim();
-    if (!raw || raw.startsWith("#") || raw.startsWith("mailto:") || raw.startsWith("tel:")) continue;
+  const document = load(html);
+  document("a[href]").each((_index, element) => {
+    const raw = document(element).attr("href")?.trim();
+    if (!raw || raw.startsWith("#") || raw.startsWith("mailto:") || raw.startsWith("tel:")) return;
     try {
       const url = new URL(raw, baseUrl);
-      if (!["http:", "https:"].includes(url.protocol)) continue;
-      if (normalizeDomain(url.hostname) !== rootDomain) continue;
+      if (!["http:", "https:"].includes(url.protocol)) return;
+      if (normalizeDomain(url.hostname) !== rootDomain) return;
       url.hash = "";
-      const pathname = url.pathname.replace(/\/+$/, "") || "/";
-      if (pathname === "/") continue;
-      if (/\.(?:avif|css|gif|ico|jpg|jpeg|js|json|pdf|png|svg|webp|xml)$/i.test(pathname)) continue;
+      const pathname = trimTrailingCharacters(url.pathname, TRAILING_SLASH) || "/";
+      if (pathname === "/") return;
+      if (NON_HTML_EXTENSIONS.has(lastPathExtension(pathname))) return;
       const href = url.toString();
-      const score = EXTRA_PAGE_HINT.test(pathname) ? 2 : 1;
-      links.set(href, Math.max(links.get(href) || 0, score));
+      const depth = pathname.split("/").filter(Boolean).length;
+      const previous = links.get(href);
+      links.set(href, previous === undefined ? depth : Math.min(previous, depth));
     } catch {
-      continue;
+      return;
     }
-  }
+  });
   return [...links.entries()]
-    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .sort((a, b) => a[1] - b[1] || a[0].localeCompare(b[0]))
     .map(([url]) => url)
     .slice(0, 6);
 }
@@ -173,14 +157,7 @@ export async function fetchHomepageMetadata(domain: string): Promise<HomepageMet
 }
 
 function extractJsonObject(text: string): unknown {
-  const trimmed = text.trim();
-  if (trimmed.startsWith("{")) return JSON.parse(trimmed);
-  const fenced = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i);
-  if (fenced?.[1]) return JSON.parse(fenced[1]);
-  const start = trimmed.indexOf("{");
-  const end = trimmed.lastIndexOf("}");
-  if (start >= 0 && end > start) return JSON.parse(trimmed.slice(start, end + 1));
-  throw new Error("Domain profiler did not return a JSON object.");
+  return JSON.parse(jsonContainer(text, "{", "}"));
 }
 
 function stringArray(value: unknown): string[] {
@@ -188,14 +165,19 @@ function stringArray(value: unknown): string[] {
   return [...new Set(value.map((item) => String(item).trim()).filter(Boolean))];
 }
 
-function promptType(value: unknown): PromptType {
+function promptType(value: unknown): PromptType | null {
   return ["brand", "category", "recommendation", "comparison", "alternative", "scenario"].includes(String(value))
     ? (String(value) as PromptType)
-    : "category";
+    : null;
+}
+
+function promptAuditCategory(value: unknown): PromptAuditCategory | null {
+  const allowed: PromptAuditCategory[] = ["brand_awareness", "organic_discovery", "comparison", "other"];
+  return typeof value === "string" && allowed.includes(value as PromptAuditCategory) ? (value as PromptAuditCategory) : null;
 }
 
 function competitorRelationship(value: unknown): "direct_competitor" | "adjacent" | "category" | "infrastructure" | "unknown" {
-  const normalized = String(value || "direct_competitor");
+  const normalized = String(value || "unknown");
   if (["direct_competitor", "adjacent", "category", "infrastructure", "unknown"].includes(normalized)) {
     return normalized as "direct_competitor" | "adjacent" | "category" | "infrastructure" | "unknown";
   }
@@ -207,41 +189,13 @@ function confidence(value: unknown): number | undefined {
   return Math.max(0, Math.min(1, value));
 }
 
-function compactName(value: string): string {
-  return value.toLowerCase().replace(/[^a-z0-9]+/g, "");
-}
-
-function candidateBrandNames(domain: string, homepage: HomepageMetadata): string[] {
-  const normalized = normalizeDomain(domain);
-  const root = normalized.split(".")[0] || normalized;
-  const candidates = [titleFromDomain(normalized)];
-  const searchable = [homepage.title, homepage.description, homepage.textSnippet].filter(Boolean).join(" ");
-  const rootMatch = searchable.match(new RegExp(`\\b${root.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i"));
-  if (rootMatch?.[0]) candidates.unshift(rootMatch[0]);
-  for (const part of (homepage.title || "").split(/\s+[|｜-]\s+|[|｜]/)) {
-    const cleaned = part.trim();
-    if (cleaned && cleaned.length <= 60) candidates.push(cleaned);
-  }
-  return [...new Set(candidates.filter(Boolean))];
-}
-
-function canonicalBrandName(input: { parsedName: string; domain: string; homepage: HomepageMetadata }): string {
-  const root = input.domain.split(".")[0] || input.domain;
-  const parsedCompact = compactName(input.parsedName);
-  for (const candidate of candidateBrandNames(input.domain, input.homepage)) {
-    const candidateCompact = compactName(candidate);
-    if (candidateCompact === parsedCompact || candidateCompact === root) return candidate;
-  }
-  return input.parsedName.trim() || titleFromDomain(input.domain);
-}
-
-function parseProfile(text: string, fallbackDomain: string, homepage: HomepageMetadata): DomainProfile {
+function parseProfile(text: string, fallbackDomain: string): DomainProfile {
   const parsed = extractJsonObject(text);
   if (!parsed || typeof parsed !== "object") throw new Error("Domain profiler JSON is not an object.");
   const row = parsed as Record<string, unknown>;
   const domain = normalizeDomain(typeof row.domain === "string" ? row.domain : fallbackDomain);
-  const parsedBrandName = typeof row.brandName === "string" && row.brandName.trim() ? row.brandName.trim() : domain.split(".")[0] || domain;
-  const brandName = canonicalBrandName({ parsedName: parsedBrandName, domain, homepage });
+  const brandName = typeof row.brandName === "string" ? row.brandName.trim() : "";
+  if (!brandName) throw new Error("Domain profiler did not return a brand name.");
   const competitors = Array.isArray(row.competitors)
     ? row.competitors
         .map((item) => item as Record<string, unknown>)
@@ -249,23 +203,31 @@ function parseProfile(text: string, fallbackDomain: string, homepage: HomepageMe
         .map((item) => ({
           name: String(item.name).trim(),
           domain: normalizeDomain(String(item.domain)),
-          reason: typeof item.reason === "string" ? item.reason : "AI-discovered competitor",
+          reason: typeof item.reason === "string" ? item.reason.trim() : "",
           relationship: competitorRelationship(item.relationship),
           confidence: confidence(item.confidence),
         }))
         .filter((item) => item.name && item.domain && item.domain !== domain)
         .filter((item) => item.relationship === "direct_competitor")
-        .filter((item) => item.confidence === undefined || item.confidence >= 0.55)
         .slice(0, 8)
     : [];
   const promptSuggestions = Array.isArray(row.promptSuggestions)
     ? row.promptSuggestions
         .map((item) => item as Record<string, unknown>)
-        .filter((item) => typeof item.prompt === "string" && item.prompt.trim())
+        .filter(
+          (item) =>
+            typeof item.prompt === "string" &&
+            item.prompt.trim() &&
+            promptType(item.type) !== null &&
+            promptAuditCategory(item.auditCategory) !== null &&
+            typeof item.targetIncluded === "boolean",
+        )
         .map((item) => ({
-          type: promptType(item.type),
+          type: promptType(item.type) as PromptType,
           topic: typeof item.topic === "string" && item.topic.trim() ? item.topic.trim() : "discovered",
           prompt: String(item.prompt).trim(),
+          auditCategory: promptAuditCategory(item.auditCategory) || "other",
+          targetIncluded: item.targetIncluded as boolean,
         }))
         .slice(0, 20)
     : [];
@@ -315,13 +277,13 @@ function profilePrompt(input: { domain: string; homepage: HomepageMetadata; desi
     "  \"category\": \"short product/category label\",",
     "  \"description\": \"one sentence about what this brand/product does\",",
     "  \"competitors\": [{\"name\":\"Competitor\",\"domain\":\"competitor.com\",\"relationship\":\"direct_competitor\",\"confidence\":0.8,\"reason\":\"why comparable\"}],",
-    "  \"promptSuggestions\": [{\"type\":\"category\",\"topic\":\"topic\",\"prompt\":\"question to send to AI providers\"}]",
+    "  \"promptSuggestions\": [{\"type\":\"category\",\"topic\":\"topic\",\"prompt\":\"question to send to AI providers\",\"auditCategory\":\"organic_discovery\",\"targetIncluded\":false}]",
     "}",
     "",
     "Use the homepage facts above as the strongest evidence. Do not guess a broad category from the domain name when the homepage text gives a narrower category.",
     "Only list direct product or service competitors. Do not list broad categories, generic concepts, underlying platforms, app stores, marketplaces, payment rails, or infrastructure providers unless they sell the same product to the same buyer.",
     "For each competitor, set relationship to direct_competitor only when it sells a comparable product or service to the same user. Otherwise set adjacent, category, infrastructure, or unknown; non-direct entries will be kept as evidence but not configured as competitors.",
-    `Create ${input.desiredPrompts} promptSuggestions in the requested monitoring language. Include brand, recommendation, category, comparison, alternative, and scenario prompts when possible. At least half of the prompts must be natural unbranded discovery questions that do not include the target brand or target domain. Competitors must have real domains when you know them. If uncertain, omit instead of inventing.`,
+    `Create ${input.desiredPrompts} promptSuggestions in the requested monitoring language. Classify each suggestion by meaning with auditCategory brand_awareness, organic_discovery, comparison, or other, and state targetIncluded explicitly. Include varied user intents when supported by the supplied evidence. At least half should test natural needs without identifying the target. Competitors must have real domains when you know them. If uncertain, omit instead of inventing.`,
   ].join("\n");
 }
 
@@ -341,7 +303,7 @@ export class DomainProfiler {
     const domain = normalizeDomain(input.domain);
     const homepage = await fetchHomepageMetadata(domain);
     const prompt = profilePrompt({ domain, homepage, desiredPrompts: input.desiredPrompts, language: input.language });
-    const result = await input.provider.run({
+    const result = await runProviderWithRetry(input.provider, {
       prompt,
       model: input.model,
       apiKey: input.apiKey,
@@ -349,7 +311,7 @@ export class DomainProfiler {
       temperature: 0.1,
       webSearchEnabled: false,
     });
-    const profile = parseProfile(result.text, domain, homepage);
+    const profile = parseProfile(result.text, domain);
     const target = entityFromInput({
       type: "target",
       domain: profile.domain,

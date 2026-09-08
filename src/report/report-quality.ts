@@ -129,8 +129,8 @@ export function validateReport(markdown: string, audit: AuditRun, metrics: Audit
     errors.push("Report lacks actual AI answers.");
   }
   const hasSourceCaveat = isZhAudit(audit)
-    ? markdown.includes("本报告来自你选择的 AI API 和模型")
-    : markdown.includes("This report comes from the selected AI APIs and models");
+    ? markdown.includes("数据来源：你选择的 AI Provider API")
+    : markdown.includes("Data source: the AI provider APIs selected for this run");
   if (!hasSourceCaveat) {
     errors.push("Report lacks API-source caveat.");
   }

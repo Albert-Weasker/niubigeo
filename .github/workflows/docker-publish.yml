@@ -1,26 +1,84 @@
-name: Publish Docker image
+name: Publish NiubiGEO Docker image
 
 on:
   release:
     types: [published]
   workflow_dispatch:
     inputs:
-      tag:
-        description: "Image tag to publish"
+      action:
+        description: "Candidate build by default; promotion never rebuilds"
+        type: choice
+        options: [candidate, promote-stable]
+        default: candidate
         required: true
-        default: "v0.1.0-alpha"
+      tag:
+        description: "Unused SemVer tag: prerelease for candidate, stable for promotion"
+        type: string
+        required: true
+      candidate_tag:
+        description: "Promotion only: tested prerelease tag for the same version"
+        type: string
+      tested_digest:
+        description: "Promotion only: accepted multi-platform sha256 digest"
+        type: string
+      tested_source_sha:
+        description: "Promotion only: full source commit recorded by the candidate build"
+        type: string
+      acceptance_url:
+        description: "Promotion only: HTTPS evidence recording acceptance of that digest"
+        type: string
+      confirm_tested:
+        description: "I approve stable promotion of this exact tested digest"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
-  packages: write
+
+# Serialize all candidate and promotion tag writes in this repository.
+concurrency:
+  group: niubigeo-container-publication
+  cancel-in-progress: false
 
 jobs:
   publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    env:
+      RELEASE_PLAN_FILE: release-image-plan.json
+      RELEASE_RECEIPT_FILE: release-image-receipt.json
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name || github.sha }}
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Test release policy without network
+        run: node --experimental-strip-types --test test/release-image-policy.test.ts
+
+      - name: Validate publication policy
+        id: policy
+        run: node scripts/release-image-policy.mjs plan
+
+      - name: Test source before building
+        if: steps.policy.outputs.mode != 'promote-stable'
+        run: |
+          npm ci
+          npm test
+          npm run test:examples
+
+      - name: Set up QEMU for multi-platform builds
+        if: steps.policy.outputs.mode != 'promote-stable'
+        uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -32,17 +90,51 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push
+      - name: Refuse existing immutable tags and check promotion source
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/release-image-policy.mjs check
+
+      # Publish content by digest first; named tags are checked again after build.
+      - name: Build tagged source by digest
+        if: steps.policy.outputs.mode != 'promote-stable'
+        id: build
         uses: docker/build-push-action@v6
         with:
           context: .
           platforms: linux/amd64,linux/arm64
-          push: true
-          tags: |
-            ghcr.io/albert-weasker/niubigeo:${{ github.event.inputs.tag || github.event.release.tag_name || github.ref_name }}
-            ghcr.io/albert-weasker/niubigeo:latest
+          outputs: type=image,name=${{ steps.policy.outputs.image }},push-by-digest=true,name-canonical=true,push=true
           labels: |
             org.opencontainers.image.title=NiubiGEO
-            org.opencontainers.image.description=Open-source AI brand visibility and competitor reports
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.version=${{ steps.policy.outputs.tag }}
             org.opencontainers.image.licenses=Apache-2.0
+
+      - name: Verify built container before publishing tags
+        if: steps.policy.outputs.mode != 'promote-stable'
+        env:
+          RELEASE_IMAGE: ${{ steps.policy.outputs.image }}@${{ steps.build.outputs.digest }}
+          RELEASE_VERSION: ${{ steps.policy.outputs.tag }}
+          RELEASE_SOURCE_SHA: ${{ github.sha }}
+        run: |
+          node scripts/verify-release-container.mjs linux/amd64
+          node scripts/verify-release-container.mjs linux/arm64
+
+      - name: Publish checked tags from the exact digest and verify them
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BUILT_DIGEST: ${{ steps.build.outputs.digest }}
+          BUILDX_METADATA: ${{ steps.build.outputs.metadata }}
+        run: node scripts/release-image-policy.mjs publish
+
+      - name: Record source and digest mapping
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: image-release-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ env.RELEASE_PLAN_FILE }}
+            ${{ env.RELEASE_RECEIPT_FILE }}
+            release-container-*.json
+          if-no-files-found: ignore

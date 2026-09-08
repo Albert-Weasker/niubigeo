@@ -1,0 +1,11 @@
+{
+  "id": "R03",
+  "domain": "supabase.com",
+  "category": {
+    "zh": "开发后端",
+    "en": "Application backends"
+  },
+  "language": "zh",
+  "studyPlan": "../../study-plan.json",
+  "evidenceIndex": "./evidence-index.json"
+}

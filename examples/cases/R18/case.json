@@ -1,0 +1,11 @@
+{
+  "id": "R18",
+  "domain": "zapier.com",
+  "category": {
+    "zh": "工作流自动化",
+    "en": "Workflow automation"
+  },
+  "language": "en",
+  "studyPlan": "../../study-plan.json",
+  "evidenceIndex": "./evidence-index.json"
+}

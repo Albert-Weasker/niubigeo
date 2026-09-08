@@ -2,6 +2,7 @@ import type { AnswerProvider, AnswerResult, ProviderDefinition, ProviderRunInput
 import { dedupeCitations, extractGeminiGroundingCitations, extractTextUrlCitations } from "./citation-extractors.js";
 import { postJsonWithRetry } from "./http.js";
 import { makeSearchExecution } from "./search-execution.js";
+import { failureCodeForStatus, ProviderRequestError } from "./provider-error.js";
 import { extractGeminiWebQueries } from "./web-query-extractors.js";
 
 function asObject(value: unknown): Record<string, unknown> | null {
@@ -58,11 +59,11 @@ export class GeminiProvider implements AnswerProvider {
     const error = asObject(asObject(raw)?.error);
     if (!response.ok || error) {
       const message = typeof error?.message === "string" ? error.message : `Gemini failed with HTTP ${response.status}`;
-      throw new Error(message);
+      throw new ProviderRequestError({ code: failureCodeForStatus(response.status), message, status: response.status });
     }
 
     const text = extractText(raw);
-    if (!text) throw new Error("Gemini returned an empty answer.");
+    if (!text) throw new ProviderRequestError({ code: "empty_answer", message: "Gemini returned an empty answer." });
     const nativeCitations = extractGeminiGroundingCitations(raw);
     const citations = dedupeCitations([...nativeCitations, ...extractTextUrlCitations(text, nativeCitations.length)]);
     const webQueries = input.webSearchEnabled ? extractGeminiWebQueries(raw) : [];
@@ -87,7 +88,6 @@ export class GeminiProvider implements AnswerProvider {
       model: input.model,
       modelVersion: input.model,
       text,
-      rawJson: raw,
       citations,
       webQueries,
       search,

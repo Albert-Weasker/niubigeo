@@ -1,6 +1,7 @@
 import type { AuditReportModel } from "./report-model.js";
 import { htmlEscape } from "./format.js";
 import { PRODUCT_NAME, renderNiubigeoMarkSvg } from "../ui/brand.js";
+import { WORKBENCH_CSS } from "../ui/workbench-style.js";
 import type { AnswerStory, EvidenceStatement, HumanReport, SourceStory } from "./human-report.js";
 import { buildHumanReport } from "./human-report.js";
 
@@ -895,6 +896,107 @@ function renderStyle(): string {
       main { padding: 28px 16px 60px; }
       .brand-read { grid-template-columns: 1fr; }
       .report-section { padding: 18px; }
+    }
+    ${WORKBENCH_CSS}
+    :root {
+      color-scheme: dark;
+      --ink: var(--text);
+      --strong: var(--blue);
+      --soft: #0d182a;
+    }
+    body { background: var(--bg); color: var(--text); line-height: 1.6; }
+    a { color: var(--blue); }
+    .layout { grid-template-columns: 248px minmax(0, 1fr); }
+    .sidebar {
+      position: sticky;
+      height: 100vh;
+      padding: 18px 14px;
+      border-right: 1px solid var(--line);
+      border-bottom: 0;
+      background: var(--sidebar);
+    }
+    .brand {
+      min-height: 48px;
+      margin: 0 0 16px;
+      padding: 0 8px 14px;
+      border-bottom: 1px solid var(--line);
+      color: var(--text);
+      font-size: 14px;
+    }
+    .brand svg { width: 30px; height: 30px; }
+    nav { display: grid; gap: 3px; }
+    nav a {
+      min-height: 38px;
+      padding: 9px 10px;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      color: var(--secondary);
+      font-size: 12px;
+      font-weight: 650;
+    }
+    nav a:hover { border-color: var(--border); background: var(--panel-hover); color: var(--text); text-decoration: none; }
+    main { width: 100%; max-width: none; padding: 30px 32px 72px; }
+    .hero { margin-bottom: 26px; padding-bottom: 22px; border-bottom: 1px solid var(--line); }
+    .hero h1 { margin: 0 0 8px; max-width: 960px; font-size: 30px; line-height: 1.2; }
+    .hero p { max-width: 920px; color: var(--secondary); font-size: 13px; }
+    .source-note {
+      margin-top: 14px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--panel);
+      color: var(--secondary);
+      font-size: 11px;
+    }
+    .report-section { margin-top: 34px; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+    .section-title { margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+    .section-title h2 { margin: 0; color: var(--text); font-size: 18px; }
+    .conclusion { max-width: 940px; color: var(--text); font-size: 22px; line-height: 1.4; }
+    .model-table-wrap, .data-table-wrap { border-color: var(--border); background: var(--panel); }
+    .model-table { border-color: var(--border); border-radius: 8px; background: var(--panel); }
+    .model-table th, .model-table td { border-color: var(--line); color: var(--secondary); }
+    .model-table th { background: #0d0d0d; color: var(--muted); }
+    .model-table td strong, .model-table td:first-child { color: var(--text); }
+    .brand-read article, .competitor-card, .model-card, .source-card,
+    .competition-stack article, .compact-details, .all-sources, .answer-card, .intent-result {
+      border-color: var(--border);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: none;
+    }
+    .brand-read article:first-child { background: var(--panel); }
+    .statement-list li { border-left: 2px solid var(--blue); color: var(--secondary); }
+    .statement-list li strong, h3, h4 { color: var(--text); }
+    .evidence-link, .source-actions a {
+      min-height: 28px;
+      border-color: var(--border);
+      border-radius: 6px;
+      background: #0d0d0d;
+      color: #83adff;
+      font-size: 11px;
+    }
+    .card-head span, .source-status { border: 1px solid var(--border); border-radius: 5px; background: #0d0d0d; color: var(--secondary); }
+    .source-status.related { border-color: #174a37; background: #0b2119; color: var(--green); }
+    .source-status.possible { border-color: #594618; background: #241c09; color: var(--amber); }
+    .source-status.excluded { background: #0d0d0d; color: var(--muted); }
+    .source-card p, .compact-details p, .answer-card summary strong, dt, .task-block span, .entity-block span { color: var(--secondary); }
+    .answer-card summary { padding: 14px 16px; }
+    .answer-card[open] { border-color: #343434; }
+    .answer-body { border-color: var(--line); }
+    .intent-result { background: #0d0d0d; }
+    .task-block li, .entity-block li { border-color: var(--line); }
+    .task-block p, .actual-answer p { color: var(--secondary); }
+    blockquote { border-left: 2px solid var(--blue); background: #0d0d0d; color: var(--secondary); }
+    .empty { border-color: var(--border); background: #0d0d0d; color: var(--muted); }
+    @media (max-width: 840px) {
+      .layout { display: block; }
+      .sidebar { position: relative; height: auto; padding: 12px; border-right: 0; border-bottom: 1px solid var(--line); }
+      .brand { margin-bottom: 10px; }
+      nav { display: flex; overflow-x: auto; }
+      nav a { flex: 0 0 auto; }
+      main { padding: 24px 14px 56px; }
+      .hero h1 { font-size: 24px; }
+      .conclusion { font-size: 18px; }
     }
   </style>`;
 }

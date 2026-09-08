@@ -1,0 +1,193 @@
+{
+  "schemaVersion": "case-evidence-index/v1",
+  "caseId": "R02",
+  "path": "./public-evidence.json",
+  "sha256": "9dfb542106e61a68ed376e73df3fc967fb9f6eb60fc79b19b1e99757916f0928",
+  "redactions": [],
+  "screenshotCount": 4,
+  "rawAnswers": [
+    {
+      "scope": "initialD",
+      "modelRunId": "60456185-e3d2-43b9-a097-676c14d89031",
+      "attemptId": "3ea7fabd-ebb6-429e-a2c1-4b449f84774d",
+      "selected": true,
+      "sha256": "1194b50f511a1e5adda57e5767fa0f5177b5e189597a4c136d234a300ca86974"
+    },
+    {
+      "scope": "initialD",
+      "modelRunId": "7a478f1e-b2cc-4f69-8cea-539517cadd07",
+      "attemptId": "3f309cc7-3627-421b-a865-aa03a874d826",
+      "selected": true,
+      "sha256": "7d16ab080125d1611779730d88093e810fa8a2b595ea31851b74e1315327a021"
+    },
+    {
+      "scope": "initialD",
+      "modelRunId": "e0a8a403-8700-4cbb-ac78-ebd6804d4c70",
+      "attemptId": "1d78e06f-2a7d-408b-a97c-1142e48434aa",
+      "selected": true,
+      "sha256": "85e8ee03818e2c8f80b11a090fd9db22508c2944e69080817400c2c027bcf14b"
+    },
+    {
+      "scope": "measurementD",
+      "runId": "07cb5c01-7756-4a97-a4fb-1d70a3792c2f",
+      "modelRunId": "1dfcde4a-bb13-49e0-bb6e-ce52abf0cad8",
+      "probeId": "4e8f7b60-2a2f-4c34-85a7-dec41394db62",
+      "attemptId": "37c41145-de67-4f60-a640-22b49efbb890",
+      "firstAttempt": true,
+      "sha256": "1194b50f511a1e5adda57e5767fa0f5177b5e189597a4c136d234a300ca86974"
+    },
+    {
+      "scope": "K",
+      "runId": "07cb5c01-7756-4a97-a4fb-1d70a3792c2f",
+      "modelRunId": "1dfcde4a-bb13-49e0-bb6e-ce52abf0cad8",
+      "probeId": "5ff003cd-d6e9-4767-8737-4693ec3dd4d0",
+      "attemptId": "be8d5234-f5fa-4880-a384-68edcd013f53",
+      "firstAttempt": true,
+      "sha256": "c4419356320b9943bf6b7580f6253cd84c9e1ca49c2b67e49f09081d473adff9"
+    },
+    {
+      "scope": "measurementD",
+      "runId": "07cb5c01-7756-4a97-a4fb-1d70a3792c2f",
+      "modelRunId": "656e96b9-5fcd-4fec-a36a-7e6c2a4c40e9",
+      "probeId": "a1564c6b-1f37-46bb-bfd7-f4ca414bded7",
+      "attemptId": "eb197f10-e24f-4311-8285-8053a3da774d",
+      "firstAttempt": true,
+      "sha256": "3914d833cbab3f1e009c9c58d97df423f8cf937a52ee6b47d5964232d51b1590"
+    },
+    {
+      "scope": "K",
+      "runId": "07cb5c01-7756-4a97-a4fb-1d70a3792c2f",
+      "modelRunId": "656e96b9-5fcd-4fec-a36a-7e6c2a4c40e9",
+      "probeId": "1cdbbb79-48e4-4df2-b4a4-b0c5629f7e5b",
+      "attemptId": "cbcb0beb-1a2f-4b3f-9c98-864e87d1a720",
+      "firstAttempt": true,
+      "sha256": "21e4c2c4f3743ef36803acb9964536f91cd1975fd26c724cf3908994e032ea59"
+    },
+    {
+      "scope": "measurementD",
+      "runId": "07cb5c01-7756-4a97-a4fb-1d70a3792c2f",
+      "modelRunId": "a4e2d68b-cc24-4910-b569-c49e867eb702",
+      "probeId": "377f8d2a-3ea5-4076-9282-5e5742e53832",
+      "attemptId": "da8fa86e-8b81-4bd0-a86f-258cdd807963",
+      "firstAttempt": true,
+      "sha256": "7d16ab080125d1611779730d88093e810fa8a2b595ea31851b74e1315327a021"
+    },
+    {
+      "scope": "K",
+      "runId": "07cb5c01-7756-4a97-a4fb-1d70a3792c2f",
+      "modelRunId": "a4e2d68b-cc24-4910-b569-c49e867eb702",
+      "probeId": "e981e3e9-555a-4ad9-9c9a-5300c07213e3",
+      "attemptId": "027a9e28-7bba-4b7a-a0d1-1dc9acda3fc3",
+      "firstAttempt": true,
+      "sha256": "d76aec4fb046d6d9d3221380478b0472007723709fb929a1d8c3e0382f857c28"
+    },
+    {
+      "scope": "measurementD",
+      "runId": "7fa563e8-49d8-4fc7-827d-8211be751850",
+      "modelRunId": "25f052f0-ac06-4acb-8981-8ee4d8a53a0c",
+      "probeId": "ea47db84-e07d-4de3-b95b-df9a91801f46",
+      "attemptId": "8a479e68-8bfc-4ae9-9bb0-c64d176517c7",
+      "firstAttempt": true,
+      "sha256": "22b1a7f520e8ad7860cde6fb46747061f0a8aac2846b66ef7edce717852210eb"
+    },
+    {
+      "scope": "K",
+      "runId": "7fa563e8-49d8-4fc7-827d-8211be751850",
+      "modelRunId": "25f052f0-ac06-4acb-8981-8ee4d8a53a0c",
+      "probeId": "0d96d8a7-bb6c-4e96-958e-6337e6fddf3e",
+      "attemptId": "12d47fd4-0e9b-459b-a27f-314da6c86ca6",
+      "firstAttempt": true,
+      "sha256": "21e4c2c4f3743ef36803acb9964536f91cd1975fd26c724cf3908994e032ea59"
+    },
+    {
+      "scope": "measurementD",
+      "runId": "7fa563e8-49d8-4fc7-827d-8211be751850",
+      "modelRunId": "61cc9321-92ce-4c41-b379-c5ded718c943",
+      "probeId": "8acbc4a2-0c2c-40c2-9c6d-e9ca0e84f061",
+      "attemptId": "f4aff0ba-89f8-48ed-b806-546927f0de8c",
+      "firstAttempt": true,
+      "sha256": "aca4e7508a7897bd32330a09c461af25602b44d06920c1f75623f3625d86ca0e"
+    },
+    {
+      "scope": "K",
+      "runId": "7fa563e8-49d8-4fc7-827d-8211be751850",
+      "modelRunId": "61cc9321-92ce-4c41-b379-c5ded718c943",
+      "probeId": "83eae328-7e7e-46e8-96a0-262b3f75e032",
+      "attemptId": "e847731b-ed41-455c-801a-03f4e75598ae",
+      "firstAttempt": true,
+      "sha256": "e28f6793827d5dd65cfdae31983bb0ebb251e7f24988fe3e09e1e7596242bf96"
+    },
+    {
+      "scope": "measurementD",
+      "runId": "7fa563e8-49d8-4fc7-827d-8211be751850",
+      "modelRunId": "f21a9350-9a45-47af-b247-23a9b56d7a27",
+      "probeId": "3870fff6-f30b-4bbb-9f03-ef86cd5dc501",
+      "attemptId": "46dbedc9-459d-4f5d-99ce-ced9cb14a6cd",
+      "firstAttempt": true,
+      "sha256": "1194b50f511a1e5adda57e5767fa0f5177b5e189597a4c136d234a300ca86974"
+    },
+    {
+      "scope": "K",
+      "runId": "7fa563e8-49d8-4fc7-827d-8211be751850",
+      "modelRunId": "f21a9350-9a45-47af-b247-23a9b56d7a27",
+      "probeId": "a8a48ffe-0a7e-43ad-8ee0-d1240b25f9cb",
+      "attemptId": "96db102f-5723-4d3c-8ba2-a37c3f9f8c70",
+      "firstAttempt": true,
+      "sha256": "c4419356320b9943bf6b7580f6253cd84c9e1ca49c2b67e49f09081d473adff9"
+    },
+    {
+      "scope": "measurementD",
+      "runId": "8664bb78-863f-4d58-946a-4418cc461445",
+      "modelRunId": "251efe34-ee76-4637-9ecd-d1052890c833",
+      "probeId": "930b51ee-0ec1-4fd9-bdfd-9736c79a03a7",
+      "attemptId": "4d69ec1c-f33f-4e82-93be-d3f128864f4f",
+      "firstAttempt": true,
+      "sha256": "37e564d176a9946104612b3a1681278ee2cb87ece2c973edb8a4a488f2bcb5fc"
+    },
+    {
+      "scope": "K",
+      "runId": "8664bb78-863f-4d58-946a-4418cc461445",
+      "modelRunId": "251efe34-ee76-4637-9ecd-d1052890c833",
+      "probeId": "a74e9004-8313-4901-9277-e60888b87aa0",
+      "attemptId": "48aad923-e494-468c-b6e8-c3c409bfd171",
+      "firstAttempt": true,
+      "sha256": "21e4c2c4f3743ef36803acb9964536f91cd1975fd26c724cf3908994e032ea59"
+    },
+    {
+      "scope": "measurementD",
+      "runId": "8664bb78-863f-4d58-946a-4418cc461445",
+      "modelRunId": "5fde6db6-e9d9-4d4f-babc-2751d766ac6d",
+      "probeId": "ecba83b6-692f-49e2-a3d6-ed03aa9661c8",
+      "attemptId": "571f7773-1af5-4a51-b503-a6b7b3ee4254",
+      "firstAttempt": true,
+      "sha256": "1194b50f511a1e5adda57e5767fa0f5177b5e189597a4c136d234a300ca86974"
+    },
+    {
+      "scope": "K",
+      "runId": "8664bb78-863f-4d58-946a-4418cc461445",
+      "modelRunId": "5fde6db6-e9d9-4d4f-babc-2751d766ac6d",
+      "probeId": "68460ba0-cba8-415a-92f7-91cb0beaaf05",
+      "attemptId": "791f2355-eb01-4212-a9fb-3cce5a8cf007",
+      "firstAttempt": true,
+      "sha256": "c4419356320b9943bf6b7580f6253cd84c9e1ca49c2b67e49f09081d473adff9"
+    },
+    {
+      "scope": "measurementD",
+      "runId": "8664bb78-863f-4d58-946a-4418cc461445",
+      "modelRunId": "cec116c4-1eec-4540-8b30-1be65d508549",
+      "probeId": "7fdb1aba-5116-490b-8f63-b192f73c9f8f",
+      "attemptId": "a03c64c6-164b-454e-8283-3040cc40bb48",
+      "firstAttempt": true,
+      "sha256": "7d16ab080125d1611779730d88093e810fa8a2b595ea31851b74e1315327a021"
+    },
+    {
+      "scope": "K",
+      "runId": "8664bb78-863f-4d58-946a-4418cc461445",
+      "modelRunId": "cec116c4-1eec-4540-8b30-1be65d508549",
+      "probeId": "1c1fcfac-3899-41bc-9246-15a74cf4cdc8",
+      "attemptId": "edad1b8e-c9aa-47e9-8d1c-930f4aac72f3",
+      "firstAttempt": true,
+      "sha256": "8ea61418528f2ab1f8bc2bbb8c8a2e6f38bc32ecd24cdbc85365e71d2b0c990a"
+    }
+  ]
+}

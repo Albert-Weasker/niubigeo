@@ -1,0 +1,11 @@
+{
+  "id": "R05",
+  "domain": "sentry.io",
+  "category": {
+    "zh": "应用监控",
+    "en": "Application monitoring"
+  },
+  "language": "zh",
+  "studyPlan": "../../study-plan.json",
+  "evidenceIndex": "./evidence-index.json"
+}

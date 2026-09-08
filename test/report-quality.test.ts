@@ -45,7 +45,6 @@ function makeRun(overrides: Partial<PromptRun> = {}): PromptRun {
       model: "openai/gpt-4o-mini",
       modelVersion: "openai/gpt-4o-mini",
       text: "Vercel is a platform for deploying frontend applications. Netlify is also relevant. https://vercel.com",
-      rawJson: null,
       citations: [
         {
           id: "c1",
@@ -198,7 +197,6 @@ test("Chinese audit report renders user-facing Chinese sections and actual answe
       model: "openai/gpt-4o-mini",
       modelVersion: "openai/gpt-4o-mini",
       text: "Vercel 是一个前端部署平台，Netlify 也是常见选择。",
-      rawJson: null,
       citations: [],
       webQueries: [],
       costUsd: 0.0001,
@@ -260,7 +258,8 @@ test("report distinguishes requested web search from confirmed execution", () =>
       endpointKind: "official_api",
       endpointProtocol: "chat_completions",
       endpointUrl: "https://openrouter.ai/api/v1/chat/completions",
-      toolName: "openrouter:web",
+      toolName: "openrouter:web_search",
+      executionMode: "native",
       webQueries: [],
       citationCount: 0,
     },
@@ -268,5 +267,5 @@ test("report distinguishes requested web search from confirmed execution", () =>
 
   const report = buildHumanReport(buildAudit(run));
 
-  assert.equal(report.sections.answers[0]?.webSearch, "Search unconfirmed");
+  assert.equal(report.sections.answers[0]?.webSearch, "Web search requested but not confirmed by the provider");
 });

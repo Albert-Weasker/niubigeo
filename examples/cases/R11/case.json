@@ -1,0 +1,11 @@
+{
+  "id": "R11",
+  "domain": "github.com",
+  "category": {
+    "zh": "代码协作",
+    "en": "Code collaboration"
+  },
+  "language": "zh",
+  "studyPlan": "../../study-plan.json",
+  "evidenceIndex": "./evidence-index.json"
+}

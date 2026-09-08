@@ -11,16 +11,17 @@ import type {
 import { ANALYSIS_RULES_VERSION, PROMPT_SET_VERSION } from "../core/version.js";
 import { resolveProviderKey, runsDir } from "../config/env.js";
 import { ProviderCatalog } from "../providers/catalog.js";
-import { PromptGenerator, promptsFromManual } from "../prompts/prompt-generator.js";
+import { PromptGenerator } from "../prompts/prompt-generator.js";
 import { DomainProfiler } from "../profile/domain-profiler.js";
 import { FileStore } from "../store/file-store.js";
 import { slugify } from "../utils/domain.js";
 import { sha256 } from "../utils/hash.js";
 import { SiteEvidenceCollector } from "../keywords/site-evidence.js";
-import { KeywordUniverseBuilder } from "../keywords/keyword-universe.js";
-import { KeywordRelevanceScorer } from "../keywords/keyword-relevance.js";
-import { KeywordPromptPlanner } from "../prompts/keyword-prompt-planner.js";
+import { KeywordAnalyzer } from "../keywords/keyword-analyzer.js";
 import { withAuditCategory } from "../prompts/audit-category.js";
+import { compactWhitespace } from "../utils/text.js";
+import { assertQuestionsContainTargetIdentity } from "../prompts/brand-question.js";
+import { analysisModelFor } from "../providers/provider-role.js";
 
 export interface AuditPlannerInput {
   target: Entity;
@@ -40,15 +41,13 @@ export interface AuditPlannerInput {
 }
 
 function timestampId(prefix: string, target: Entity): string {
-  return `${prefix}-${new Date().toISOString().replace(/[:.]/g, "-")}-${slugify(target.name || target.domain)}`;
+  let timestamp = "";
+  for (const character of new Date().toISOString()) timestamp += character === ":" || character === "." ? "-" : character;
+  return `${prefix}-${timestamp}-${slugify(target.name || target.domain)}`;
 }
 
 function profileTargetScore(target: ProviderTarget): number {
-  const model = target.model.toLowerCase();
-  if (target.webSearchEnabled) return 4;
-  if (target.providerId === "perplexity" || model.includes("perplexity/") || model.includes("sonar")) return 3;
-  if (target.providerId === "openrouter" && (model.includes("search") || model.includes("online") || model.includes("web"))) return 2;
-  return 1;
+  return target.webSearchEnabled ? 2 : 1;
 }
 
 function selectProfileTarget(targets: ProviderTarget[]): ProviderTarget {
@@ -66,7 +65,7 @@ function promptSetHash(input: { prompts: MonitoringPrompt[]; providerTargets: Pr
         providerId: target.providerId,
         model: target.model,
         webSearchEnabled: Boolean(target.webSearchEnabled),
-        webSearchMode: target.webSearchMode || "auto",
+        webSearchMode: target.webSearchEnabled ? "provider_native" : target.webSearchMode || "auto",
       })),
       prompts: input.prompts.map((prompt) => ({
         type: prompt.type,
@@ -74,31 +73,24 @@ function promptSetHash(input: { prompts: MonitoringPrompt[]; providerTargets: Pr
         text: prompt.text,
         enabled: prompt.enabled,
         keywordIds: prompt.keywordIds || [],
+        brandQuestion: prompt.brandQuestion,
+        intentProfile: prompt.intentProfile,
       })),
     }),
   ).slice(0, 12);
 }
 
-function dedupePrompts(prompts: MonitoringPrompt[], target: Entity): MonitoringPrompt[] {
+function dedupePrompts(prompts: MonitoringPrompt[]): MonitoringPrompt[] {
   const seen = new Set<string>();
   const rows: MonitoringPrompt[] = [];
   for (const prompt of prompts) {
-    const text = prompt.text.replace(/\s+/g, " ").trim();
+    const text = compactWhitespace(prompt.text);
     if (!text) continue;
     const key = text.toLowerCase();
     if (seen.has(key)) continue;
     seen.add(key);
     rows.push(
-      withAuditCategory({
-        ...prompt,
-        text,
-        targetIncluded:
-          prompt.targetIncluded ??
-          [target.name, target.domain, ...target.aliases]
-            .map((term) => term.trim().toLowerCase())
-            .filter(Boolean)
-            .some((term) => text.toLowerCase().includes(term)),
-      }),
+      withAuditCategory({ ...prompt, text }),
     );
   }
   return rows;
@@ -114,16 +106,44 @@ function estimate(prompts: MonitoringPrompt[], providerTargets: ProviderTarget[]
   };
 }
 
+function confirmedManualPrompts(input: { target: Entity; language: string; prompts: string[] }): MonitoringPrompt[] {
+  return input.prompts.map((text, index) => withAuditCategory({
+    id: `manual-${input.target.id}-${index + 1}`,
+    type: "brand",
+    topic: "confirmed-question",
+    language: input.language,
+    text: compactWhitespace(text),
+    enabled: true,
+    auditCategory: "other",
+    targetIncluded: true,
+  }));
+}
+
 export class AuditPlanner {
   private readonly catalog = new ProviderCatalog();
   private readonly domainProfiler = new DomainProfiler();
   private readonly promptGenerator = new PromptGenerator();
   private readonly siteEvidenceCollector = new SiteEvidenceCollector();
-  private readonly keywordUniverse = new KeywordUniverseBuilder();
-  private readonly keywordRelevanceScorer = new KeywordRelevanceScorer();
-  private readonly keywordPromptPlanner = new KeywordPromptPlanner();
+  private readonly keywordAnalyzer = new KeywordAnalyzer();
+
+  async reclassifyPrompts(plan: AuditPlan): Promise<AuditPlan> {
+    assertQuestionsContainTargetIdentity(plan.prompts.map((prompt) => prompt.text), plan.target, plan.language);
+    const prompts = plan.prompts.map((prompt) => ({ ...prompt }));
+    const hash = promptSetHash({ prompts, providerTargets: plan.providerTargets, language: plan.language });
+    return {
+      ...plan,
+      prompts,
+      promptSetId: `${PROMPT_SET_VERSION}-${hash}`,
+      promptSetHash: hash,
+      plannedAt: new Date().toISOString(),
+      estimate: estimate(prompts, plan.providerTargets),
+    };
+  }
 
   async plan(input: AuditPlannerInput): Promise<AuditPlan> {
+    if (input.manualPrompts?.length) {
+      assertQuestionsContainTargetIdentity(input.manualPrompts, input.target, input.language);
+    }
     if (input.providerTargets.length === 0) throw new Error("At least one provider target is required.");
     for (const target of input.providerTargets) this.catalog.validate(target.providerId, target.model);
 
@@ -133,9 +153,11 @@ export class AuditPlanner {
     if (!firstTarget) throw new Error("At least one provider target is required.");
     const firstProvider = this.catalog.get(firstTarget.providerId);
     const firstApiKey = resolveProviderKey(firstTarget.providerId);
+    const firstAnalysisModel = analysisModelFor(firstProvider, firstTarget.model);
     const profileTarget = selectProfileTarget(input.providerTargets);
     const profileProvider = this.catalog.get(profileTarget.providerId);
     const profileApiKey = resolveProviderKey(profileTarget.providerId);
+    const profileAnalysisModel = analysisModelFor(profileProvider, profileTarget.model);
 
     let effectiveTarget = input.target;
     let effectiveCompetitors = input.competitors;
@@ -144,34 +166,40 @@ export class AuditPlanner {
     let discoveredPrompts: MonitoringPrompt[] = [];
 
     if (input.autoDiscover) {
-      const discovered = await this.domainProfiler.discover({
-        auditId: planId,
-        domain: input.submittedDomain || input.target.domain,
-        language: input.language,
-        desiredPrompts: input.promptCount,
-        provider: profileProvider,
-        model: profileTarget.model,
-        apiKey: profileApiKey,
-        store,
-      });
-      domainProfile = discovered.profile;
-      discoveryEvidence = discovered.evidence;
-      discoveredPrompts = discovered.prompts.slice(0, input.promptCount);
+      try {
+        const discovered = await this.domainProfiler.discover({
+          auditId: planId,
+          domain: input.submittedDomain || input.target.domain,
+          language: input.language,
+          desiredPrompts: input.promptCount,
+          provider: profileProvider,
+          model: profileAnalysisModel,
+          apiKey: profileApiKey,
+          store,
+        });
+        domainProfile = discovered.profile;
+        discoveryEvidence = discovered.evidence;
+        discoveredPrompts = input.manualPrompts?.length ? [] : discovered.prompts.slice(0, input.promptCount);
 
-      if (input.targetNameExplicit) {
-        const discoveredAliases = [discovered.target.name, ...discovered.target.aliases].filter(
-          (alias) => alias.toLowerCase() !== input.target.name.toLowerCase(),
-        );
-        effectiveTarget = {
-          ...input.target,
-          aliases: [...new Set([...input.target.aliases, ...discoveredAliases])],
-        };
-      } else {
-        effectiveTarget = discovered.target;
-      }
+        if (input.targetNameExplicit) {
+          const discoveredAliases = [discovered.target.name, ...discovered.target.aliases].filter(
+            (alias) => alias.toLowerCase() !== input.target.name.toLowerCase(),
+          );
+          effectiveTarget = {
+            ...input.target,
+            aliases: [...new Set([...input.target.aliases, ...discoveredAliases])],
+          };
+        } else {
+          effectiveTarget = discovered.target;
+        }
 
-      if (input.competitors.length === 0 && discovered.competitors.length > 0) {
-        effectiveCompetitors = discovered.competitors;
+        if (input.competitors.length === 0 && discovered.competitors.length > 0) {
+          effectiveCompetitors = discovered.competitors;
+        }
+      } catch {
+        domainProfile = undefined;
+        discoveryEvidence = undefined;
+        discoveredPrompts = [];
       }
     }
 
@@ -185,7 +213,9 @@ export class AuditPlanner {
     let keywords: KeywordCandidate[] = [];
     let keywordClusters: AuditPlan["keywordClusters"] = [];
     let keywordRelevance: KeywordRelevance[] = [];
+    let keywordAnalysis: AuditPlan["keywordAnalysis"];
     let keywordPrompts: MonitoringPrompt[] = [];
+    let promptGeneration: AuditPlan["promptGeneration"] = undefined;
 
     if (keywordAuditEnabled) {
       const submittedDomain = input.submittedDomain || effectiveTarget.domain;
@@ -195,35 +225,41 @@ export class AuditPlanner {
         githubRepo: effectiveTarget.githubRepo,
       });
       siteEvidence = collectedEvidence;
-      const universe = this.keywordUniverse.build({
+      const analyzedKeywords = await this.keywordAnalyzer.analyze({
+        target: effectiveTarget,
         siteEvidence,
-        domainProfile,
         userKeywords: requestedKeywords,
         language: input.language,
         mode: input.keywordMode || "site_plus_user",
         limit: Math.max(1, Math.min(input.keywordLimit ?? input.promptCount, 30)),
+        provider: firstProvider,
+        model: firstAnalysisModel,
+        apiKey: firstApiKey,
       });
-      keywords = universe.keywords;
-      keywordClusters = universe.clusters;
-      keywordRelevance = this.keywordRelevanceScorer.score({ keywords, siteEvidence });
-      keywordPrompts = this.keywordPromptPlanner.build({
+      keywords = analyzedKeywords.keywords;
+      keywordClusters = analyzedKeywords.clusters;
+      keywordRelevance = analyzedKeywords.relevance;
+      keywordAnalysis = analyzedKeywords.evidence;
+      const keywordGeneration = await this.promptGenerator.generate({
+        auditId: planId,
         target: effectiveTarget,
         competitors: effectiveCompetitors,
-        keywords,
         language: input.language,
-        promptsPerKeyword: input.promptsPerKeyword ?? 2,
+        count: Math.max(1, keywords.length * Math.max(1, input.promptsPerKeyword ?? 2)),
+        provider: firstProvider,
+        model: firstAnalysisModel,
+        apiKey: firstApiKey,
+        store,
+        keywords,
       });
+      keywordPrompts = keywordGeneration.prompts;
+      promptGeneration = keywordGeneration.evidence;
     }
 
     const manualPromptRows = input.manualPrompts?.length
-      ? promptsFromManual({
-          target: effectiveTarget,
-          language: input.language,
-          prompts: input.manualPrompts,
-        })
+      ? confirmedManualPrompts({ target: effectiveTarget, language: input.language, prompts: input.manualPrompts })
       : [];
 
-    let promptGeneration: AuditPlan["promptGeneration"];
     let generatedPrompts: MonitoringPrompt[] = [];
     if (!discoveredPrompts.length && !manualPromptRows.length && !keywordPrompts.length) {
       const generated = await this.promptGenerator.generate({
@@ -233,7 +269,7 @@ export class AuditPlanner {
         language: input.language,
         count: input.promptCount,
         provider: firstProvider,
-        model: firstTarget.model,
+        model: firstAnalysisModel,
         apiKey: firstApiKey,
         store,
       });
@@ -241,7 +277,8 @@ export class AuditPlanner {
       promptGeneration = generated.evidence;
     }
 
-    const prompts = dedupePrompts([...discoveredPrompts, ...keywordPrompts, ...manualPromptRows, ...generatedPrompts], effectiveTarget);
+    const deduplicatedPrompts = dedupePrompts([...discoveredPrompts, ...keywordPrompts, ...manualPromptRows, ...generatedPrompts]);
+    const prompts = deduplicatedPrompts;
     const hash = promptSetHash({ prompts, providerTargets: input.providerTargets, language: input.language });
     return {
       id: planId,
@@ -265,6 +302,7 @@ export class AuditPlanner {
       keywords,
       keywordClusters,
       keywordRelevance,
+      keywordAnalysis,
       promptGeneration,
       estimate: estimate(prompts, input.providerTargets),
     };

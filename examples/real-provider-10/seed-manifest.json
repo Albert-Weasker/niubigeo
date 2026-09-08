@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "real-provider-10-seed/v1",
+  "purpose": "fixed_real_provider_validation",
+  "cases": [
+    { "caseId": "LIVE-01", "domain": "niubistar.com", "language": "zh" },
+    { "caseId": "LIVE-02", "domain": "vercel.com", "language": "en" },
+    { "caseId": "LIVE-03", "domain": "supabase.com", "language": "en" },
+    { "caseId": "LIVE-04", "domain": "posthog.com", "language": "en" },
+    { "caseId": "LIVE-05", "domain": "sentry.io", "language": "zh" },
+    { "caseId": "LIVE-06", "domain": "linear.app", "language": "en" },
+    { "caseId": "LIVE-07", "domain": "canva.com", "language": "zh" },
+    { "caseId": "LIVE-08", "domain": "notion.com", "language": "zh" },
+    { "caseId": "LIVE-09", "domain": "cloudflare.com", "language": "en" },
+    { "caseId": "LIVE-10", "domain": "replit.com", "language": "en" }
+  ]
+}

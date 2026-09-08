@@ -1,10 +1,17 @@
 #!/usr/bin/env node
 import { existsSync, readFileSync } from "node:fs";
 import { AuditRunner } from "./runner/audit-runner.js";
-import { loadDotEnv } from "./config/env.js";
+import { AuditPlanner } from "./runner/audit-planner.js";
+import { loadDotEnv, monitoringDataDir, runsDir } from "./config/env.js";
 import { entityFromInput } from "./utils/domain.js";
 import type { Entity, KeywordMode, ProviderTarget } from "./core/types.js";
 import { percent } from "./report/format.js";
+import { ProjectFileStore } from "./projects/project-store.js";
+import { RunOrchestrator } from "./monitoring/run-orchestrator.js";
+import { LegacyRunImporter } from "./projects/legacy-run-importer.js";
+import { MonitoringService } from "./monitoring/monitoring-service.js";
+import type { MonitoringSchedule } from "./monitoring/monitoring-task-schema.js";
+import { splitByCharacters, splitLines } from "./utils/text.js";
 
 loadDotEnv();
 
@@ -12,36 +19,6 @@ interface ParsedArgs {
   command: string;
   options: Record<string, string | boolean>;
 }
-
-interface BrandCase {
-  name: string;
-  domain: string;
-  category: string;
-  competitors: string[];
-}
-
-const REAL_VERIFY_BRANDS: BrandCase[] = [
-  { name: "Vercel", domain: "vercel.com", category: "frontend deployment platforms", competitors: ["netlify.com", "cloudflare.com"] },
-  { name: "Supabase", domain: "supabase.com", category: "open source database platforms", competitors: ["firebase.google.com", "neon.tech"] },
-  { name: "Prisma", domain: "prisma.io", category: "TypeScript ORM tools", competitors: ["typeorm.io", "sequelize.org"] },
-  { name: "Linear", domain: "linear.app", category: "product issue tracking tools", competitors: ["atlassian.com", "asana.com"] },
-  { name: "Notion", domain: "notion.so", category: "team workspace documentation tools", competitors: ["coda.io", "confluence.atlassian.com"] },
-  { name: "Slack", domain: "slack.com", category: "team communication platforms", competitors: ["microsoft.com", "discord.com"] },
-  { name: "Docker", domain: "docker.com", category: "container developer tools", competitors: ["podman.io", "kubernetes.io"] },
-  { name: "Kubernetes", domain: "kubernetes.io", category: "container orchestration platforms", competitors: ["docker.com", "nomadproject.io"] },
-  { name: "GitHub", domain: "github.com", category: "software collaboration platforms", competitors: ["gitlab.com", "bitbucket.org"] },
-  { name: "Figma", domain: "figma.com", category: "collaborative design tools", competitors: ["sketch.com", "adobe.com"] },
-  { name: "Stripe", domain: "stripe.com", category: "developer payment platforms", competitors: ["adyen.com", "paypal.com"] },
-  { name: "Shopify", domain: "shopify.com", category: "commerce platforms", competitors: ["bigcommerce.com", "woocommerce.com"] },
-  { name: "PostHog", domain: "posthog.com", category: "product analytics platforms", competitors: ["amplitude.com", "mixpanel.com"] },
-  { name: "Sentry", domain: "sentry.io", category: "application error monitoring tools", competitors: ["datadoghq.com", "newrelic.com"] },
-  { name: "LangSmith", domain: "langsmith.com", category: "LLM observability tools", competitors: ["langfuse.com", "helicone.ai"] },
-  { name: "Hugging Face", domain: "huggingface.co", category: "machine learning model hubs", competitors: ["replicate.com", "kaggle.com"] },
-  { name: "Tailwind CSS", domain: "tailwindcss.com", category: "CSS frameworks", competitors: ["getbootstrap.com", "bulma.io"] },
-  { name: "Next.js", domain: "nextjs.org", category: "React application frameworks", competitors: ["remix.run", "astro.build"] },
-  { name: "Redis", domain: "redis.io", category: "in-memory databases", competitors: ["memcached.org", "dragonflydb.io"] },
-  { name: "ClickHouse", domain: "clickhouse.com", category: "real-time analytics databases", competitors: ["druid.apache.org", "pinot.apache.org"] },
-];
 
 function parseArgs(argv: string[]): ParsedArgs {
   const [command = "help", ...rest] = argv;
@@ -66,6 +43,12 @@ function option(options: Record<string, string | boolean>, key: string): string 
   return typeof value === "string" ? value : undefined;
 }
 
+function requiredOption(options: Record<string, string | boolean>, key: string): string {
+  const value = option(options, key);
+  if (!value) throw new Error(`--${key} is required`);
+  return value;
+}
+
 function numberOption(options: Record<string, string | boolean>, key: string, fallback: number): number {
   const value = Number(option(options, key) || fallback);
   if (!Number.isFinite(value) || value <= 0) throw new Error(`Invalid --${key}`);
@@ -80,13 +63,22 @@ function optionalNumberOption(options: Record<string, string | boolean>, key: st
   return value;
 }
 
+function optionalNonNegativeIntegerOption(options: Record<string, string | boolean>, key: string): number | undefined {
+  const raw = option(options, key);
+  if (!raw) return undefined;
+  const value = Number(raw);
+  if (!Number.isInteger(value) || value < 0) throw new Error(`Invalid --${key}`);
+  return value;
+}
+
 function webSearchEnabledOption(options: Record<string, string | boolean>): boolean {
   return options["web-search"] === true || option(options, "web-search") === "true";
 }
 
 function webSearchModeOption(options: Record<string, string | boolean>): "auto" | "provider_native" {
   const value = option(options, "web-search-mode");
-  if (!value || value === "auto") return "auto";
+  if (!value) return "provider_native";
+  if (value === "auto") return "auto";
   if (value === "provider_native") return "provider_native";
   throw new Error("--web-search-mode must be auto or provider_native");
 }
@@ -130,17 +122,17 @@ function readManualPrompts(options: Record<string, string | boolean>): string[] 
   const file = option(options, "prompts-file");
   if (!file) return undefined;
   if (!existsSync(file)) throw new Error(`Prompts file does not exist: ${file}`);
-  return readFileSync(file, "utf8").split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  return splitLines(readFileSync(file, "utf8")).map((line) => line.trim()).filter(Boolean);
 }
 
 function readKeywords(options: Record<string, string | boolean>): string[] {
   const inline = option(options, "keywords");
   const rows: string[] = [];
-  if (inline) rows.push(...inline.split(/[\n,，;；|]+/));
+  if (inline) rows.push(...splitByCharacters(inline, new Set(["\n", ",", "，", ";", "；", "|"])));
   const file = option(options, "keywords-file");
   if (file) {
     if (!existsSync(file)) throw new Error(`Keywords file does not exist: ${file}`);
-    rows.push(...readFileSync(file, "utf8").split(/\r?\n/));
+    rows.push(...splitLines(readFileSync(file, "utf8")));
   }
   return [...new Set(rows.map((keyword) => keyword.trim()).filter(Boolean))];
 }
@@ -165,7 +157,7 @@ async function runAudit(options: Record<string, string | boolean>): Promise<void
   const competitors = competitorsFromDomains(option(options, "competitors") || "");
   const keywords = readKeywords(options);
   const keywordMode = keywordModeOption(options, keywords);
-  const output = await new AuditRunner().run({
+  const plan = await new AuditPlanner().plan({
     target,
     submittedDomain: domain,
     competitors,
@@ -179,9 +171,16 @@ async function runAudit(options: Record<string, string | boolean>): Promise<void
     promptsPerKeyword: keywordMode ? optionalNumberOption(options, "prompts-per-keyword") ?? 2 : undefined,
     autoDiscover: options["no-auto-discover"] !== true,
     targetNameExplicit: Boolean(option(options, "name")),
+  });
+  const output = await new AuditRunner().run({
+    confirmedPlan: plan,
     maxTokens: numberOption(options, "max-tokens", 900),
   });
+  const store = new ProjectFileStore(monitoringDataDir());
+  const materialized = await new RunOrchestrator(store).recordAuditOutput(output.audit, output.paths);
   console.log(`Audit completed: ${output.audit.id}`);
+  console.log(`Project: ${materialized.project.id}`);
+  console.log(`Baseline: ${materialized.baseline.id}`);
   console.log(`Mention Rate: ${percent(output.metrics.mentionRate)}`);
   console.log(`Citation Rate: ${percent(output.metrics.citationRate)}`);
   console.log(`Recommendation Rate: ${percent(output.metrics.recommendationRate)}`);
@@ -210,31 +209,116 @@ async function runAudit(options: Record<string, string | boolean>): Promise<void
   console.log(`Raw evidence: ${output.paths.auditJson}`);
 }
 
+function monitoringSchedule(options: Record<string, string | boolean>): MonitoringSchedule {
+  const kind = option(options, "schedule") || "manual";
+  if (kind !== "manual" && kind !== "daily" && kind !== "weekly" && kind !== "cron") {
+    throw new Error("--schedule must be manual, daily, weekly, or cron");
+  }
+  const schedule: MonitoringSchedule = {
+    kind,
+    timezone: option(options, "timezone") || "UTC",
+  };
+  const cron = option(options, "cron");
+  if (cron) schedule.cron = cron;
+  const hour = optionalNonNegativeIntegerOption(options, "hour");
+  if (hour !== undefined) schedule.hour = hour;
+  const minute = optionalNonNegativeIntegerOption(options, "minute");
+  if (minute !== undefined) schedule.minute = minute;
+  const dayOfWeek = optionalNonNegativeIntegerOption(options, "day-of-week");
+  if (dayOfWeek !== undefined) schedule.dayOfWeek = dayOfWeek;
+  return schedule;
+}
+
+async function listProjects(): Promise<void> {
+  const store = new ProjectFileStore(monitoringDataDir());
+  for (const project of await store.listProjects()) {
+    const runs = await store.listRuns(project.id);
+    const tasks = await store.listTasks(project.id);
+    console.log(`${project.id}\t${project.name}\t${project.domain}\truns=${runs.length}\ttasks=${tasks.length}`);
+  }
+}
+
+async function importLegacyRuns(options: Record<string, string | boolean>): Promise<void> {
+  const root = option(options, "runs-root") || runsDir();
+  const summary = await new LegacyRunImporter(new ProjectFileStore(monitoringDataDir())).importRuns(root);
+  console.log(JSON.stringify(summary, null, 2));
+}
+
+async function runProjectBaseline(options: Record<string, string | boolean>): Promise<void> {
+  const projectId = requiredOption(options, "project");
+  const baselineId = requiredOption(options, "baseline");
+  const store = new ProjectFileStore(monitoringDataDir());
+  const project = await store.readProject(projectId);
+  if (!project) throw new Error(`Project not found: ${projectId}`);
+  const baseline = await store.readBaseline(projectId, baselineId);
+  if (!baseline) throw new Error(`Baseline not found: ${baselineId}`);
+  const output = await new RunOrchestrator(store).runBaseline({ project, baseline });
+  console.log(`Run completed: ${output.materialized.run.id}`);
+  console.log(`Report HTML: ${output.runnerOutput.paths.reportHtml}`);
+}
+
+async function createMonitor(options: Record<string, string | boolean>): Promise<void> {
+  const projectId = requiredOption(options, "project");
+  const baselineId = requiredOption(options, "baseline");
+  const store = new ProjectFileStore(monitoringDataDir());
+  const service = new MonitoringService(store, new RunOrchestrator(store));
+  const task = await service.createTask({ projectId, baselineId, schedule: monitoringSchedule(options) });
+  console.log(JSON.stringify(task, null, 2));
+}
+
+async function runMonitor(options: Record<string, string | boolean>): Promise<void> {
+  const projectId = requiredOption(options, "project");
+  const taskId = requiredOption(options, "task");
+  const store = new ProjectFileStore(monitoringDataDir());
+  const output = await new MonitoringService(store, new RunOrchestrator(store)).runTask(projectId, taskId);
+  console.log(`Run completed: ${output.materialized.run.id}`);
+}
+
+async function runDueMonitors(): Promise<void> {
+  const store = new ProjectFileStore(monitoringDataDir());
+  const results = await new MonitoringService(store, new RunOrchestrator(store)).runDue();
+  console.log(JSON.stringify(results.map((result) => ({ taskId: result.task.id, runId: result.output?.materialized.run.id, error: result.error })), null, 2));
+}
+
+async function runMonitorWorker(options: Record<string, string | boolean>): Promise<void> {
+  const pollSeconds = numberOption(options, "poll-seconds", 60);
+  let polling = false;
+  const poll = async () => {
+    if (polling) return;
+    polling = true;
+    try {
+      await runDueMonitors();
+    } finally {
+      polling = false;
+    }
+  };
+  await poll();
+  setInterval(() => {
+    poll().catch((error) => console.error(error instanceof Error ? error.message : String(error)));
+  }, pollSeconds * 1000);
+}
+
 async function verifyReal(options: Record<string, string | boolean>): Promise<void> {
   const providerTarget = parseProviderTargets(options)[0];
   if (!providerTarget) throw new Error("Provider target is required.");
-  const limit = Math.min(numberOption(options, "limit", 20), REAL_VERIFY_BRANDS.length);
-  let completed = 0;
-  for (const item of REAL_VERIFY_BRANDS.slice(0, limit)) {
-    const prompt = `For the category "${item.category}", recommend the strongest tools or products. Include official URLs only if you know them. Do not invent sources.`;
-    const output = await new AuditRunner().run({
-      target: entityFromInput({ type: "target", domain: item.domain, name: item.name }),
-      submittedDomain: item.domain,
-      competitors: competitorsFromDomains(item.competitors.join(",")),
-      providerTargets: [providerTarget],
-      language: "en",
-      promptCount: 1,
-      manualPrompts: [prompt],
-      autoDiscover: false,
-      targetNameExplicit: true,
-      maxTokens: numberOption(options, "max-tokens", 520),
-    });
-    completed += 1;
-    console.log(
-      `[verify:${completed}/${limit}:${item.domain}] mention=${percent(output.metrics.mentionRate)} citation=${percent(output.metrics.citationRate)} recommendation=${percent(output.metrics.recommendationRate)} sov=${percent(output.metrics.shareOfVoice)} web=${providerTarget.webSearchEnabled ? "on" : "off"} report=${output.paths.reportMd}`,
-    );
-  }
-  console.log(`Real provider verification passed: completed=${completed}, failed=0, provider=${providerTarget.providerId}, model=${providerTarget.model}`);
+  const domain = requiredOption(options, "domain");
+  const name = option(options, "name");
+  const competitorInput = option(options, "competitors") || "";
+  const plan = await new AuditPlanner().plan({
+    target: entityFromInput({ type: "target", domain, name }),
+    submittedDomain: domain,
+    competitors: competitorsFromDomains(competitorInput),
+    providerTargets: [providerTarget],
+    language: option(options, "language") || "en",
+    promptCount: numberOption(options, "prompt-count", 6),
+    autoDiscover: true,
+    targetNameExplicit: Boolean(name),
+  });
+  const output = await new AuditRunner().run({
+    confirmedPlan: plan,
+    maxTokens: numberOption(options, "max-tokens", 900),
+  });
+  console.log(`Real provider verification passed: provider=${providerTarget.providerId}, model=${providerTarget.model}, report=${output.paths.reportMd}`);
 }
 
 async function schedule(options: Record<string, string | boolean>): Promise<void> {
@@ -273,12 +357,24 @@ async function main(): Promise<void> {
   if (command === "audit") return runAudit(options);
   if (command === "verify-real") return verifyReal(options);
   if (command === "schedule") return schedule(options);
+  if (command === "projects") return listProjects();
+  if (command === "import-runs") return importLegacyRuns(options);
+  if (command === "project-run") return runProjectBaseline(options);
+  if (command === "monitor-create") return createMonitor(options);
+  if (command === "monitor-run") return runMonitor(options);
+  if (command === "monitor-due") return runDueMonitors();
+  if (command === "monitor-worker") return runMonitorWorker(options);
   console.log("Usage:");
-  console.log("  npm run audit -- --domain www.niubistar.com --targets openrouter:openai/gpt-4o-mini,openrouter:perplexity/sonar --prompt-count 8 --web-search");
-  console.log("  npm run audit -- --domain www.niubistar.com --keywords \"GitHub project promotion,GitHub star growth\" --keyword-limit 4 --prompts-per-keyword 2");
-  console.log("  npm run audit -- --domain vercel.com --provider openrouter --models openai/gpt-4o-mini,perplexity/sonar --prompt-count 8");
-  console.log("  npm run verify:real");
+  console.log("  npm run audit -- --domain example.com --targets openrouter:model-id --prompt-count 8 --web-search");
+  console.log("  npm run audit -- --domain example.com --keywords \"keyword one,keyword two\" --keyword-limit 4 --prompts-per-keyword 2");
+  console.log("  npm run verify:real -- --domain example.com --provider openrouter --model model-id");
   console.log("  npm run server");
+  console.log("  npx tsx src/cli.ts import-runs");
+  console.log("  npx tsx src/cli.ts projects");
+  console.log("  npx tsx src/cli.ts project-run --project project-id --baseline baseline-id");
+  console.log("  npx tsx src/cli.ts monitor-create --project project-id --baseline baseline-id --schedule daily --timezone Asia/Shanghai --hour 9");
+  console.log("  npx tsx src/cli.ts monitor-due");
+  console.log("  npx tsx src/cli.ts monitor-worker --poll-seconds 60");
 }
 
 main().catch((error) => {

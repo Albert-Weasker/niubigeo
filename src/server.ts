@@ -1,9 +1,10 @@
 import { createServer, IncomingMessage, ServerResponse } from "node:http";
+import { pathToFileURL } from "node:url";
 import { readdir, readFile, stat } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { extname, join, resolve, sep } from "node:path";
-import { hasProviderKey, loadDotEnv, runsDir } from "./config/env.js";
-import { ProviderCatalog } from "./providers/catalog.js";
+import { hasProviderKey, loadDotEnv, monitoringDataDir, productDataDir, runsDir } from "./config/env.js";
+import { ProviderCatalog, PROVIDER_MODEL_CAPABILITIES } from "./providers/catalog.js";
 import { AuditRunner } from "./runner/audit-runner.js";
 import { AuditPlanner } from "./runner/audit-planner.js";
 import { entityFromInput } from "./utils/domain.js";
@@ -11,8 +12,62 @@ import type { AuditPlan, Entity, KeywordMode, MonitoringPrompt, PromptAuditCateg
 import { renderAppHtml } from "./ui/app-html.js";
 import { sha256 } from "./utils/hash.js";
 import { ANALYSIS_RULES_VERSION, PROMPT_SET_VERSION } from "./core/version.js";
+import { ProjectFileStore } from "./projects/project-store.js";
+import { ObservationReanalysisService } from "./observations/observation-reanalysis-service.js";
+import { BaselineIntentService } from "./baselines/baseline-intent-service.js";
+import { RunOrchestrator } from "./monitoring/run-orchestrator.js";
+import { MonitoringService } from "./monitoring/monitoring-service.js";
+import { LegacyRunImporter } from "./projects/legacy-run-importer.js";
+import type {
+  MonitoringNotificationChannel,
+  MonitoringNotificationChannelType,
+  MonitoringNotificationCondition,
+  MonitoringNotificationPolicy,
+  MonitoringSchedule,
+} from "./monitoring/monitoring-task-schema.js";
+import { ProjectService } from "./projects/project-service.js";
+import { BaselineService } from "./baselines/baseline-service.js";
+import { splitByCharacters } from "./utils/text.js";
+import { WorkbenchReadModelBuilder } from "./dashboard/workbench-read-model.js";
+import type { TrendFilter, TrendRange } from "./timeseries/timeseries-schema.js";
+import { RunSnapshotBuilder } from "./dashboard/run-snapshot-model.js";
+import { parseStoredBrandQuestionClassification } from "./prompts/brand-question.js";
+import { AsyncJobRegistry } from "./jobs/async-job-registry.js";
+import { emptyAuditProgress, type AuditProgressListener, type AuditProgressSnapshot } from "./runner/audit-progress.js";
+import { ProductProjectFileStore } from "./product/projects/project-store.js";
+import { ProductProjectService } from "./product/projects/project-service.js";
+import { handleProductProjectApi } from "./product/projects/project-http.js";
+import { renderProductPhase2AppHtml } from "./ui/product-phase2-app.js";
+import { ProductConfigurationFileStore } from "./product/configuration/configuration-store.js";
+import { OpenRouterProductModelCatalog } from "./product/configuration/model-catalog.js";
+import { ProductModelSelectionService } from "./product/configuration/model-selection-service.js";
+import { ProductBaselineService } from "./product/configuration/baseline-service.js";
+import { handleProductConfigurationApi } from "./product/configuration/configuration-http.js";
+import { ProductRecognitionFileStore } from "./product/recognition/recognition-store.js";
+import { ProductRecognitionRunService } from "./product/recognition/recognition-service.js";
+import type { RecognitionAnswerExecutor } from "./product/recognition/recognition-service.js";
+import { handleProductRecognitionApi, handleProductRecognitionRetryApi } from "./product/recognition/recognition-http.js";
+import type { ProductModelCatalog } from "./product/configuration/model-selection-schema.js";
 
 loadDotEnv();
+
+type AuditJobResult = {
+  auditId: string;
+  projectId: string;
+  baselineId: string;
+  projectRunId: string;
+  metrics: unknown;
+  gaps: unknown;
+  paths: unknown;
+};
+
+const auditJobs = new AsyncJobRegistry<AuditProgressSnapshot, AuditJobResult>();
+const defaultProductModelCatalog = new OpenRouterProductModelCatalog(PROVIDER_MODEL_CAPABILITIES);
+
+export interface ProductServerDependencies {
+  modelCatalog?: ProductModelCatalog | undefined;
+  recognitionExecutor?: RecognitionAnswerExecutor | undefined;
+}
 
 function send(res: ServerResponse, status: number, body: unknown, contentType = "application/json"): void {
   res.writeHead(status, { "Content-Type": contentType });
@@ -45,15 +100,16 @@ async function readJson(req: IncomingMessage): Promise<Record<string, unknown>> 
 
 function providerTargetsFromBody(body: Record<string, unknown>): ProviderTarget[] {
   const webSearchEnabled = typeof body.webSearchEnabled === "boolean" ? body.webSearchEnabled : undefined;
-  const webSearchMode = webSearchModeFromBody(body.webSearchMode);
+  const webSearchMode = webSearchEnabled ? "provider_native" : webSearchModeFromBody(body.webSearchMode);
   if (Array.isArray(body.providerTargets)) {
     return body.providerTargets.map((item) => {
       const row = item as Record<string, unknown>;
+      const rowWebSearchEnabled = typeof row.webSearchEnabled === "boolean" ? row.webSearchEnabled : webSearchEnabled;
       return {
         providerId: String(row.providerId),
         model: String(row.model),
-        webSearchEnabled: typeof row.webSearchEnabled === "boolean" ? row.webSearchEnabled : webSearchEnabled,
-        webSearchMode: webSearchModeFromBody(row.webSearchMode) || webSearchMode,
+        webSearchEnabled: rowWebSearchEnabled,
+        webSearchMode: rowWebSearchEnabled ? "provider_native" : webSearchModeFromBody(row.webSearchMode) || webSearchMode,
       };
     });
   }
@@ -79,8 +135,7 @@ function webSearchModeFromBody(value: unknown): WebSearchRequestMode | undefined
 function stringListFromBody(value: unknown): string[] {
   if (Array.isArray(value)) return value.map(String).map((item) => item.trim()).filter(Boolean);
   if (typeof value !== "string") return [];
-  return value
-    .split(/[\n,，;；|]+/)
+  return splitByCharacters(value, new Set(["\n", ",", "，", ";", "；", "|"]))
     .map((item) => item.trim())
     .filter(Boolean);
 }
@@ -90,7 +145,7 @@ function keywordModeFromBody(value: unknown): KeywordMode | undefined {
   return undefined;
 }
 
-function promptTypeFromBody(value: unknown): PromptType {
+function promptTypeFromBody(value: unknown): PromptType | null {
   const text = typeof value === "string" ? value : "";
   const allowed = new Set<PromptType>([
     "brand",
@@ -106,12 +161,108 @@ function promptTypeFromBody(value: unknown): PromptType {
     "keyword_scenario",
     "keyword_source",
   ]);
-  return allowed.has(text as PromptType) ? (text as PromptType) : "scenario";
+  return allowed.has(text as PromptType) ? (text as PromptType) : null;
 }
 
 function promptAuditCategoryFromBody(value: unknown): PromptAuditCategory | undefined {
   if (value === "brand_awareness" || value === "organic_discovery" || value === "comparison" || value === "other") return value;
   return undefined;
+}
+
+function monitoringScheduleFromBody(value: unknown): MonitoringSchedule {
+  const row = typeof value === "object" && value !== null ? (value as Record<string, unknown>) : {};
+  const kind = row.kind;
+  if (kind !== "manual" && kind !== "daily" && kind !== "weekly" && kind !== "monthly" && kind !== "cron") {
+    throw new Error("schedule.kind must be manual, daily, weekly, monthly, or cron");
+  }
+  const schedule: MonitoringSchedule = {
+    kind,
+    timezone: typeof row.timezone === "string" && row.timezone.trim() ? row.timezone.trim() : "UTC",
+  };
+  if (typeof row.cron === "string") schedule.cron = row.cron;
+  if (typeof row.hour === "number") schedule.hour = row.hour;
+  if (typeof row.minute === "number") schedule.minute = row.minute;
+  if (typeof row.dayOfWeek === "number") schedule.dayOfWeek = row.dayOfWeek;
+  if (typeof row.dayOfMonth === "number") schedule.dayOfMonth = row.dayOfMonth;
+  return schedule;
+}
+
+const NOTIFICATION_CONDITIONS = new Set<MonitoringNotificationCondition>([
+  "brand_disappeared",
+  "competitor_appeared",
+  "official_citation_added",
+  "recommendation_changed",
+  "run_completed",
+  "run_failed",
+]);
+
+const NOTIFICATION_CHANNEL_TYPES = new Set<MonitoringNotificationChannelType>([
+  "email",
+  "webhook",
+  "slack",
+  "discord",
+  "wecom",
+  "lark",
+]);
+
+function notificationPolicyFromBody(value: unknown): MonitoringNotificationPolicy {
+  const row = typeof value === "object" && value !== null ? (value as Record<string, unknown>) : {};
+  const conditions = Array.isArray(row.conditions)
+    ? row.conditions.map(String).filter((item): item is MonitoringNotificationCondition => NOTIFICATION_CONDITIONS.has(item as MonitoringNotificationCondition))
+    : [];
+  const channels: MonitoringNotificationChannel[] = [];
+  if (Array.isArray(row.channels)) {
+    for (const item of row.channels) {
+      if (typeof item !== "object" || item === null) continue;
+      const channel = item as Record<string, unknown>;
+      const type = String(channel.type || "");
+      const target = String(channel.target || "").trim();
+      if (!NOTIFICATION_CHANNEL_TYPES.has(type as MonitoringNotificationChannelType) || !target) continue;
+      channels.push({
+        id: typeof channel.id === "string" && channel.id.trim() ? channel.id.trim() : `channel-${channels.length + 1}`,
+        type: type as MonitoringNotificationChannelType,
+        target,
+        enabled: channel.enabled !== false,
+      });
+    }
+  }
+  return { conditions: [...new Set(conditions)], channels };
+}
+
+function taskBaselineConfigurationFromBody(value: unknown): {
+  selectedPromptIds?: string[] | undefined;
+  providerTargets?: ProviderTarget[] | undefined;
+  language?: string | undefined;
+  runCountPerPrompt?: number | undefined;
+} | undefined {
+  if (typeof value !== "object" || value === null) return undefined;
+  const row = value as Record<string, unknown>;
+  const selectedPromptIds = Array.isArray(row.selectedPromptIds)
+    ? [...new Set(row.selectedPromptIds.map(String).map((item) => item.trim()).filter(Boolean))]
+    : undefined;
+  const providerTargets = Array.isArray(row.providerTargets)
+    ? providerTargetsFromBody({ providerTargets: row.providerTargets })
+    : undefined;
+  const language = typeof row.language === "string" && row.language.trim() ? row.language.trim() : undefined;
+  const runCountPerPrompt = typeof row.runCountPerPrompt === "number" && Number.isInteger(row.runCountPerPrompt) && row.runCountPerPrompt > 0
+    ? row.runCountPerPrompt
+    : undefined;
+  if (!selectedPromptIds && !providerTargets && !language && !runCountPerPrompt) return undefined;
+  return { selectedPromptIds, providerTargets, language, runCountPerPrompt };
+}
+
+function trendFilterFromUrl(url: URL): TrendFilter {
+  const requestedRange = url.searchParams.get("range");
+  const allowedRanges = new Set<TrendRange>(["24h", "7d", "30d", "90d", "all"]);
+  const range = allowedRanges.has(requestedRange as TrendRange) ? (requestedRange as TrendRange) : "30d";
+  const timezone = url.searchParams.get("timezone")?.trim() || "UTC";
+  const model = url.searchParams.get("model")?.trim();
+  const requestedSearch = url.searchParams.get("searchUsed");
+  const filter: TrendFilter = { range, timezone };
+  if (model) filter.model = model;
+  if (requestedSearch === "true") filter.searchUsed = true;
+  if (requestedSearch === "false") filter.searchUsed = false;
+  return filter;
 }
 
 function entityFromPlanRow(value: unknown, fallbackType: Entity["type"], fallbackDomain = ""): Entity {
@@ -129,15 +280,20 @@ function promptFromPlanRow(value: unknown, index: number, language: string): Mon
   const row = typeof value === "object" && value !== null ? (value as Record<string, unknown>) : {};
   const text = typeof row.text === "string" ? row.text.trim() : "";
   if (!text) return null;
-  return {
+  const type = promptTypeFromBody(row.type);
+  const auditCategory = promptAuditCategoryFromBody(row.auditCategory);
+  if (!type || !auditCategory || typeof row.targetIncluded !== "boolean") {
+    throw new Error(`confirmedPlan question ${index + 1} requires Provider-classified type, auditCategory, and targetIncluded.`);
+  }
+  const prompt: MonitoringPrompt = {
     id: typeof row.id === "string" && row.id.trim() ? row.id.trim() : `prompt-${index + 1}`,
-    type: promptTypeFromBody(row.type),
-    topic: typeof row.topic === "string" && row.topic.trim() ? row.topic.trim() : "custom",
+    type,
+    topic: typeof row.topic === "string" && row.topic.trim() ? row.topic.trim() : type,
     language: typeof row.language === "string" && row.language.trim() ? row.language.trim() : language,
     text,
     enabled: row.enabled !== false,
-    auditCategory: promptAuditCategoryFromBody(row.auditCategory),
-    targetIncluded: typeof row.targetIncluded === "boolean" ? row.targetIncluded : undefined,
+    auditCategory,
+    targetIncluded: row.targetIncluded,
     keywordIds: Array.isArray(row.keywordIds) ? row.keywordIds.map(String).filter(Boolean) : undefined,
     keywordClusterId: typeof row.keywordClusterId === "string" ? row.keywordClusterId : undefined,
     keywordIntent:
@@ -157,6 +313,9 @@ function promptFromPlanRow(value: unknown, index: number, language: string): Mon
         ? row.seedSource
         : undefined,
   };
+  const brandQuestion = parseStoredBrandQuestionClassification(row.brandQuestion);
+  if (brandQuestion) prompt.brandQuestion = brandQuestion;
+  return prompt;
 }
 
 function confirmedPromptSetHash(input: { prompts: MonitoringPrompt[]; providerTargets: ProviderTarget[]; language: string }): string {
@@ -167,7 +326,7 @@ function confirmedPromptSetHash(input: { prompts: MonitoringPrompt[]; providerTa
         providerId: target.providerId,
         model: target.model,
         webSearchEnabled: Boolean(target.webSearchEnabled),
-        webSearchMode: target.webSearchMode || "auto",
+        webSearchMode: target.webSearchEnabled ? "provider_native" : target.webSearchMode || "auto",
       })),
       prompts: input.prompts.map((prompt) => ({
         type: prompt.type,
@@ -175,6 +334,7 @@ function confirmedPromptSetHash(input: { prompts: MonitoringPrompt[]; providerTa
         text: prompt.text,
         enabled: prompt.enabled,
         keywordIds: prompt.keywordIds || [],
+        brandQuestion: prompt.brandQuestion,
       })),
     }),
   ).slice(0, 12);
@@ -254,11 +414,60 @@ function auditInputFromBody(body: Record<string, unknown>) {
   };
 }
 
+function initialProgressForPlan(
+  plan: Pick<AuditPlan, "prompts" | "providerTargets" | "runCountPerPrompt">,
+): AuditProgressSnapshot {
+  const enabledPromptCount = plan.prompts.filter((prompt) => prompt.enabled).length;
+  const repeatCount = plan.runCountPerPrompt || 1;
+  return {
+    ...emptyAuditProgress(),
+    plannedObservationCount: enabledPromptCount * plan.providerTargets.length * repeatCount,
+    models: plan.providerTargets.map((target) => ({
+      providerId: target.providerId,
+      model: target.model,
+      planned: enabledPromptCount * repeatCount,
+      completed: 0,
+      failed: 0,
+    })),
+  };
+}
+
+async function runConfirmedAudit(
+  body: Record<string, unknown>,
+  projectStore: ProjectFileStore,
+  onProgress?: AuditProgressListener,
+): Promise<AuditJobResult> {
+  const confirmedPlan = auditPlanFromBody(body.confirmedPlan);
+  const projectService = new ProjectService();
+  const candidate = projectService.projectFromAuditPlan(confirmedPlan);
+  const existing = await projectStore.readProject(candidate.id);
+  const project = projectService.projectFromAuditPlan(confirmedPlan, existing || undefined);
+  await projectStore.saveProject(project);
+  const baseline = await new BaselineService(projectStore).createFromConfirmedPlan(project.id, confirmedPlan);
+  const monitored = await new RunOrchestrator(projectStore).runBaseline({
+    project,
+    baseline,
+    maxTokens: typeof body.maxTokens === "number" ? body.maxTokens : undefined,
+    temperature: typeof body.temperature === "number" ? body.temperature : undefined,
+    onProgress,
+  });
+  const output = monitored.runnerOutput;
+  return {
+    auditId: output.audit.id,
+    projectId: monitored.materialized.project.id,
+    baselineId: monitored.materialized.baseline.id,
+    projectRunId: monitored.materialized.run.id,
+    metrics: output.metrics,
+    gaps: output.gaps,
+    paths: output.paths,
+  };
+}
+
 function conditionSignature(report: any): string {
   const audit = report.audit || {};
   const promptHash = audit.promptSetHash || "";
   const providerModels = (audit.providerTargets || [])
-    .map((target: any) => `${target.providerId}:${target.model}:${Boolean(target.webSearchEnabled)}:${target.webSearchMode || "auto"}`)
+    .map((target: any) => `${target.providerId}:${target.model}:${Boolean(target.webSearchEnabled)}:${target.webSearchEnabled ? "provider_native" : target.webSearchMode || "auto"}`)
     .sort()
     .join("|");
   const language = audit.prompts?.[0]?.language || "";
@@ -330,15 +539,24 @@ async function listRunSummaries(): Promise<any[]> {
   });
 }
 
-async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> {
+async function handle(req: IncomingMessage, res: ServerResponse, dependencies: ProductServerDependencies = {}): Promise<void> {
   const method = req.method || "GET";
   const url = new URL(req.url || "/", "http://localhost");
+  const route = url.pathname.split("/").filter(Boolean).map((part) => decodeURIComponent(part));
+  const projectStore = new ProjectFileStore(monitoringDataDir());
+  const productProjectStore = new ProductProjectFileStore(productDataDir());
+  const productProjectService = new ProductProjectService(productProjectStore);
+  const productConfigurationStore = new ProductConfigurationFileStore(productProjectStore);
+  const productModelCatalog = dependencies.modelCatalog || defaultProductModelCatalog;
+  const productModelSelections = new ProductModelSelectionService(productProjectService, productConfigurationStore, productModelCatalog);
+  const productBaselines = new ProductBaselineService(productProjectService, productModelSelections, productConfigurationStore);
+  const productRecognitionStore = new ProductRecognitionFileStore(productProjectStore);
+  const productRecognitionRuns = new ProductRecognitionRunService(productProjectService, productBaselines, productRecognitionStore, dependencies.recognitionExecutor);
 
-  if (method === "GET" && url.pathname === "/") return send(res, 200, renderAppHtml(), "text/html; charset=utf-8");
-  const assetMatch = url.pathname.match(/^\/assets\/(.+)$/);
-  if (method === "GET" && assetMatch?.[1]) {
+  if (method === "GET" && url.pathname === "/") return send(res, 200, renderProductPhase2AppHtml(), "text/html; charset=utf-8");
+  if (method === "GET" && route[0] === "assets" && route.length > 1) {
     const root = resolve("assets");
-    const path = resolve(root, decodeURIComponent(assetMatch[1]));
+    const path = resolve(root, route.slice(1).join("/"));
     if (path !== root && !path.startsWith(root + sep)) return send(res, 404, { error: "asset not found" });
     if (!existsSync(path)) return send(res, 404, { error: "asset not found" });
     if (!(await stat(path)).isFile()) return send(res, 404, { error: "asset not found" });
@@ -352,7 +570,294 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
       new ProviderCatalog().list().map((provider) => ({ ...provider, keyConfigured: hasProviderKey(provider.id) })),
     );
   }
+  if (method === "GET" && url.pathname === "/provider-models") {
+    return send(res, 200, await PROVIDER_MODEL_CAPABILITIES.list());
+  }
   if (method === "GET" && url.pathname === "/runs") return send(res, 200, await listRunSummaries());
+  if (method === "GET" && route.length === 2 && route[0] === "audit-jobs") {
+    const job = auditJobs.read(route[1] || "");
+    return job ? send(res, 200, job) : send(res, 404, { error: "audit job not found" });
+  }
+
+  if (
+    await handleProductConfigurationApi({
+      method,
+      route,
+      projects: productProjectService,
+      selections: productModelSelections,
+      baselines: productBaselines,
+      catalog: productModelCatalog,
+      readJson: () => readJson(req),
+      send: (status, body) => send(res, status, body),
+    })
+  ) {
+    return;
+  }
+
+  if (
+    await handleProductRecognitionRetryApi({
+      method,
+      route,
+      service: productRecognitionRuns,
+      send: (status, body) => send(res, status, body),
+    })
+  ) {
+    return;
+  }
+
+  if (
+    await handleProductRecognitionApi({
+      method,
+      route,
+      service: productRecognitionRuns,
+      idempotencyKey: typeof req.headers["idempotency-key"] === "string" ? req.headers["idempotency-key"] : undefined,
+      send: (status, body) => send(res, status, body),
+    })
+  ) {
+    return;
+  }
+
+  if (
+    await handleProductProjectApi({
+      method,
+      url,
+      route,
+      service: productProjectService,
+      readJson: () => readJson(req),
+      send: (status, body) => send(res, status, body),
+    })
+  ) {
+    return;
+  }
+
+  if (method === "POST" && route.length === 1 && route[0] === "audit-jobs") {
+    const body = await readJson(req);
+    const plan = auditPlanFromBody(body.confirmedPlan);
+    const job = auditJobs.create(initialProgressForPlan(plan), (update) => runConfirmedAudit(body, projectStore, update));
+    return send(res, 202, job);
+  }
+
+  if (method === "GET" && route.length === 1 && route[0] === "projects") {
+    const projects = await projectStore.listProjects();
+    const rows = await Promise.all(
+      projects.map(async (project) => ({ project, dashboard: await projectStore.readDashboard(project.id) })),
+    );
+    return send(res, 200, rows);
+  }
+
+
+  if (method === "POST" && route.length === 1 && route[0] === "projects") {
+    const body = await readJson(req);
+    if (!body.confirmedPlan) return send(res, 400, { error: "confirmedPlan is required" });
+    const plan = auditPlanFromBody(body.confirmedPlan);
+    const projectService = new ProjectService();
+    const candidate = projectService.projectFromAuditPlan(plan);
+    const existing = await projectStore.readProject(candidate.id);
+    const project = projectService.projectFromAuditPlan(plan, existing || undefined);
+    await projectStore.saveProject(project);
+    const baseline = await new BaselineService(projectStore).createFromConfirmedPlan(project.id, plan);
+    return send(res, 201, { project, baseline });
+  }
+
+  if (method === "POST" && route.length === 2 && route[0] === "projects" && route[1] === "import-runs") {
+    return send(res, 201, await new LegacyRunImporter(projectStore).importRuns(runsDir()));
+  }
+
+  if (route[0] === "projects" && route[1]) {
+    const projectId = route[1];
+    const project = await projectStore.readProject(projectId);
+    if (!project) return send(res, 404, { error: "project not found" });
+    if (method === "GET" && route.length === 2) {
+      return send(res, 200, { project, dashboard: await projectStore.readDashboard(projectId) });
+    }
+    if (method === "GET" && route.length === 3 && route[2] === "baselines") {
+      return send(res, 200, await projectStore.listBaselines(projectId));
+    }
+    if (method === "GET" && route.length === 3 && route[2] === "tasks") {
+      return send(res, 200, await projectStore.listTasks(projectId));
+    }
+    if (method === "GET" && route.length === 3 && route[2] === "runs") {
+      return send(res, 200, await projectStore.listRuns(projectId));
+    }
+    if (method === "GET" && route.length === 3 && route[2] === "observations") {
+      return send(res, 200, await projectStore.listObservations(projectId));
+    }
+    if (method === "GET" && route.length === 3 && route[2] === "events") {
+      return send(res, 200, await projectStore.listMonitoringEvents(projectId));
+    }
+    if (method === "GET" && route.length === 3 && route[2] === "workbench") {
+      const [baselines, tasks, runs, observations, events] = await Promise.all([
+        projectStore.listBaselines(projectId),
+        projectStore.listTasks(projectId),
+        projectStore.listRuns(projectId),
+        projectStore.listObservations(projectId),
+        projectStore.listMonitoringEvents(projectId),
+      ]);
+      return send(
+        res,
+        200,
+        new WorkbenchReadModelBuilder().build({
+          project,
+          baselines,
+          tasks,
+          runs,
+          observations,
+          events,
+          filter: trendFilterFromUrl(url),
+          baselineId: url.searchParams.get("baselineId") || undefined,
+        }),
+      );
+    }
+    if (method === "GET" && route.length === 4 && route[2] === "observations") {
+      const observation = (await projectStore.listObservations(projectId)).find((item) => item.id === route[3]);
+      if (!observation) return send(res, 404, { error: "observation not found" });
+      return send(res, 200, observation);
+    }
+    if (method === "GET" && route.length === 5 && route[2] === "runs" && route[4] === "snapshot") {
+      const run = await projectStore.readRun(projectId, route[3] || "");
+      if (!run) return send(res, 404, { error: "run not found" });
+      const baseline = await projectStore.readBaseline(projectId, run.baselineId);
+      if (!baseline) return send(res, 404, { error: "baseline not found" });
+      const observations = await projectStore.listObservations(projectId, run.id);
+      return send(res, 200, new RunSnapshotBuilder().build({ project, baseline, run, observations }));
+    }
+    if (method === "POST" && route.length === 5 && route[2] === "runs" && route[4] === "reanalyze") {
+      const output = await new ObservationReanalysisService(projectStore).reanalyze(projectId, route[3] || "");
+      await new RunOrchestrator(projectStore).refreshDashboard(projectId);
+      return send(res, 200, { run: output.run, analysisCoverage: output.run.analysisCoverage });
+    }
+    if (method === "POST" && route.length === 3 && route[2] === "tasks") {
+      const body = await readJson(req);
+      const sourceBaselineId = typeof body.baselineId === "string" ? body.baselineId : "";
+      if (!sourceBaselineId) return send(res, 400, { error: "baselineId is required" });
+      const configuration = taskBaselineConfigurationFromBody(body.configuration);
+      const baseline = configuration
+        ? await new BaselineService(projectStore).derive(projectId, sourceBaselineId, configuration)
+        : await projectStore.readBaseline(projectId, sourceBaselineId);
+      if (!baseline) return send(res, 404, { error: "baseline not found" });
+      const service = new MonitoringService(projectStore, new RunOrchestrator(projectStore));
+      const task = await service.createTask({
+        name: typeof body.name === "string" ? body.name : undefined,
+        projectId,
+        baselineId: baseline.id,
+        schedule: monitoringScheduleFromBody(body.schedule),
+        notifications: notificationPolicyFromBody(body.notifications),
+        enabled: typeof body.enabled === "boolean" ? body.enabled : true,
+      });
+      return send(res, 201, task);
+    }
+    if (method === "POST" && route.length === 4 && route[2] === "tasks" && route[3] === "preview") {
+      const body = await readJson(req);
+      const service = new MonitoringService(projectStore, new RunOrchestrator(projectStore));
+      const after = typeof body.after === "string" ? new Date(body.after) : new Date();
+      const count = typeof body.count === "number" ? body.count : 3;
+      return send(res, 200, { occurrences: service.previewSchedule(monitoringScheduleFromBody(body.schedule), after, count) });
+    }
+    if ((method === "PATCH" || method === "PUT") && route.length === 4 && route[2] === "tasks") {
+      const body = await readJson(req);
+      const service = new MonitoringService(projectStore, new RunOrchestrator(projectStore));
+      const existingTask = await projectStore.readTask(projectId, route[3] || "");
+      if (!existingTask) return send(res, 404, { error: "monitoring task not found" });
+      const configuration = taskBaselineConfigurationFromBody(body.configuration);
+      const baseline = configuration
+        ? await new BaselineService(projectStore).derive(projectId, existingTask.baselineId, configuration)
+        : undefined;
+      const task = await service.updateTask(projectId, route[3] || "", {
+        name: typeof body.name === "string" ? body.name : undefined,
+        baselineId: baseline?.id,
+        schedule: body.schedule ? monitoringScheduleFromBody(body.schedule) : undefined,
+        notifications: body.notifications ? notificationPolicyFromBody(body.notifications) : undefined,
+        enabled: typeof body.enabled === "boolean" ? body.enabled : undefined,
+      });
+      return send(res, 200, task);
+    }
+    if (method === "DELETE" && route.length === 4 && route[2] === "tasks") {
+      const service = new MonitoringService(projectStore, new RunOrchestrator(projectStore));
+      await service.deleteTask(projectId, route[3] || "");
+      return send(res, 204, "", "text/plain; charset=utf-8");
+    }
+    if (method === "POST" && route.length === 5 && route[2] === "tasks" && route[4] === "duplicate") {
+      const service = new MonitoringService(projectStore, new RunOrchestrator(projectStore));
+      return send(res, 201, await service.duplicateTask(projectId, route[3] || ""));
+    }
+    if (method === "POST" && route.length === 5 && route[2] === "baselines" && route[4] === "run") {
+      const baseline = await projectStore.readBaseline(projectId, route[3] || "");
+      if (!baseline) return send(res, 404, { error: "baseline not found" });
+      const output = await new RunOrchestrator(projectStore).runBaseline({ project, baseline });
+      return send(res, 201, { run: output.materialized.run, paths: output.runnerOutput.paths });
+    }
+    if (method === "POST" && route.length === 5 && route[2] === "baselines" && route[4] === "run-job") {
+      const baseline = await projectStore.readBaseline(projectId, route[3] || "");
+      if (!baseline) return send(res, 404, { error: "baseline not found" });
+      const plan = {
+        prompts: baseline.prompts,
+        providerTargets: baseline.providerTargets,
+        runCountPerPrompt: baseline.runCountPerPrompt,
+      };
+      const job = auditJobs.create(initialProgressForPlan(plan), async (update) => {
+        const output = await new RunOrchestrator(projectStore).runBaseline({ project, baseline, onProgress: update });
+        return {
+          auditId: output.runnerOutput.audit.id,
+          projectId,
+          baselineId: baseline.id,
+          projectRunId: output.materialized.run.id,
+          metrics: output.runnerOutput.metrics,
+          gaps: output.runnerOutput.gaps,
+          paths: output.runnerOutput.paths,
+        };
+      });
+      return send(res, 202, job);
+    }
+    if (method === "POST" && route.length === 5 && route[2] === "baselines" && route[4] === "classify-intents") {
+      const baseline = await new BaselineIntentService(projectStore).classify(projectId, route[3] || "");
+      await new RunOrchestrator(projectStore).refreshDashboard(projectId);
+      return send(res, 201, { baseline });
+    }
+    if (method === "POST" && route.length === 5 && route[2] === "tasks" && route[4] === "run") {
+      const service = new MonitoringService(projectStore, new RunOrchestrator(projectStore));
+      const output = await service.runTask(projectId, route[3] || "");
+      return send(res, 201, { run: output.materialized.run, paths: output.runnerOutput.paths });
+    }
+    if (method === "POST" && route.length === 5 && route[2] === "tasks" && route[4] === "run-job") {
+      const task = await projectStore.readTask(projectId, route[3] || "");
+      if (!task) return send(res, 404, { error: "monitoring task not found" });
+      const baseline = await projectStore.readBaseline(projectId, task.baselineId);
+      if (!baseline) return send(res, 404, { error: "baseline not found" });
+      const plan = {
+        prompts: baseline.prompts,
+        providerTargets: baseline.providerTargets,
+        runCountPerPrompt: baseline.runCountPerPrompt,
+      };
+      const job = auditJobs.create(initialProgressForPlan(plan), async (update) => {
+        const output = await new MonitoringService(projectStore, new RunOrchestrator(projectStore)).runTask(
+          projectId,
+          task.id,
+          new Date(),
+          update,
+        );
+        return {
+          auditId: output.runnerOutput.audit.id,
+          projectId,
+          baselineId: output.materialized.baseline.id,
+          projectRunId: output.materialized.run.id,
+          metrics: output.runnerOutput.metrics,
+          gaps: output.runnerOutput.gaps,
+          paths: output.runnerOutput.paths,
+        };
+      });
+      return send(res, 202, job);
+    }
+  }
+
+  if (method === "POST" && route.length === 2 && route[0] === "monitoring" && route[1] === "run-due") {
+    const service = new MonitoringService(projectStore, new RunOrchestrator(projectStore));
+    const results = await service.runDue();
+    return send(
+      res,
+      200,
+      results.map((result) => ({ taskId: result.task.id, runId: result.output?.materialized.run.id, error: result.error })),
+    );
+  }
 
   if (method === "POST" && url.pathname === "/audit-plan") {
     const body = await readJson(req);
@@ -376,48 +881,78 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
     return send(res, 201, { plan });
   }
 
+  if (method === "POST" && url.pathname === "/audit-plan/reclassify") {
+    const body = await readJson(req);
+    const plan = auditPlanFromBody(body.confirmedPlan);
+    const classifiedPlan = await new AuditPlanner().reclassifyPrompts(plan);
+    return send(res, 200, { plan: classifiedPlan });
+  }
+
   if (method === "POST" && url.pathname === "/audits") {
     const body = await readJson(req);
     const confirmedPlan = body.confirmedPlan ? auditPlanFromBody(body.confirmedPlan) : undefined;
     const domain = confirmedPlan?.submittedDomain || (typeof body.domain === "string" ? body.domain : "");
     if (!domain) return send(res, 400, { error: "domain is required" });
     const input = confirmedPlan ? undefined : auditInputFromBody(body);
-    const output = await new AuditRunner().run({
-      target: confirmedPlan?.target || input!.target,
-      confirmedPlan,
-      submittedDomain: domain,
-      competitors: confirmedPlan?.competitors || input!.competitors,
-      providerTargets: confirmedPlan?.providerTargets || input!.providerTargets,
-      language: confirmedPlan?.language || input!.language,
-      promptCount: confirmedPlan?.prompts.length || input!.promptCount,
-      manualPrompts: input?.manualPrompts,
-      keywords: input?.keywords,
-      keywordMode: input?.keywordMode,
-      keywordLimit: input?.keywordLimit,
-      promptsPerKeyword: input?.promptsPerKeyword,
-      autoDiscover: input?.autoDiscover,
-      targetNameExplicit: input?.targetNameExplicit,
-      maxTokens: typeof body.maxTokens === "number" ? body.maxTokens : undefined,
-      temperature: typeof body.temperature === "number" ? body.temperature : undefined,
-    });
+    let output;
+    let materialized;
+    if (confirmedPlan) {
+      const projectService = new ProjectService();
+      const candidate = projectService.projectFromAuditPlan(confirmedPlan);
+      const existing = await projectStore.readProject(candidate.id);
+      const project = projectService.projectFromAuditPlan(confirmedPlan, existing || undefined);
+      await projectStore.saveProject(project);
+      const baseline = await new BaselineService(projectStore).createFromConfirmedPlan(project.id, confirmedPlan);
+      const monitored = await new RunOrchestrator(projectStore).runBaseline({
+        project,
+        baseline,
+        maxTokens: typeof body.maxTokens === "number" ? body.maxTokens : undefined,
+        temperature: typeof body.temperature === "number" ? body.temperature : undefined,
+      });
+      output = monitored.runnerOutput;
+      materialized = monitored.materialized;
+    } else {
+      const plan = await new AuditPlanner().plan({
+        target: input!.target,
+        submittedDomain: domain,
+        competitors: input!.competitors,
+        providerTargets: input!.providerTargets,
+        language: input!.language,
+        promptCount: input!.promptCount,
+        manualPrompts: input!.manualPrompts,
+        keywords: input!.keywords,
+        keywordMode: input!.keywordMode,
+        keywordLimit: input!.keywordLimit,
+        promptsPerKeyword: input!.promptsPerKeyword,
+        autoDiscover: input!.autoDiscover,
+        targetNameExplicit: input!.targetNameExplicit,
+      });
+      output = await new AuditRunner().run({
+        confirmedPlan: plan,
+        maxTokens: typeof body.maxTokens === "number" ? body.maxTokens : undefined,
+        temperature: typeof body.temperature === "number" ? body.temperature : undefined,
+      });
+      materialized = await new RunOrchestrator(projectStore).recordAuditOutput(output.audit, output.paths);
+    }
     return send(res, 201, {
       auditId: output.audit.id,
+      projectId: materialized.project.id,
+      baselineId: materialized.baseline.id,
+      projectRunId: materialized.run.id,
       metrics: output.metrics,
       gaps: output.gaps,
       paths: output.paths,
     });
   }
 
-  const auditMatch = url.pathname.match(/^\/audits\/([^/]+)$/);
-  if (method === "GET" && auditMatch?.[1]) {
-    const file = join(resolve(runsDir()), auditMatch[1], "report.json");
+  if (method === "GET" && route.length === 2 && route[0] === "audits" && route[1]) {
+    const file = join(resolve(runsDir()), route[1], "report.json");
     if (!existsSync(file)) return send(res, 404, { error: "audit not found" });
     return send(res, 200, JSON.parse(await readFile(file, "utf8")));
   }
 
-  const reportMatch = url.pathname.match(/^\/reports\/([^/]+)$/);
-  if (method === "GET" && reportMatch?.[1]) {
-    const file = join(resolve(runsDir()), reportMatch[1], "report.html");
+  if (method === "GET" && route.length === 2 && route[0] === "reports" && route[1]) {
+    const file = join(resolve(runsDir()), route[1], "report.html");
     if (!existsSync(file)) return send(res, 404, { error: "report not found" });
     return send(res, 200, await readFile(file, "utf8"), "text/html; charset=utf-8");
   }
@@ -425,9 +960,16 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
   return send(res, 404, { error: "not found" });
 }
 
-const port = Number(process.env.PORT || 8787);
-createServer((req, res) => {
-  handle(req, res).catch((error) => send(res, 500, { error: error instanceof Error ? error.message : String(error) }));
-}).listen(port, () => {
-  console.log(`niubigeo OSS server listening on http://localhost:${port}`);
-});
+export function createProductServer(dependencies: ProductServerDependencies = {}) {
+  return createServer((req, res) => {
+    handle(req, res, dependencies).catch((error) => send(res, 500, { error: error instanceof Error ? error.message : String(error) }));
+  });
+}
+
+const entrypoint = process.argv[1] ? pathToFileURL(process.argv[1]).href : "";
+if (import.meta.url === entrypoint) {
+  const port = Number(process.env.PORT || 8787);
+  createProductServer().listen(port, () => {
+    console.log(`niubigeo OSS server listening on http://localhost:${port}`);
+  });
+}

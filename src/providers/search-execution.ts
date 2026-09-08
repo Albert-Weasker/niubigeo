@@ -4,6 +4,7 @@ import type {
   ProviderEndpointProtocol,
   ProviderRunInput,
   SearchExecution,
+  WebSearchExecutionMode,
   WebSearchUsedMode,
 } from "../core/types.js";
 
@@ -29,13 +30,16 @@ export function makeSearchExecution(input: {
   webQueries?: string[] | undefined;
   citationCount?: number | undefined;
   alwaysOn?: boolean | undefined;
+  providerExecutionConfirmed?: boolean | undefined;
+  executionMode?: WebSearchExecutionMode | undefined;
   note?: string | undefined;
 }): SearchExecution {
   const requested = Boolean(input.runInput.webSearchEnabled);
   const requestMode = input.runInput.webSearchMode || "auto";
   const alwaysOn = Boolean(input.alwaysOn);
   const webQueries = uniqueStrings(input.webQueries || []);
-  const hasExecutionEvidence = webQueries.length > 0 || (input.citationCount || 0) > 0;
+  const inferredExecutionEvidence = webQueries.length > 0 || (input.citationCount || 0) > 0;
+  const hasExecutionEvidence = input.providerExecutionConfirmed ?? inferredExecutionEvidence;
   const used = alwaysOn || (requested && hasExecutionEvidence);
   const usedMode: WebSearchUsedMode = alwaysOn && !requested
     ? "provider_always_on"
@@ -55,6 +59,7 @@ export function makeSearchExecution(input: {
     toolName: requested || alwaysOn ? input.toolName : undefined,
     webQueries,
     citationCount: input.citationCount || 0,
+    executionMode: input.executionMode || (alwaysOn ? "provider_always_on" : used ? "native" : "unverified"),
     note: input.note,
   };
 }

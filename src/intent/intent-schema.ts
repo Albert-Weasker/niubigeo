@@ -1,21 +1,10 @@
-export const INTENT_SCHEMA_VERSION = "intent-v1" as const;
+import { BRAND_QUESTION_INTENTS } from "../core/types.js";
+
+export const INTENT_SCHEMA_VERSION = "intent-v2" as const;
 
 export const INTENT_NAMES = [
-  "recommendation",
-  "comparison",
-  "alternative",
-  "brand_evaluation",
-  "fact",
-  "pricing",
-  "tutorial",
-  "troubleshooting",
-  "source_finding",
-  "industry_research",
-  "risk_assessment",
-  "open_exploration",
-  "mixed",
+  ...BRAND_QUESTION_INTENTS,
   "unclear",
-  "other",
 ] as const;
 
 export const TARGET_BRAND_ROLES = ["subject", "candidate_to_evaluate", "comparison_party", "not_mentioned", "unclear"] as const;
@@ -79,19 +68,21 @@ export const ENTITY_RELATIONSHIPS = [
   "unclear",
 ] as const;
 
+export const ENTITY_IDENTITY_STATUSES = ["confirmed", "ambiguous", "unresolved"] as const;
+
+export const ENTITY_ROLES = [
+  "product_or_brand",
+  "alternative_method",
+  "promotion_channel",
+  "source",
+  "integration",
+  "example",
+  "unrelated",
+  "unclear",
+] as const;
+
 export const DISPLAY_MODES = [
-  "recommendation",
-  "comparison",
-  "alternative",
-  "brand_evaluation",
-  "fact",
-  "pricing",
-  "tutorial",
-  "troubleshooting",
-  "source_finding",
-  "industry_research",
-  "risk_assessment",
-  "open_exploration",
+  "brand_question",
   "task_completion",
 ] as const;
 
@@ -103,6 +94,8 @@ export type TaskStatus = (typeof TASK_STATUSES)[number];
 export type OverallAnswerQuality = (typeof ANSWER_QUALITY)[number];
 export type IntentEntityType = (typeof ENTITY_TYPES)[number];
 export type EntityRelationshipType = (typeof ENTITY_RELATIONSHIPS)[number];
+export type EntityIdentityStatus = (typeof ENTITY_IDENTITY_STATUSES)[number];
+export type EntityRole = (typeof ENTITY_ROLES)[number];
 export type IntentDisplayMode = (typeof DISPLAY_MODES)[number];
 
 export interface IntentAnalysis {
@@ -113,6 +106,8 @@ export interface IntentAnalysis {
   requiresSources: boolean;
   requiresComparison: boolean;
   requiresRecommendation: boolean;
+  candidateApplicable: boolean;
+  recommendationApplicable: boolean;
   uncertainty: UncertaintyLevel;
 }
 
@@ -138,7 +133,11 @@ export interface AnswerAssessment {
 
 export interface EntityRelationship {
   name: string;
+  canonicalName?: string | undefined;
+  canonicalUrl?: string | undefined;
   entityType: IntentEntityType;
+  identityStatus: EntityIdentityStatus;
+  entityRole: EntityRole;
   relationshipToQuestion: EntityRelationshipType;
   relationshipToTarget: EntityRelationshipType;
   confidence: UncertaintyLevel;
@@ -221,7 +220,7 @@ function intentList(value: unknown): IntentName[] {
   const seen = new Set<IntentName>();
   const out: IntentName[] = [];
   for (const item of raw) {
-    const intent = enumValue(item, INTENT_NAMES, "other");
+    const intent = enumValue(item, INTENT_NAMES, "unclear");
     if (seen.has(intent)) continue;
     seen.add(intent);
     out.push(intent);
@@ -257,17 +256,8 @@ function validEvidenceQuote(value: unknown, answerText: string): string | undefi
   return answerText.includes(quote) ? quote : undefined;
 }
 
-function looksChinese(value: string): boolean {
-  if (value.trim().toLowerCase().startsWith("zh")) return true;
-  for (const char of value) {
-    const code = char.charCodeAt(0);
-    if (code >= 19968 && code <= 40959) return true;
-  }
-  return false;
-}
-
 function localized(context: IntentValidationContext, zh: string, en: string): string {
-  return looksChinese(context.language || context.userQuestion) ? zh : en;
+  return context.language?.trim().toLocaleLowerCase().split("-")[0] === "zh" ? zh : en;
 }
 
 export function validateIntentAnalysis(value: unknown): IntentAnalysis {
@@ -280,6 +270,8 @@ export function validateIntentAnalysis(value: unknown): IntentAnalysis {
     requiresSources: booleanValue(row.requiresSources),
     requiresComparison: booleanValue(row.requiresComparison),
     requiresRecommendation: booleanValue(row.requiresRecommendation),
+    candidateApplicable: booleanValue(row.candidateApplicable),
+    recommendationApplicable: booleanValue(row.recommendationApplicable),
     uncertainty: enumValue(row.uncertainty, UNCERTAINTY_LEVELS, "high"),
   };
 }
@@ -373,15 +365,24 @@ export function validateEntityRelationships(value: unknown, context: IntentValid
     if (!name || seen.has(name)) continue;
     seen.add(name);
     const evidenceQuote = validEvidenceQuote(row.evidenceQuote, context.answerText);
+    const sourceUrls = allowedSourceUrls(row.sourceUrls, context.citationUrls);
+    const requestedCanonicalUrl = canonicalUrl(stringValue(row.canonicalUrl));
+    const canonicalSourceUrl = requestedCanonicalUrl && sourceUrls.includes(requestedCanonicalUrl) ? requestedCanonicalUrl : undefined;
+    const requestedIdentityStatus = enumValue(row.identityStatus, ENTITY_IDENTITY_STATUSES, "unresolved");
     const entity: EntityRelationship = {
       name,
       entityType: enumValue(row.entityType, ENTITY_TYPES, "unknown"),
+      identityStatus: requestedIdentityStatus === "confirmed" && canonicalSourceUrl && evidenceQuote ? "confirmed" : requestedIdentityStatus === "ambiguous" ? "ambiguous" : "unresolved",
+      entityRole: enumValue(row.entityRole, ENTITY_ROLES, "unclear"),
       relationshipToQuestion: enumValue(row.relationshipToQuestion, ENTITY_RELATIONSHIPS, "unclear"),
       relationshipToTarget: enumValue(row.relationshipToTarget, ENTITY_RELATIONSHIPS, "unclear"),
       confidence: enumValue(row.confidence, UNCERTAINTY_LEVELS, "high"),
       explanation: stringValue(row.explanation) || "No clear relationship explanation was provided.",
-      sourceUrls: allowedSourceUrls(row.sourceUrls, context.citationUrls),
+      sourceUrls,
     };
+    const canonicalName = stringValue(row.canonicalName);
+    if (canonicalName) entity.canonicalName = canonicalName;
+    if (canonicalSourceUrl) entity.canonicalUrl = canonicalSourceUrl;
     if (evidenceQuote) entity.evidenceQuote = evidenceQuote;
     out.push(entity);
     if (out.length >= 20) break;
@@ -389,28 +390,12 @@ export function validateEntityRelationships(value: unknown, context: IntentValid
   return out;
 }
 
-export function displayModeForIntent(intent: IntentName): IntentDisplayMode {
-  if (intent === "recommendation") return "recommendation";
-  if (intent === "comparison") return "comparison";
-  if (intent === "alternative") return "alternative";
-  if (intent === "brand_evaluation") return "brand_evaluation";
-  if (intent === "fact") return "fact";
-  if (intent === "pricing") return "pricing";
-  if (intent === "tutorial") return "tutorial";
-  if (intent === "troubleshooting") return "troubleshooting";
-  if (intent === "source_finding") return "source_finding";
-  if (intent === "industry_research") return "industry_research";
-  if (intent === "risk_assessment") return "risk_assessment";
-  if (intent === "open_exploration") return "open_exploration";
-  return "task_completion";
-}
-
-export function validateIntentReportCard(value: unknown, intent: IntentAnalysis, context: IntentValidationContext): IntentReportCard {
+export function validateIntentReportCard(value: unknown, context: IntentValidationContext): IntentReportCard {
   const row = asObject(value) || {};
   const oneSentence = stringValue(row.oneSentence) || "The answer needs review against the user's requested tasks.";
   const userQuestion = stringValue(row.userQuestion) || context.userQuestion;
   return {
-    displayMode: enumValue(row.displayMode, DISPLAY_MODES, displayModeForIntent(intent.primaryIntent)),
+    displayMode: enumValue(row.displayMode, DISPLAY_MODES, "task_completion"),
     oneSentence,
     userQuestion,
     answered: stringList(row.answered, 6),
@@ -431,7 +416,7 @@ export function validateIntentRunAnalysis(value: unknown, context: IntentValidat
     tasks,
     taskResults: answerAssessment.taskResults,
     entities: validateEntityRelationships(row.entities, context),
-    adaptedResult: validateIntentReportCard(row.adaptedResult, promptIntent, context),
+    adaptedResult: validateIntentReportCard(row.adaptedResult, context),
     analyzer: context.analyzer,
     status: "completed",
   };
@@ -446,6 +431,8 @@ export function failedIntentRunAnalysis(context: IntentValidationContext, error:
     requiresSources: false,
     requiresComparison: false,
     requiresRecommendation: false,
+    candidateApplicable: false,
+    recommendationApplicable: false,
     uncertainty: "high",
   };
   return {

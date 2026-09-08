@@ -54,170 +54,178 @@ const ENTITY_QUOTE = "AcmeList is presented as an option in the answer.";
 
 const SAMPLES: IntentSample[] = [
   {
-    prompt: "Recommend tools for launching a developer product and say whether ExampleBrand should be considered.",
-    primaryIntent: "recommendation",
+    prompt: "What does ExampleBrand provide, and is it suitable for a small team?",
+    primaryIntent: "product_understanding",
     secondaryIntents: ["brand_evaluation"],
-    targetBrandRole: "candidate_to_evaluate",
+    targetBrandRole: "subject",
     requiresSources: false,
     requiresComparison: false,
-    requiresRecommendation: true,
+    requiresRecommendation: false,
   },
   {
-    prompt: "Compare ExampleBrand and AtlasFlow for small teams.",
+    prompt: "Compare ExampleBrand and AtlasFlow for a production team.",
     primaryIntent: "comparison",
+    secondaryIntents: ["purchase_decision"],
     targetBrandRole: "comparison_party",
     requiresSources: false,
     requiresComparison: true,
     requiresRecommendation: false,
   },
   {
-    prompt: "What are practical alternatives to ExampleBrand?",
+    prompt: "Is AtlasFlow a practical alternative to ExampleBrand, and should I switch?",
     primaryIntent: "alternative",
+    secondaryIntents: ["brand_evaluation"],
     targetBrandRole: "subject",
     requiresSources: false,
     requiresComparison: true,
     requiresRecommendation: false,
   },
   {
-    prompt: "Is ExampleBrand worth using for a small open-source team?",
-    primaryIntent: "brand_evaluation",
-    targetBrandRole: "subject",
-    requiresSources: false,
-    requiresComparison: false,
-    requiresRecommendation: false,
-  },
-  {
-    prompt: "What is ExampleBrand and what does it do?",
-    primaryIntent: "fact",
-    targetBrandRole: "subject",
-    requiresSources: false,
-    requiresComparison: false,
-    requiresRecommendation: false,
-  },
-  {
-    prompt: "How much does ExampleBrand cost and what limits should I know?",
+    prompt: "How much does ExampleBrand cost, and what should a growing team check before adopting it?",
     primaryIntent: "pricing",
+    secondaryIntents: ["adoption"],
     targetBrandRole: "subject",
     requiresSources: true,
     requiresComparison: false,
     requiresRecommendation: false,
   },
   {
-    prompt: "Show me how to set up ExampleBrand from scratch.",
-    primaryIntent: "tutorial",
+    prompt: "Which team is ExampleBrand designed for, and what adoption risks should it assess?",
+    primaryIntent: "product_fit",
+    secondaryIntents: ["risk_evaluation"],
     targetBrandRole: "subject",
     requiresSources: false,
     requiresComparison: false,
     requiresRecommendation: false,
   },
   {
-    prompt: "ExampleBrand import failed; why did it fail and how do I fix it?",
-    primaryIntent: "troubleshooting",
+    prompt: "How should a team use ExampleBrand for its documented workflow?",
+    primaryIntent: "product_usage",
     targetBrandRole: "subject",
     requiresSources: false,
     requiresComparison: false,
     requiresRecommendation: false,
   },
   {
-    prompt: "Where can I download ExampleBrand and read the official docs?",
-    primaryIntent: "source_finding",
-    targetBrandRole: "subject",
-    requiresSources: true,
-    requiresComparison: false,
-    requiresRecommendation: false,
-  },
-  {
-    prompt: "Which products are active in the AI audit tooling market?",
-    primaryIntent: "industry_research",
-    targetBrandRole: "not_mentioned",
-    requiresSources: true,
-    requiresComparison: true,
-    requiresRecommendation: false,
-  },
-  {
-    prompt: "Is ExampleBrand safe and reliable enough for customer data?",
-    primaryIntent: "risk_assessment",
+    prompt: "Which official and third-party sources support claims about ExampleBrand?",
+    primaryIntent: "source_analysis",
     targetBrandRole: "subject",
     requiresSources: true,
     requiresComparison: false,
     requiresRecommendation: false,
   },
   {
-    prompt: "Think through the future of tools that verify AI-generated work.",
-    primaryIntent: "open_exploration",
-    targetBrandRole: "not_mentioned",
-    requiresSources: false,
-    requiresComparison: false,
-    requiresRecommendation: false,
-  },
-  {
-    prompt: "Recommend options, compare them with ExampleBrand, and call out risks.",
-    primaryIntent: "mixed",
-    secondaryIntents: ["recommendation", "comparison", "risk_assessment"],
-    targetBrandRole: "comparison_party",
-    requiresSources: false,
-    requiresComparison: true,
-    requiresRecommendation: true,
-  },
-  {
-    prompt: "Tell me if this is okay.",
-    primaryIntent: "unclear",
-    targetBrandRole: "unclear",
-    requiresSources: false,
-    requiresComparison: false,
-    requiresRecommendation: false,
-  },
-  {
-    prompt: "Draft a short launch note for ExampleBrand.",
-    primaryIntent: "other",
-    targetBrandRole: "subject",
-    requiresSources: false,
-    requiresComparison: false,
-    requiresRecommendation: false,
-  },
-  {
-    prompt: "Suggest sourced products for monitoring AI answers in Spanish.",
+    prompt: "Recommend products for this use case and explain whether ExampleBrand belongs on the shortlist.",
     primaryIntent: "recommendation",
-    secondaryIntents: ["source_finding"],
-    targetBrandRole: "not_mentioned",
-    requiresSources: true,
-    requiresComparison: false,
-    requiresRecommendation: true,
-  },
-  {
-    prompt: "Compare pricing for ExampleBrand and two alternatives.",
-    primaryIntent: "pricing",
-    secondaryIntents: ["comparison", "alternative"],
-    targetBrandRole: "comparison_party",
-    requiresSources: true,
-    requiresComparison: true,
-    requiresRecommendation: false,
-  },
-  {
-    prompt: "Give setup steps for ExampleBrand and mention any deployment risks.",
-    primaryIntent: "tutorial",
-    secondaryIntents: ["risk_assessment"],
-    targetBrandRole: "subject",
-    requiresSources: false,
-    requiresComparison: false,
-    requiresRecommendation: false,
-  },
-  {
-    prompt: "Find the cause of a broken ExampleBrand webhook and link to relevant docs.",
-    primaryIntent: "troubleshooting",
-    secondaryIntents: ["source_finding"],
-    targetBrandRole: "subject",
-    requiresSources: true,
-    requiresComparison: false,
-    requiresRecommendation: false,
-  },
-  {
-    prompt: "List alternatives and decide if ExampleBrand is still worth considering.",
-    primaryIntent: "alternative",
     secondaryIntents: ["brand_evaluation"],
     targetBrandRole: "candidate_to_evaluate",
     requiresSources: false,
+    requiresComparison: false,
+    requiresRecommendation: true,
+  },
+  {
+    prompt: "Should I choose ExampleBrand or AtlasFlow for this purchase?",
+    primaryIntent: "purchase_decision",
+    secondaryIntents: ["comparison"],
+    targetBrandRole: "comparison_party",
+    requiresSources: false,
     requiresComparison: true,
+    requiresRecommendation: true,
+  },
+  {
+    prompt: "What security and platform-dependency risks should I evaluate before using ExampleBrand?",
+    primaryIntent: "risk_evaluation",
+    targetBrandRole: "subject",
+    requiresSources: true,
+    requiresComparison: false,
+    requiresRecommendation: false,
+  },
+  {
+    prompt: "What should a team prepare before adopting ExampleBrand?",
+    primaryIntent: "adoption",
+    secondaryIntents: ["product_fit"],
+    targetBrandRole: "subject",
+    requiresSources: false,
+    requiresComparison: false,
+    requiresRecommendation: false,
+  },
+  {
+    prompt: "What do the cited pages establish about ExampleBrand's product?",
+    primaryIntent: "source_analysis",
+    secondaryIntents: ["product_understanding"],
+    targetBrandRole: "subject",
+    requiresSources: true,
+    requiresComparison: false,
+    requiresRecommendation: false,
+  },
+  {
+    prompt: "What is ExampleBrand and what problem does it solve?",
+    primaryIntent: "product_understanding",
+    targetBrandRole: "subject",
+    requiresSources: false,
+    requiresComparison: false,
+    requiresRecommendation: false,
+  },
+  {
+    prompt: "Is ExampleBrand worth its stated price for a small team?",
+    primaryIntent: "brand_evaluation",
+    secondaryIntents: ["pricing"],
+    targetBrandRole: "subject",
+    requiresSources: false,
+    requiresComparison: false,
+    requiresRecommendation: false,
+  },
+  {
+    prompt: "Recommend alternatives to ExampleBrand and explain when ExampleBrand should still be considered.",
+    primaryIntent: "recommendation",
+    secondaryIntents: ["alternative", "brand_evaluation"],
+    targetBrandRole: "candidate_to_evaluate",
+    requiresSources: false,
+    requiresComparison: true,
+    requiresRecommendation: true,
+  },
+  {
+    prompt: "Compare ExampleBrand with AtlasFlow and identify the main adoption risk of each.",
+    primaryIntent: "comparison",
+    secondaryIntents: ["risk_evaluation"],
+    targetBrandRole: "comparison_party",
+    requiresSources: false,
+    requiresComparison: true,
+    requiresRecommendation: false,
+  },
+  {
+    prompt: "How is ExampleBrand used, and which source confirms that workflow?",
+    primaryIntent: "product_usage",
+    secondaryIntents: ["source_analysis"],
+    targetBrandRole: "subject",
+    requiresSources: true,
+    requiresComparison: false,
+    requiresRecommendation: false,
+  },
+  {
+    prompt: "Which ExampleBrand plan fits this budget, and should the team buy it?",
+    primaryIntent: "pricing",
+    secondaryIntents: ["purchase_decision"],
+    targetBrandRole: "subject",
+    requiresSources: true,
+    requiresComparison: false,
+    requiresRecommendation: true,
+  },
+  {
+    prompt: "Is ExampleBrand a good fit for an enterprise migration, and what adoption work is required?",
+    primaryIntent: "product_fit",
+    secondaryIntents: ["adoption"],
+    targetBrandRole: "subject",
+    requiresSources: false,
+    requiresComparison: false,
+    requiresRecommendation: false,
+  },
+  {
+    prompt: "Review ExampleBrand.",
+    primaryIntent: "unclear",
+    targetBrandRole: "subject",
+    requiresSources: false,
+    requiresComparison: false,
     requiresRecommendation: false,
   },
 ];
@@ -283,6 +291,8 @@ function analysisPayload(sample: IntentSample, index: number): unknown {
       {
         name: "AcmeList",
         entityType: "platform",
+        identityStatus: "unresolved",
+        entityRole: "product_or_brand",
         relationshipToQuestion: sample.requiresRecommendation ? "recommended_option" : "example",
         relationshipToTarget: sample.requiresComparison ? "compared_option" : "unclear",
         confidence: "medium",
@@ -292,7 +302,7 @@ function analysisPayload(sample: IntentSample, index: number): unknown {
       },
     ],
     adaptedResult: {
-      displayMode: sample.primaryIntent === "mixed" || sample.primaryIntent === "unclear" || sample.primaryIntent === "other" ? "task_completion" : sample.primaryIntent,
+      displayMode: sample.primaryIntent === "unclear" ? "task_completion" : "brand_question",
       oneSentence: `The answer is assessed through the ${sample.primaryIntent} intent.`,
       userQuestion: sample.prompt,
       answered: ["The answer covers at least one requested output."],
@@ -329,7 +339,6 @@ class ScriptedProvider implements AnswerProvider {
       model: input.model,
       modelVersion: input.model,
       text: `Intro text\n${JSON.stringify(analysisPayload(sample, index))}\nDone`,
-      rawJson: {},
       citations: [],
       webQueries: [],
       latencyMs: 1,
@@ -384,7 +393,7 @@ test("invalid task evidence is downgraded instead of accepted", () => {
   const result = validateIntentRunAnalysis(
     {
       promptIntent: {
-        primaryIntent: "fact",
+        primaryIntent: "product_understanding",
         secondaryIntents: [],
         requestedOutputs: ["Explain what the product is"],
         targetBrandRole: "subject",
@@ -409,7 +418,7 @@ test("invalid task evidence is downgraded instead of accepted", () => {
       },
       entities: [],
       adaptedResult: {
-        displayMode: "fact",
+        displayMode: "brand_question",
         oneSentence: "The answer explains the product.",
         userQuestion: "What is ExampleBrand?",
         answered: ["It explains the product."],
@@ -434,15 +443,56 @@ test("invalid task evidence is downgraded instead of accepted", () => {
   assert.equal(result.taskResults[0]?.evidenceQuote, undefined);
 });
 
+test("validation language follows explicit configuration instead of inspecting question characters", () => {
+  const payload = {
+    promptIntent: {
+      primaryIntent: "product_understanding",
+      secondaryIntents: [],
+      requestedOutputs: [],
+      targetBrandRole: "unclear",
+      requiresSources: false,
+      requiresComparison: false,
+      requiresRecommendation: false,
+      uncertainty: "high",
+    },
+    tasks: [{ id: "task_1", requirement: "Check the answer", expectedAnswerType: "other" }],
+    answerAssessment: {
+      taskResults: [{ taskId: "task_1", status: "completed", evidenceQuote: "not present", explanation: "ignored", sourceUrls: [] }],
+      overallAnswerQuality: "uncertain",
+      missingRequirements: [],
+    },
+    entities: [],
+    adaptedResult: { displayMode: "brand_question", oneSentence: "Review needed", userQuestion: "", answered: [], missing: [], uncertain: [], entityInsights: [] },
+  };
+  const english = validateIntentRunAnalysis(payload, {
+    userQuestion: "请说明这个产品。",
+    language: "en",
+    answerText: "An answer.",
+    citationUrls: [],
+    analyzer: { providerId: "test", model: "test", sourceLabel: "Test" },
+  });
+  const chinese = validateIntentRunAnalysis(payload, {
+    userQuestion: "Explain this product.",
+    language: "zh-CN",
+    answerText: "An answer.",
+    citationUrls: [],
+    analyzer: { providerId: "test", model: "test", sourceLabel: "Test" },
+  });
+  assert.equal(english.taskResults[0]?.explanation, "The provided evidence quote could not be verified in the original answer.");
+  assert.equal(chinese.taskResults[0]?.explanation, "分析给出的证据片段无法在原始回答中核验。");
+});
+
 class JsonFormatFallbackProvider implements AnswerProvider {
   readonly definition: ProviderDefinition = {
     ...providerDefinition(),
     supportsAnyModel: true,
   };
   readonly responseFormats: Array<ProviderRunInput["responseFormat"]> = [];
+  readonly schemaNames: Array<string | undefined> = [];
 
   async run(input: ProviderRunInput): Promise<AnswerResult> {
     this.responseFormats.push(input.responseFormat);
+    this.schemaNames.push(input.responseJsonSchema?.name);
     if (this.responseFormats.length === 1) throw new Error("Provider returned error");
     const sample = SAMPLES[0];
     assert.ok(sample);
@@ -455,7 +505,6 @@ class JsonFormatFallbackProvider implements AnswerProvider {
       model: input.model,
       modelVersion: input.model,
       text: JSON.stringify(analysisPayload(sample, 0)),
-      rawJson: {},
       citations: [],
       webQueries: [],
       latencyMs: 1,
@@ -464,7 +513,7 @@ class JsonFormatFallbackProvider implements AnswerProvider {
   }
 }
 
-test("intent analyzer retries without JSON response format when a routed model rejects it", async () => {
+test("intent analyzer keeps the strict response schema during one structured repair", async () => {
   const provider = new JsonFormatFallbackProvider();
   const pipeline = new IntentResultPipeline();
   const result = await pipeline.analyze({
@@ -479,14 +528,15 @@ test("intent analyzer retries without JSON response format when a routed model r
   });
 
   assert.equal(result.status, "completed");
-  assert.deepEqual(provider.responseFormats, ["json_object", undefined]);
+  assert.deepEqual(provider.responseFormats, [undefined, undefined]);
+  assert.deepEqual(provider.schemaNames, ["intent_run_analysis", "intent_run_analysis"]);
 });
 
 test("entity co-occurrence is not upgraded into competition by local code", () => {
   const result = validateIntentRunAnalysis(
     {
       promptIntent: {
-        primaryIntent: "fact",
+        primaryIntent: "product_understanding",
         secondaryIntents: [],
         requestedOutputs: ["Explain the product"],
         targetBrandRole: "subject",
@@ -513,6 +563,8 @@ test("entity co-occurrence is not upgraded into competition by local code", () =
         {
           name: "NearbyName",
           entityType: "product",
+          identityStatus: "unresolved",
+          entityRole: "example",
           relationshipToQuestion: "example",
           relationshipToTarget: "unrelated",
           confidence: "medium",
@@ -522,7 +574,7 @@ test("entity co-occurrence is not upgraded into competition by local code", () =
         },
       ],
       adaptedResult: {
-        displayMode: "fact",
+        displayMode: "brand_question",
         oneSentence: "The answer explains the product.",
         userQuestion: "What is ExampleBrand?",
         answered: ["It explains the product."],

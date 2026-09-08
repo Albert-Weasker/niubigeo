@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="172" height="28" viewBox="0 0 172 28" role="img" aria-label="NiubiGEO v0.2.0">
+  <title>NiubiGEO v0.2.0</title>
+  <rect width="172" height="28" rx="4" fill="#20242a"/>
+  <path d="M96 0h72a4 4 0 0 1 4 4v20a4 4 0 0 1-4 4H96z" fill="#2459b8"/>
+  <g fill="#fff" text-anchor="middle" font-family="Verdana,Arial,sans-serif" font-size="11">
+    <text x="48" y="18">NiubiGEO</text>
+    <text x="134" y="18">v0.2.0</text>
+  </g>
+</svg>

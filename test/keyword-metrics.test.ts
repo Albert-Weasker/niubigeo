@@ -75,7 +75,6 @@ function run(id: string, targetMentioned: boolean, competitorMentioned: boolean,
     status: "completed",
     startedAt: "2026-09-03T00:00:00.000Z",
     finishedAt: "2026-09-03T00:00:01.000Z",
-    rawJsonPath: `/tmp/${id}.json`,
     analysis: {
       mentions: [mention("target", targetMentioned), mention("competitor", competitorMentioned)],
       citations: officialCitation

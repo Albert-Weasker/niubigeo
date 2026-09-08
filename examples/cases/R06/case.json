@@ -1,0 +1,11 @@
+{
+  "id": "R06",
+  "domain": "linear.app",
+  "category": {
+    "zh": "项目协作",
+    "en": "Project collaboration"
+  },
+  "language": "en",
+  "studyPlan": "../../study-plan.json",
+  "evidenceIndex": "./evidence-index.json"
+}

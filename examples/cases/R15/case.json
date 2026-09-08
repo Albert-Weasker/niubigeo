@@ -1,0 +1,11 @@
+{
+  "id": "R15",
+  "domain": "framer.com",
+  "category": {
+    "zh": "网站制作",
+    "en": "Website building"
+  },
+  "language": "zh",
+  "studyPlan": "../../study-plan.json",
+  "evidenceIndex": "./evidence-index.json"
+}

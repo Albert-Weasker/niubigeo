@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { splitLines, stripMatchingQuotes } from "../utils/text.js";
 
 const PROVIDER_ENV_KEYS: Record<string, string[]> = {
   openrouter: ["OPENROUTER_API_KEY", "OPENROUTER_KEY"],
@@ -14,7 +15,7 @@ const PROVIDER_ENV_KEYS: Record<string, string[]> = {
 export function loadDotEnv(cwd = process.cwd()): void {
   const envPath = join(cwd, ".env");
   if (!existsSync(envPath)) return;
-  const lines = readFileSync(envPath, "utf8").split(/\r?\n/);
+  const lines = splitLines(readFileSync(envPath, "utf8"));
   for (const line of lines) {
     const trimmed = line.trim();
     if (!trimmed || trimmed.startsWith("#")) continue;
@@ -22,7 +23,7 @@ export function loadDotEnv(cwd = process.cwd()): void {
     if (index === -1) continue;
     const key = trimmed.slice(0, index).trim();
     const rawValue = trimmed.slice(index + 1).trim();
-    const value = rawValue.replace(/^['"]|['"]$/g, "");
+    const value = stripMatchingQuotes(rawValue);
     if (!process.env[key]) process.env[key] = value;
   }
 }
@@ -68,4 +69,16 @@ export function hasProviderKey(providerId: string): boolean {
 
 export function runsDir(): string {
   return process.env.RUNS_DIR || "runs";
+}
+
+export function monitoringDataDir(): string {
+  return process.env.MONITORING_DATA_DIR || "data";
+}
+
+/**
+ * Product-v2 has a separate persistence boundary while the legacy monitoring
+ * data remains available only for a later, explicit migration.
+ */
+export function productDataDir(): string {
+  return process.env.PRODUCT_DATA_DIR || join(monitoringDataDir(), "product-v2");
 }

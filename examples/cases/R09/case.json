@@ -1,0 +1,11 @@
+{
+  "id": "R09",
+  "domain": "cloudflare.com",
+  "category": {
+    "zh": "网络基础设施",
+    "en": "Network infrastructure"
+  },
+  "language": "zh",
+  "studyPlan": "../../study-plan.json",
+  "evidenceIndex": "./evidence-index.json"
+}

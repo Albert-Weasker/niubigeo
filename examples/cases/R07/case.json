@@ -1,0 +1,11 @@
+{
+  "id": "R07",
+  "domain": "canva.com",
+  "category": {
+    "zh": "视觉设计",
+    "en": "Visual design"
+  },
+  "language": "zh",
+  "studyPlan": "../../study-plan.json",
+  "evidenceIndex": "./evidence-index.json"
+}

@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { ProviderCatalog, PROVIDER_DEFINITIONS } from "../src/providers/catalog.js";
 import { providerEnvKeys } from "../src/config/env.js";
+import { analysisModelFor } from "../src/providers/provider-role.js";
 
 test("core provider catalog has no fake provider and keeps key routing provider-specific", () => {
   assert.equal(PROVIDER_DEFINITIONS.some((provider) => provider.id.toLowerCase().includes("mock")), false);
@@ -14,4 +15,11 @@ test("catalog validates direct models and lets OpenRouter carry routed model ids
   const catalog = new ProviderCatalog();
   assert.doesNotThrow(() => catalog.validate("openrouter", "anthropic/claude-3.5-haiku"));
   assert.throws(() => catalog.validate("openai", "google/gemini-flash-1.5"));
+});
+
+test("provider roles keep answer models separate from stable analysis models", () => {
+  const catalog = new ProviderCatalog();
+  const openrouter = catalog.get("openrouter");
+  assert.equal(analysisModelFor(openrouter, "vendor/answer-model"), "openai/gpt-5.6-luna");
+  assert.equal(openrouter.definition.id, "openrouter");
 });

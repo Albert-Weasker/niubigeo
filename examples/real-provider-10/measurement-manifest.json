@@ -1,0 +1,876 @@
+{
+  "cycleId": "real-provider-10-2026-09-07-final",
+  "frozenAt": "2026-09-06T20:17:08.892Z",
+  "cases": [
+    {
+      "caseId": "LIVE-01",
+      "domain": "niubistar.com",
+      "language": "zh",
+      "projectId": "5b76c394-9edc-4d66-a2d4-1c12918a4a70",
+      "baselineId": "a28a3f7c-db64-4101-8450-5df2b92b2043",
+      "baselineConfigHash": "1b94c11b9b2a5d39bfe7addc7b02c0704fbb2d415b2b384fd9069539036efa6f",
+      "discoveryRunIds": [
+        "5b675c0a-5c58-4775-8ca6-9d8e026091cb"
+      ],
+      "targetDomain": "niubistar.com",
+      "competitorDomain": null,
+      "competitorEvidenceRecordIds": [],
+      "competitorMissingReason": "no_confirmed_competitor_with_returned_domain",
+      "keyword": null,
+      "keywordEvidenceRecordIds": [],
+      "keywordMissingReason": "no_neutral_keyword_returned_by_discovery",
+      "watchSetId": "25249614-e5ff-4be5-bbf7-e8b208b6f067",
+      "watchSet": {
+        "id": "25249614-e5ff-4be5-bbf7-e8b208b6f067",
+        "projectId": "5b76c394-9edc-4d66-a2d4-1c12918a4a70",
+        "baselineId": "a28a3f7c-db64-4101-8450-5df2b92b2043",
+        "version": 1,
+        "status": "active",
+        "targetObjectId": "watch-object-6ff2ade4373fec018557e5f2",
+        "objects": [
+          {
+            "id": "watch-object-6ff2ade4373fec018557e5f2",
+            "projectId": "5b76c394-9edc-4d66-a2d4-1c12918a4a70",
+            "role": "target",
+            "name": "Niubistar",
+            "domain": "niubistar.com",
+            "aliases": [],
+            "sourceRecordIds": [],
+            "selectedAt": "2026-09-06T20:16:43.298Z",
+            "identityState": "confirmed"
+          }
+        ],
+        "keywords": [],
+        "domainProtocol": {
+          "id": "domain-recognition/v1",
+          "version": "v1",
+          "language": "zh",
+          "responseSchemaHash": "02baab4ac0667bac34dc16f80aad12d58397454ce11c9ca6c4e1465c1f8ff860",
+          "promptTemplateHash": "54f284b48b0d24e5f29bf7853f3acfe79022fec63596d3ed182cd93ef1c0959d"
+        },
+        "keywordProtocol": {
+          "id": "keyword-discovery/v1",
+          "version": "v1",
+          "language": "zh",
+          "scenario": "neutral_product_selection",
+          "responseSchemaHash": "4e5f9b3e7ed60c54cb8b0b3564dfe5fff030328094ad0903a49e2dfa3d5062d8",
+          "promptTemplateHash": "20430840fa1baa117d8d5ecc6ffcf98cb92331657f94215c16ed28f14cd06030"
+        },
+        "repetitions": 1,
+        "matchingRuleVersion": "measurement-matching/v1",
+        "createdAt": "2026-09-06T20:16:43.299Z",
+        "confirmedAt": "2026-09-06T20:16:43.300Z"
+      }
+    },
+    {
+      "caseId": "LIVE-02",
+      "domain": "vercel.com",
+      "language": "en",
+      "projectId": "35a7e531-a76f-49e6-839c-cfe6c7359213",
+      "baselineId": "c0bb368b-9d10-426b-8e07-1fec3aaa46a4",
+      "baselineConfigHash": "f229a650cec5103f76c021b8e430a2c74f0ab2b13601b5935e0d6e194523193a",
+      "discoveryRunIds": [
+        "5c3d91d6-e3cc-4d03-98b0-d3cb9939cba6"
+      ],
+      "targetDomain": "vercel.com",
+      "competitorDomain": "aws.amazon.com",
+      "competitorEvidenceRecordIds": [
+        "d71627fe-bb12-4351-8d3c-e30f4633ce6e"
+      ],
+      "competitorMissingReason": null,
+      "keyword": "frontend deployment",
+      "keywordEvidenceRecordIds": [
+        "9c77aa21-ded0-4922-8681-748c025511eb"
+      ],
+      "keywordMissingReason": null,
+      "watchSetId": "83f381f5-ff49-4cf6-9c6d-32d04e1f734b",
+      "watchSet": {
+        "id": "83f381f5-ff49-4cf6-9c6d-32d04e1f734b",
+        "projectId": "35a7e531-a76f-49e6-839c-cfe6c7359213",
+        "baselineId": "c0bb368b-9d10-426b-8e07-1fec3aaa46a4",
+        "version": 1,
+        "status": "active",
+        "targetObjectId": "watch-object-7490ccec65d01401161e7559",
+        "objects": [
+          {
+            "id": "watch-object-7490ccec65d01401161e7559",
+            "projectId": "35a7e531-a76f-49e6-839c-cfe6c7359213",
+            "role": "target",
+            "name": "Vercel",
+            "domain": "vercel.com",
+            "aliases": [],
+            "sourceRecordIds": [],
+            "selectedAt": "2026-09-06T20:16:46.135Z",
+            "identityState": "confirmed"
+          },
+          {
+            "id": "watch-object-3e7c5fbb7b1d7a21e751e005",
+            "projectId": "35a7e531-a76f-49e6-839c-cfe6c7359213",
+            "role": "competitor",
+            "name": "AWS Amplify",
+            "domain": "aws.amazon.com",
+            "aliases": [],
+            "sourceRecordIds": [
+              "d71627fe-bb12-4351-8d3c-e30f4633ce6e"
+            ],
+            "selectedAt": "2026-09-06T20:16:46.136Z",
+            "identityState": "confirmed"
+          }
+        ],
+        "keywords": [
+          {
+            "id": "watch-keyword-0571ae81d806924904332bf3",
+            "projectId": "35a7e531-a76f-49e6-839c-cfe6c7359213",
+            "keyword": "frontend deployment",
+            "normalizedKeyword": "frontend deployment",
+            "sourceRecordIds": [
+              "9c77aa21-ded0-4922-8681-748c025511eb"
+            ],
+            "selectedAt": "2026-09-06T20:16:46.136Z",
+            "neutralEligible": true,
+            "neutralEligibilityReason": "eligible"
+          }
+        ],
+        "domainProtocol": {
+          "id": "domain-recognition/v1",
+          "version": "v1",
+          "language": "en",
+          "responseSchemaHash": "02baab4ac0667bac34dc16f80aad12d58397454ce11c9ca6c4e1465c1f8ff860",
+          "promptTemplateHash": "54f284b48b0d24e5f29bf7853f3acfe79022fec63596d3ed182cd93ef1c0959d"
+        },
+        "keywordProtocol": {
+          "id": "keyword-discovery/v1",
+          "version": "v1",
+          "language": "en",
+          "scenario": "neutral_product_selection",
+          "responseSchemaHash": "4e5f9b3e7ed60c54cb8b0b3564dfe5fff030328094ad0903a49e2dfa3d5062d8",
+          "promptTemplateHash": "20430840fa1baa117d8d5ecc6ffcf98cb92331657f94215c16ed28f14cd06030"
+        },
+        "repetitions": 1,
+        "matchingRuleVersion": "measurement-matching/v1",
+        "createdAt": "2026-09-06T20:16:46.136Z",
+        "confirmedAt": "2026-09-06T20:16:46.137Z"
+      }
+    },
+    {
+      "caseId": "LIVE-03",
+      "domain": "supabase.com",
+      "language": "en",
+      "projectId": "5d3e5d43-1cb2-41f5-8e49-0a8ca71450d0",
+      "baselineId": "2bd84c55-1383-4098-9618-e9c3ffd828c1",
+      "baselineConfigHash": "a6f9251c9fba0cecf4d0aca4d8ae87a504122fd16c1e94bc8a126ed0de27a2f9",
+      "discoveryRunIds": [
+        "f610a05c-3196-4eaa-87c0-2d14880b1a0f"
+      ],
+      "targetDomain": "supabase.com",
+      "competitorDomain": "aws.amazon.com",
+      "competitorEvidenceRecordIds": [
+        "dbd82757-a8b5-4bd0-8285-911c8f184e0d"
+      ],
+      "competitorMissingReason": null,
+      "keyword": "database",
+      "keywordEvidenceRecordIds": [
+        "6acd1a09-0d8e-4bfe-ae83-00f5962ac4e7"
+      ],
+      "keywordMissingReason": null,
+      "watchSetId": "8ba94641-525f-4192-b958-66cf7d1f68f6",
+      "watchSet": {
+        "id": "8ba94641-525f-4192-b958-66cf7d1f68f6",
+        "projectId": "5d3e5d43-1cb2-41f5-8e49-0a8ca71450d0",
+        "baselineId": "2bd84c55-1383-4098-9618-e9c3ffd828c1",
+        "version": 1,
+        "status": "active",
+        "targetObjectId": "watch-object-35491e10410de65d947aeefc",
+        "objects": [
+          {
+            "id": "watch-object-35491e10410de65d947aeefc",
+            "projectId": "5d3e5d43-1cb2-41f5-8e49-0a8ca71450d0",
+            "role": "target",
+            "name": "Supabase",
+            "domain": "supabase.com",
+            "aliases": [],
+            "sourceRecordIds": [],
+            "selectedAt": "2026-09-06T20:16:49.380Z",
+            "identityState": "confirmed"
+          },
+          {
+            "id": "watch-object-87d188198d13982be031a267",
+            "projectId": "5d3e5d43-1cb2-41f5-8e49-0a8ca71450d0",
+            "role": "competitor",
+            "name": "AWS Amplify",
+            "domain": "aws.amazon.com",
+            "aliases": [],
+            "sourceRecordIds": [
+              "dbd82757-a8b5-4bd0-8285-911c8f184e0d"
+            ],
+            "selectedAt": "2026-09-06T20:16:49.380Z",
+            "identityState": "confirmed"
+          }
+        ],
+        "keywords": [
+          {
+            "id": "watch-keyword-5508eb9f31d4f7e8370dceab",
+            "projectId": "5d3e5d43-1cb2-41f5-8e49-0a8ca71450d0",
+            "keyword": "database",
+            "normalizedKeyword": "database",
+            "sourceRecordIds": [
+              "6acd1a09-0d8e-4bfe-ae83-00f5962ac4e7"
+            ],
+            "selectedAt": "2026-09-06T20:16:49.381Z",
+            "neutralEligible": true,
+            "neutralEligibilityReason": "eligible"
+          }
+        ],
+        "domainProtocol": {
+          "id": "domain-recognition/v1",
+          "version": "v1",
+          "language": "en",
+          "responseSchemaHash": "02baab4ac0667bac34dc16f80aad12d58397454ce11c9ca6c4e1465c1f8ff860",
+          "promptTemplateHash": "54f284b48b0d24e5f29bf7853f3acfe79022fec63596d3ed182cd93ef1c0959d"
+        },
+        "keywordProtocol": {
+          "id": "keyword-discovery/v1",
+          "version": "v1",
+          "language": "en",
+          "scenario": "neutral_product_selection",
+          "responseSchemaHash": "4e5f9b3e7ed60c54cb8b0b3564dfe5fff030328094ad0903a49e2dfa3d5062d8",
+          "promptTemplateHash": "20430840fa1baa117d8d5ecc6ffcf98cb92331657f94215c16ed28f14cd06030"
+        },
+        "repetitions": 1,
+        "matchingRuleVersion": "measurement-matching/v1",
+        "createdAt": "2026-09-06T20:16:49.381Z",
+        "confirmedAt": "2026-09-06T20:16:49.382Z"
+      }
+    },
+    {
+      "caseId": "LIVE-04",
+      "domain": "posthog.com",
+      "language": "en",
+      "projectId": "b630103c-50b1-4c32-b165-47808289a555",
+      "baselineId": "333faec0-4667-4266-8a77-5681909447f0",
+      "baselineConfigHash": "6ca09ba68a7157fdcc7f116b97dbbdd7d54123b55ea9bc42d738d9e7c64ef73e",
+      "discoveryRunIds": [
+        "272a0d31-e9bb-4c00-82fa-9a4cf9996398"
+      ],
+      "targetDomain": "posthog.com",
+      "competitorDomain": "amplitude.com",
+      "competitorEvidenceRecordIds": [
+        "049303be-2ee8-4f91-865c-08c36aae0925"
+      ],
+      "competitorMissingReason": null,
+      "keyword": "analytics",
+      "keywordEvidenceRecordIds": [
+        "9bb88f4b-f342-40c7-96f5-1d0143ff11f0"
+      ],
+      "keywordMissingReason": null,
+      "watchSetId": "2ff65883-f98a-4237-a3f3-f006be0505f4",
+      "watchSet": {
+        "id": "2ff65883-f98a-4237-a3f3-f006be0505f4",
+        "projectId": "b630103c-50b1-4c32-b165-47808289a555",
+        "baselineId": "333faec0-4667-4266-8a77-5681909447f0",
+        "version": 1,
+        "status": "active",
+        "targetObjectId": "watch-object-fc99d1df87b1050aa523c929",
+        "objects": [
+          {
+            "id": "watch-object-fc99d1df87b1050aa523c929",
+            "projectId": "b630103c-50b1-4c32-b165-47808289a555",
+            "role": "target",
+            "name": "Posthog",
+            "domain": "posthog.com",
+            "aliases": [],
+            "sourceRecordIds": [],
+            "selectedAt": "2026-09-06T20:16:51.825Z",
+            "identityState": "confirmed"
+          },
+          {
+            "id": "watch-object-9aed8618fa1764cb1c86a76a",
+            "projectId": "b630103c-50b1-4c32-b165-47808289a555",
+            "role": "competitor",
+            "name": "Amplitude",
+            "domain": "amplitude.com",
+            "aliases": [],
+            "sourceRecordIds": [
+              "049303be-2ee8-4f91-865c-08c36aae0925"
+            ],
+            "selectedAt": "2026-09-06T20:16:51.825Z",
+            "identityState": "confirmed"
+          }
+        ],
+        "keywords": [
+          {
+            "id": "watch-keyword-6e6769fd8091db54ee41605c",
+            "projectId": "b630103c-50b1-4c32-b165-47808289a555",
+            "keyword": "analytics",
+            "normalizedKeyword": "analytics",
+            "sourceRecordIds": [
+              "9bb88f4b-f342-40c7-96f5-1d0143ff11f0"
+            ],
+            "selectedAt": "2026-09-06T20:16:51.825Z",
+            "neutralEligible": true,
+            "neutralEligibilityReason": "eligible"
+          }
+        ],
+        "domainProtocol": {
+          "id": "domain-recognition/v1",
+          "version": "v1",
+          "language": "en",
+          "responseSchemaHash": "02baab4ac0667bac34dc16f80aad12d58397454ce11c9ca6c4e1465c1f8ff860",
+          "promptTemplateHash": "54f284b48b0d24e5f29bf7853f3acfe79022fec63596d3ed182cd93ef1c0959d"
+        },
+        "keywordProtocol": {
+          "id": "keyword-discovery/v1",
+          "version": "v1",
+          "language": "en",
+          "scenario": "neutral_product_selection",
+          "responseSchemaHash": "4e5f9b3e7ed60c54cb8b0b3564dfe5fff030328094ad0903a49e2dfa3d5062d8",
+          "promptTemplateHash": "20430840fa1baa117d8d5ecc6ffcf98cb92331657f94215c16ed28f14cd06030"
+        },
+        "repetitions": 1,
+        "matchingRuleVersion": "measurement-matching/v1",
+        "createdAt": "2026-09-06T20:16:51.825Z",
+        "confirmedAt": "2026-09-06T20:16:51.826Z"
+      }
+    },
+    {
+      "caseId": "LIVE-05",
+      "domain": "sentry.io",
+      "language": "zh",
+      "projectId": "e56c3993-65a0-41a7-ac63-2cbf75f8c6a6",
+      "baselineId": "c082ebf8-753c-4127-b6e6-95ce42625959",
+      "baselineConfigHash": "8735138d0f1cd15be4fb06375a086896854ba32b460baf6eb7629983bf0c30da",
+      "discoveryRunIds": [
+        "e348ff9e-7858-4976-830b-e48f08944051"
+      ],
+      "targetDomain": "sentry.io",
+      "competitorDomain": "datadoghq.com",
+      "competitorEvidenceRecordIds": [
+        "4176634e-2100-4f4b-b0fc-d7a498d83898"
+      ],
+      "competitorMissingReason": null,
+      "keyword": "性能管理",
+      "keywordEvidenceRecordIds": [
+        "dde031c8-7172-4ddc-9117-f2c5b33e2c34"
+      ],
+      "keywordMissingReason": null,
+      "watchSetId": "80751399-b1b0-488d-afd6-9a5ebe28e6ff",
+      "watchSet": {
+        "id": "80751399-b1b0-488d-afd6-9a5ebe28e6ff",
+        "projectId": "e56c3993-65a0-41a7-ac63-2cbf75f8c6a6",
+        "baselineId": "c082ebf8-753c-4127-b6e6-95ce42625959",
+        "version": 1,
+        "status": "active",
+        "targetObjectId": "watch-object-8de9e8faca7087d16f7b7c85",
+        "objects": [
+          {
+            "id": "watch-object-8de9e8faca7087d16f7b7c85",
+            "projectId": "e56c3993-65a0-41a7-ac63-2cbf75f8c6a6",
+            "role": "target",
+            "name": "Sentry",
+            "domain": "sentry.io",
+            "aliases": [],
+            "sourceRecordIds": [],
+            "selectedAt": "2026-09-06T20:16:54.668Z",
+            "identityState": "confirmed"
+          },
+          {
+            "id": "watch-object-0c46c122b80fe129019ae059",
+            "projectId": "e56c3993-65a0-41a7-ac63-2cbf75f8c6a6",
+            "role": "competitor",
+            "name": "Datadog",
+            "domain": "datadoghq.com",
+            "aliases": [],
+            "sourceRecordIds": [
+              "4176634e-2100-4f4b-b0fc-d7a498d83898"
+            ],
+            "selectedAt": "2026-09-06T20:16:54.668Z",
+            "identityState": "confirmed"
+          }
+        ],
+        "keywords": [
+          {
+            "id": "watch-keyword-de52ce58391d385c0c059eff",
+            "projectId": "e56c3993-65a0-41a7-ac63-2cbf75f8c6a6",
+            "keyword": "性能管理",
+            "normalizedKeyword": "性能管理",
+            "sourceRecordIds": [
+              "dde031c8-7172-4ddc-9117-f2c5b33e2c34"
+            ],
+            "selectedAt": "2026-09-06T20:16:54.668Z",
+            "neutralEligible": true,
+            "neutralEligibilityReason": "eligible"
+          }
+        ],
+        "domainProtocol": {
+          "id": "domain-recognition/v1",
+          "version": "v1",
+          "language": "zh",
+          "responseSchemaHash": "02baab4ac0667bac34dc16f80aad12d58397454ce11c9ca6c4e1465c1f8ff860",
+          "promptTemplateHash": "54f284b48b0d24e5f29bf7853f3acfe79022fec63596d3ed182cd93ef1c0959d"
+        },
+        "keywordProtocol": {
+          "id": "keyword-discovery/v1",
+          "version": "v1",
+          "language": "zh",
+          "scenario": "neutral_product_selection",
+          "responseSchemaHash": "4e5f9b3e7ed60c54cb8b0b3564dfe5fff030328094ad0903a49e2dfa3d5062d8",
+          "promptTemplateHash": "20430840fa1baa117d8d5ecc6ffcf98cb92331657f94215c16ed28f14cd06030"
+        },
+        "repetitions": 1,
+        "matchingRuleVersion": "measurement-matching/v1",
+        "createdAt": "2026-09-06T20:16:54.668Z",
+        "confirmedAt": "2026-09-06T20:16:54.669Z"
+      }
+    },
+    {
+      "caseId": "LIVE-06",
+      "domain": "linear.app",
+      "language": "en",
+      "projectId": "e73225c6-68b3-4bc1-9422-e91753829eb8",
+      "baselineId": "4eff35d1-ab30-4e63-a2db-eb79832cf47a",
+      "baselineConfigHash": "dbe0b6bd81fa5edb4865b548b1cc26a1c94f5414fa27d0b71a1fd7b2bee64517",
+      "discoveryRunIds": [
+        "083a2385-7700-44a2-b086-57499021f1f4"
+      ],
+      "targetDomain": "linear.app",
+      "competitorDomain": "asana.com",
+      "competitorEvidenceRecordIds": [
+        "eaeb5791-80c7-4c7b-83bd-6e971ae85568"
+      ],
+      "competitorMissingReason": null,
+      "keyword": "issue tracking",
+      "keywordEvidenceRecordIds": [
+        "4ced553d-0e59-4881-90fa-7a99644a4aa7"
+      ],
+      "keywordMissingReason": null,
+      "watchSetId": "807527eb-5ade-4bd5-961b-70f8bea2aad3",
+      "watchSet": {
+        "id": "807527eb-5ade-4bd5-961b-70f8bea2aad3",
+        "projectId": "e73225c6-68b3-4bc1-9422-e91753829eb8",
+        "baselineId": "4eff35d1-ab30-4e63-a2db-eb79832cf47a",
+        "version": 1,
+        "status": "active",
+        "targetObjectId": "watch-object-306daa6e85074267c51e6b2b",
+        "objects": [
+          {
+            "id": "watch-object-306daa6e85074267c51e6b2b",
+            "projectId": "e73225c6-68b3-4bc1-9422-e91753829eb8",
+            "role": "target",
+            "name": "Linear",
+            "domain": "linear.app",
+            "aliases": [],
+            "sourceRecordIds": [],
+            "selectedAt": "2026-09-06T20:16:57.105Z",
+            "identityState": "confirmed"
+          },
+          {
+            "id": "watch-object-2281251cc592a5e507e0c6ba",
+            "projectId": "e73225c6-68b3-4bc1-9422-e91753829eb8",
+            "role": "competitor",
+            "name": "Asana",
+            "domain": "asana.com",
+            "aliases": [],
+            "sourceRecordIds": [
+              "eaeb5791-80c7-4c7b-83bd-6e971ae85568"
+            ],
+            "selectedAt": "2026-09-06T20:16:57.105Z",
+            "identityState": "confirmed"
+          }
+        ],
+        "keywords": [
+          {
+            "id": "watch-keyword-4fa6acd26dc5238120d235a6",
+            "projectId": "e73225c6-68b3-4bc1-9422-e91753829eb8",
+            "keyword": "issue tracking",
+            "normalizedKeyword": "issue tracking",
+            "sourceRecordIds": [
+              "4ced553d-0e59-4881-90fa-7a99644a4aa7"
+            ],
+            "selectedAt": "2026-09-06T20:16:57.105Z",
+            "neutralEligible": true,
+            "neutralEligibilityReason": "eligible"
+          }
+        ],
+        "domainProtocol": {
+          "id": "domain-recognition/v1",
+          "version": "v1",
+          "language": "en",
+          "responseSchemaHash": "02baab4ac0667bac34dc16f80aad12d58397454ce11c9ca6c4e1465c1f8ff860",
+          "promptTemplateHash": "54f284b48b0d24e5f29bf7853f3acfe79022fec63596d3ed182cd93ef1c0959d"
+        },
+        "keywordProtocol": {
+          "id": "keyword-discovery/v1",
+          "version": "v1",
+          "language": "en",
+          "scenario": "neutral_product_selection",
+          "responseSchemaHash": "4e5f9b3e7ed60c54cb8b0b3564dfe5fff030328094ad0903a49e2dfa3d5062d8",
+          "promptTemplateHash": "20430840fa1baa117d8d5ecc6ffcf98cb92331657f94215c16ed28f14cd06030"
+        },
+        "repetitions": 1,
+        "matchingRuleVersion": "measurement-matching/v1",
+        "createdAt": "2026-09-06T20:16:57.105Z",
+        "confirmedAt": "2026-09-06T20:16:57.107Z"
+      }
+    },
+    {
+      "caseId": "LIVE-07",
+      "domain": "canva.com",
+      "language": "zh",
+      "projectId": "4356871d-6f0b-4be2-bb4e-86779226360a",
+      "baselineId": "20f0a82f-8da6-4867-87d1-cc80f0258243",
+      "baselineConfigHash": "e061a87bd2780e5278762bef2b4fbebf2bbb9139c7c489d56eb580873da4d02f",
+      "discoveryRunIds": [
+        "404d8804-959c-4f07-8314-7b1cfe02910c"
+      ],
+      "targetDomain": "canva.com",
+      "competitorDomain": "adobe.com",
+      "competitorEvidenceRecordIds": [
+        "0e135ae8-ff1d-40be-9346-0e1eaca74cee"
+      ],
+      "competitorMissingReason": null,
+      "keyword": "图形设计",
+      "keywordEvidenceRecordIds": [
+        "0324e12f-02de-4103-92fa-6f22f8264c1d"
+      ],
+      "keywordMissingReason": null,
+      "watchSetId": "a53bd724-a009-4b66-b3d0-4fffd109c428",
+      "watchSet": {
+        "id": "a53bd724-a009-4b66-b3d0-4fffd109c428",
+        "projectId": "4356871d-6f0b-4be2-bb4e-86779226360a",
+        "baselineId": "20f0a82f-8da6-4867-87d1-cc80f0258243",
+        "version": 1,
+        "status": "active",
+        "targetObjectId": "watch-object-df13e103817627176027ec65",
+        "objects": [
+          {
+            "id": "watch-object-df13e103817627176027ec65",
+            "projectId": "4356871d-6f0b-4be2-bb4e-86779226360a",
+            "role": "target",
+            "name": "Canva",
+            "domain": "canva.com",
+            "aliases": [],
+            "sourceRecordIds": [],
+            "selectedAt": "2026-09-06T20:16:59.951Z",
+            "identityState": "confirmed"
+          },
+          {
+            "id": "watch-object-b1d01977c70038f2a92805fa",
+            "projectId": "4356871d-6f0b-4be2-bb4e-86779226360a",
+            "role": "competitor",
+            "name": "Adobe",
+            "domain": "adobe.com",
+            "aliases": [],
+            "sourceRecordIds": [
+              "0e135ae8-ff1d-40be-9346-0e1eaca74cee"
+            ],
+            "selectedAt": "2026-09-06T20:16:59.951Z",
+            "identityState": "confirmed"
+          }
+        ],
+        "keywords": [
+          {
+            "id": "watch-keyword-f1e490df615c17146fabffd8",
+            "projectId": "4356871d-6f0b-4be2-bb4e-86779226360a",
+            "keyword": "图形设计",
+            "normalizedKeyword": "图形设计",
+            "sourceRecordIds": [
+              "0324e12f-02de-4103-92fa-6f22f8264c1d"
+            ],
+            "selectedAt": "2026-09-06T20:16:59.951Z",
+            "neutralEligible": true,
+            "neutralEligibilityReason": "eligible"
+          }
+        ],
+        "domainProtocol": {
+          "id": "domain-recognition/v1",
+          "version": "v1",
+          "language": "zh",
+          "responseSchemaHash": "02baab4ac0667bac34dc16f80aad12d58397454ce11c9ca6c4e1465c1f8ff860",
+          "promptTemplateHash": "54f284b48b0d24e5f29bf7853f3acfe79022fec63596d3ed182cd93ef1c0959d"
+        },
+        "keywordProtocol": {
+          "id": "keyword-discovery/v1",
+          "version": "v1",
+          "language": "zh",
+          "scenario": "neutral_product_selection",
+          "responseSchemaHash": "4e5f9b3e7ed60c54cb8b0b3564dfe5fff030328094ad0903a49e2dfa3d5062d8",
+          "promptTemplateHash": "20430840fa1baa117d8d5ecc6ffcf98cb92331657f94215c16ed28f14cd06030"
+        },
+        "repetitions": 1,
+        "matchingRuleVersion": "measurement-matching/v1",
+        "createdAt": "2026-09-06T20:16:59.951Z",
+        "confirmedAt": "2026-09-06T20:16:59.952Z"
+      }
+    },
+    {
+      "caseId": "LIVE-08",
+      "domain": "notion.com",
+      "language": "zh",
+      "projectId": "23586b24-876a-4fe7-b70a-47d48068d5a5",
+      "baselineId": "f0345599-ef98-4cfd-aab4-697c7a1c78d3",
+      "baselineConfigHash": "1699a0a6fff667909dddfbd3943c76377f102a2ac655bcba52fec472c707c5ed",
+      "discoveryRunIds": [
+        "4fb5df71-603a-4aa3-9d5c-4f6a3e0551f5"
+      ],
+      "targetDomain": "notion.com",
+      "competitorDomain": "evernote.com",
+      "competitorEvidenceRecordIds": [
+        "82932625-7f43-4ab5-9451-a52a1e977adc"
+      ],
+      "competitorMissingReason": null,
+      "keyword": "生产力",
+      "keywordEvidenceRecordIds": [
+        "15e5315a-8fb1-410e-ada0-a5aa5fa8adde"
+      ],
+      "keywordMissingReason": null,
+      "watchSetId": "ed54d93d-ffe2-42db-9cbb-a236dc8be825",
+      "watchSet": {
+        "id": "ed54d93d-ffe2-42db-9cbb-a236dc8be825",
+        "projectId": "23586b24-876a-4fe7-b70a-47d48068d5a5",
+        "baselineId": "f0345599-ef98-4cfd-aab4-697c7a1c78d3",
+        "version": 1,
+        "status": "active",
+        "targetObjectId": "watch-object-d5532c45574fffe40c2b7aa0",
+        "objects": [
+          {
+            "id": "watch-object-d5532c45574fffe40c2b7aa0",
+            "projectId": "23586b24-876a-4fe7-b70a-47d48068d5a5",
+            "role": "target",
+            "name": "Notion",
+            "domain": "notion.com",
+            "aliases": [],
+            "sourceRecordIds": [],
+            "selectedAt": "2026-09-06T20:17:02.392Z",
+            "identityState": "confirmed"
+          },
+          {
+            "id": "watch-object-332c2b57dfe63ac0eced8be6",
+            "projectId": "23586b24-876a-4fe7-b70a-47d48068d5a5",
+            "role": "competitor",
+            "name": "Evernote",
+            "domain": "evernote.com",
+            "aliases": [],
+            "sourceRecordIds": [
+              "82932625-7f43-4ab5-9451-a52a1e977adc"
+            ],
+            "selectedAt": "2026-09-06T20:17:02.393Z",
+            "identityState": "confirmed"
+          }
+        ],
+        "keywords": [
+          {
+            "id": "watch-keyword-51891d2d5090f3f55165416e",
+            "projectId": "23586b24-876a-4fe7-b70a-47d48068d5a5",
+            "keyword": "生产力",
+            "normalizedKeyword": "生产力",
+            "sourceRecordIds": [
+              "15e5315a-8fb1-410e-ada0-a5aa5fa8adde"
+            ],
+            "selectedAt": "2026-09-06T20:17:02.393Z",
+            "neutralEligible": true,
+            "neutralEligibilityReason": "eligible"
+          }
+        ],
+        "domainProtocol": {
+          "id": "domain-recognition/v1",
+          "version": "v1",
+          "language": "zh",
+          "responseSchemaHash": "02baab4ac0667bac34dc16f80aad12d58397454ce11c9ca6c4e1465c1f8ff860",
+          "promptTemplateHash": "54f284b48b0d24e5f29bf7853f3acfe79022fec63596d3ed182cd93ef1c0959d"
+        },
+        "keywordProtocol": {
+          "id": "keyword-discovery/v1",
+          "version": "v1",
+          "language": "zh",
+          "scenario": "neutral_product_selection",
+          "responseSchemaHash": "4e5f9b3e7ed60c54cb8b0b3564dfe5fff030328094ad0903a49e2dfa3d5062d8",
+          "promptTemplateHash": "20430840fa1baa117d8d5ecc6ffcf98cb92331657f94215c16ed28f14cd06030"
+        },
+        "repetitions": 1,
+        "matchingRuleVersion": "measurement-matching/v1",
+        "createdAt": "2026-09-06T20:17:02.393Z",
+        "confirmedAt": "2026-09-06T20:17:02.395Z"
+      }
+    },
+    {
+      "caseId": "LIVE-09",
+      "domain": "cloudflare.com",
+      "language": "en",
+      "projectId": "9aecf732-3c18-430e-8ed0-f12914287d88",
+      "baselineId": "51eebd1d-4b90-4e9d-8afe-b4006e22397e",
+      "baselineConfigHash": "9c3a7340e7cc605fe6d53c6a08fba43ec2f04bc86389032686e251aa5cf29208",
+      "discoveryRunIds": [
+        "82ae592c-aa7f-4b9a-a050-e2f52df4568c"
+      ],
+      "targetDomain": "cloudflare.com",
+      "competitorDomain": "akamai.com",
+      "competitorEvidenceRecordIds": [
+        "27fe4016-8d30-4035-a767-083744936066"
+      ],
+      "competitorMissingReason": null,
+      "keyword": "CDN",
+      "keywordEvidenceRecordIds": [
+        "062e32af-6ccf-46c2-8ccd-6d2923cb723d"
+      ],
+      "keywordMissingReason": null,
+      "watchSetId": "82dadc9f-ba3c-4d60-9340-3c05138b8d2f",
+      "watchSet": {
+        "id": "82dadc9f-ba3c-4d60-9340-3c05138b8d2f",
+        "projectId": "9aecf732-3c18-430e-8ed0-f12914287d88",
+        "baselineId": "51eebd1d-4b90-4e9d-8afe-b4006e22397e",
+        "version": 1,
+        "status": "active",
+        "targetObjectId": "watch-object-a85e2b232af5bcddd69c6888",
+        "objects": [
+          {
+            "id": "watch-object-a85e2b232af5bcddd69c6888",
+            "projectId": "9aecf732-3c18-430e-8ed0-f12914287d88",
+            "role": "target",
+            "name": "Cloudflare",
+            "domain": "cloudflare.com",
+            "aliases": [],
+            "sourceRecordIds": [],
+            "selectedAt": "2026-09-06T20:17:05.641Z",
+            "identityState": "confirmed"
+          },
+          {
+            "id": "watch-object-dba632fce58e1b04990b42a0",
+            "projectId": "9aecf732-3c18-430e-8ed0-f12914287d88",
+            "role": "competitor",
+            "name": "Akamai",
+            "domain": "akamai.com",
+            "aliases": [],
+            "sourceRecordIds": [
+              "27fe4016-8d30-4035-a767-083744936066"
+            ],
+            "selectedAt": "2026-09-06T20:17:05.641Z",
+            "identityState": "confirmed"
+          }
+        ],
+        "keywords": [
+          {
+            "id": "watch-keyword-ee38c7eb946eacbb4bb62123",
+            "projectId": "9aecf732-3c18-430e-8ed0-f12914287d88",
+            "keyword": "CDN",
+            "normalizedKeyword": "cdn",
+            "sourceRecordIds": [
+              "062e32af-6ccf-46c2-8ccd-6d2923cb723d"
+            ],
+            "selectedAt": "2026-09-06T20:17:05.641Z",
+            "neutralEligible": true,
+            "neutralEligibilityReason": "eligible"
+          }
+        ],
+        "domainProtocol": {
+          "id": "domain-recognition/v1",
+          "version": "v1",
+          "language": "en",
+          "responseSchemaHash": "02baab4ac0667bac34dc16f80aad12d58397454ce11c9ca6c4e1465c1f8ff860",
+          "promptTemplateHash": "54f284b48b0d24e5f29bf7853f3acfe79022fec63596d3ed182cd93ef1c0959d"
+        },
+        "keywordProtocol": {
+          "id": "keyword-discovery/v1",
+          "version": "v1",
+          "language": "en",
+          "scenario": "neutral_product_selection",
+          "responseSchemaHash": "4e5f9b3e7ed60c54cb8b0b3564dfe5fff030328094ad0903a49e2dfa3d5062d8",
+          "promptTemplateHash": "20430840fa1baa117d8d5ecc6ffcf98cb92331657f94215c16ed28f14cd06030"
+        },
+        "repetitions": 1,
+        "matchingRuleVersion": "measurement-matching/v1",
+        "createdAt": "2026-09-06T20:17:05.641Z",
+        "confirmedAt": "2026-09-06T20:17:05.642Z"
+      }
+    },
+    {
+      "caseId": "LIVE-10",
+      "domain": "replit.com",
+      "language": "en",
+      "projectId": "e55c5c03-f7dc-41c1-b6f5-1958ee5cf0f6",
+      "baselineId": "b45e7342-2c0c-454e-b9ee-b32c76e8fbe7",
+      "baselineConfigHash": "3799a9c0080b5d14915a1991e7750e9f15e3cacdfbd6ba3e1161627643b72dbd",
+      "discoveryRunIds": [
+        "9caee59b-4aef-477c-b2d1-d5ddaa1d0106"
+      ],
+      "targetDomain": "replit.com",
+      "competitorDomain": "codesandbox.io",
+      "competitorEvidenceRecordIds": [
+        "aa9a1a68-1ebe-4ac1-a6d3-624d4cc90d8f"
+      ],
+      "competitorMissingReason": null,
+      "keyword": "coding",
+      "keywordEvidenceRecordIds": [
+        "a24160ec-98f5-49c4-b691-af3d09437281"
+      ],
+      "keywordMissingReason": null,
+      "watchSetId": "0cd90cad-cf78-4734-8549-7fccf82901fa",
+      "watchSet": {
+        "id": "0cd90cad-cf78-4734-8549-7fccf82901fa",
+        "projectId": "e55c5c03-f7dc-41c1-b6f5-1958ee5cf0f6",
+        "baselineId": "b45e7342-2c0c-454e-b9ee-b32c76e8fbe7",
+        "version": 1,
+        "status": "active",
+        "targetObjectId": "watch-object-429b2c954ba8d5e815f6e789",
+        "objects": [
+          {
+            "id": "watch-object-429b2c954ba8d5e815f6e789",
+            "projectId": "e55c5c03-f7dc-41c1-b6f5-1958ee5cf0f6",
+            "role": "target",
+            "name": "Replit",
+            "domain": "replit.com",
+            "aliases": [],
+            "sourceRecordIds": [],
+            "selectedAt": "2026-09-06T20:17:08.887Z",
+            "identityState": "confirmed"
+          },
+          {
+            "id": "watch-object-51f84057efb99d9cbc00077f",
+            "projectId": "e55c5c03-f7dc-41c1-b6f5-1958ee5cf0f6",
+            "role": "competitor",
+            "name": "CodeSandbox",
+            "domain": "codesandbox.io",
+            "aliases": [],
+            "sourceRecordIds": [
+              "aa9a1a68-1ebe-4ac1-a6d3-624d4cc90d8f"
+            ],
+            "selectedAt": "2026-09-06T20:17:08.888Z",
+            "identityState": "confirmed"
+          }
+        ],
+        "keywords": [
+          {
+            "id": "watch-keyword-c8a354ee182a9a603e4aed8c",
+            "projectId": "e55c5c03-f7dc-41c1-b6f5-1958ee5cf0f6",
+            "keyword": "coding",
+            "normalizedKeyword": "coding",
+            "sourceRecordIds": [
+              "a24160ec-98f5-49c4-b691-af3d09437281"
+            ],
+            "selectedAt": "2026-09-06T20:17:08.888Z",
+            "neutralEligible": true,
+            "neutralEligibilityReason": "eligible"
+          }
+        ],
+        "domainProtocol": {
+          "id": "domain-recognition/v1",
+          "version": "v1",
+          "language": "en",
+          "responseSchemaHash": "02baab4ac0667bac34dc16f80aad12d58397454ce11c9ca6c4e1465c1f8ff860",
+          "promptTemplateHash": "54f284b48b0d24e5f29bf7853f3acfe79022fec63596d3ed182cd93ef1c0959d"
+        },
+        "keywordProtocol": {
+          "id": "keyword-discovery/v1",
+          "version": "v1",
+          "language": "en",
+          "scenario": "neutral_product_selection",
+          "responseSchemaHash": "4e5f9b3e7ed60c54cb8b0b3564dfe5fff030328094ad0903a49e2dfa3d5062d8",
+          "promptTemplateHash": "20430840fa1baa117d8d5ecc6ffcf98cb92331657f94215c16ed28f14cd06030"
+        },
+        "repetitions": 1,
+        "matchingRuleVersion": "measurement-matching/v1",
+        "createdAt": "2026-09-06T20:17:08.888Z",
+        "confirmedAt": "2026-09-06T20:17:08.891Z"
+      }
+    }
+  ]
+}

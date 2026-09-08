@@ -21,7 +21,6 @@ function baseRun(id: string): PromptRun {
     status: "completed",
     startedAt: "2026-09-03T00:00:00.000Z",
     finishedAt: "2026-09-03T00:00:01.000Z",
-    rawJsonPath: "/tmp/raw.json",
   };
 }
 

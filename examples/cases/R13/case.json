@@ -1,0 +1,11 @@
+{
+  "id": "R13",
+  "domain": "docker.com",
+  "category": {
+    "zh": "容器工具",
+    "en": "Container tools"
+  },
+  "language": "zh",
+  "studyPlan": "../../study-plan.json",
+  "evidenceIndex": "./evidence-index.json"
+}

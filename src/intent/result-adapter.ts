@@ -7,9 +7,9 @@ function list(values: readonly string[]): string {
 export function resultAdapterInstructions(): string {
   return [
     "Result Adapter",
-    "Create a short user-facing result for this single question.",
-    "Choose the display mode from the detected intent.",
-    "Do not force competitor fields onto questions that are not comparison, alternative, recommendation, or industry research tasks.",
+    "Create a short user-facing result for this target-brand question.",
+    "Use brand_question when the answer can be assessed and task_completion when it cannot.",
+    "Only discuss comparisons or alternatives when the question and answer establish that relationship.",
     "Do not copy long answer passages into the report body.",
     "If the answer misses a requirement, say what is missing.",
     "If a relationship or conclusion is uncertain, say it is uncertain instead of guessing.",

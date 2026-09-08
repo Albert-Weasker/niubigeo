@@ -5,6 +5,8 @@ import { AnthropicProvider } from "../src/providers/anthropic.js";
 import { GeminiProvider } from "../src/providers/gemini.js";
 import { OpenAICompatibleGatewayProvider } from "../src/providers/openai-compatible-gateway.js";
 import { OpenAICompatibleProvider, perplexityCitationExtractor } from "../src/providers/openai-compatible.js";
+import { OpenRouterNativeWebSearchResolver } from "../src/providers/openrouter-native-search.js";
+import type { OpenRouterSearchProtocol } from "../src/providers/openrouter-model-capabilities.js";
 import { ResponsesCompatibleProvider } from "../src/providers/responses-compatible.js";
 import { PROVIDER_DEFINITIONS } from "../src/providers/catalog.js";
 
@@ -13,6 +15,7 @@ const originalFetch = globalThis.fetch;
 interface CapturedRequest {
   url: string;
   body: Record<string, unknown>;
+  headers: Record<string, string>;
 }
 
 function definition(id: string, label = id): ProviderDefinition {
@@ -40,11 +43,24 @@ function input(overrides: Partial<ProviderRunInput> = {}): ProviderRunInput {
   };
 }
 
+function openRouterSearch(protocol: OpenRouterSearchProtocol): OpenRouterNativeWebSearchResolver {
+  return new OpenRouterNativeWebSearchResolver({
+    capability: async (model) => ({
+      model,
+      name: model,
+      supportedParameters: [],
+      nativeWebSearchSupported: protocol !== "unsupported",
+      searchProtocol: protocol,
+    }),
+  });
+}
+
 function mockFetch(raw: unknown, captured: CapturedRequest[]): void {
   globalThis.fetch = async (url, init) => {
     captured.push({
       url: String(url),
       body: JSON.parse(String(init?.body || "{}")) as Record<string, unknown>,
+      headers: init?.headers as Record<string, string>,
     });
     return new Response(JSON.stringify(raw), {
       status: 200,
@@ -57,70 +73,156 @@ test.afterEach(() => {
   globalThis.fetch = originalFetch;
 });
 
-test("provider catalog declares native web search for every first-party provider", () => {
-  const ids = ["openrouter", "openai", "anthropic", "gemini", "perplexity", "deepseek"];
-  for (const id of ids) {
+test("provider catalog declares only verified native web search capabilities", () => {
+  const supportedIds = ["openrouter", "openai", "anthropic", "gemini", "perplexity"];
+  for (const id of supportedIds) {
     const provider = PROVIDER_DEFINITIONS.find((item) => item.id === id);
     assert.equal(provider?.supportsWebSearch, true);
     assert.equal(Boolean(provider?.nativeWebSearch?.toolName), true);
   }
+  const deepseek = PROVIDER_DEFINITIONS.find((item) => item.id === "deepseek");
+  assert.equal(deepseek?.supportsWebSearch, false);
+  assert.equal(deepseek?.nativeWebSearch, undefined);
 });
 
-test("OpenRouter sends its web plugin only when web search is enabled", async () => {
+test("OpenRouter sends its provider-native web_search server tool only when manually enabled", async () => {
   const captured: CapturedRequest[] = [];
   mockFetch(
     {
       model: "openai/gpt-4o-mini",
       choices: [{ message: { content: "NiubiGEO is mentioned.", annotations: [{ url: "https://niubigeo.ai/", title: "NiubiGEO" }] } }],
       usage: { prompt_tokens: 1, completion_tokens: 2, total_tokens: 3 },
+      openrouter_metadata: {
+        pipeline: [{ type: "server_tools", data: { mode: "native", tools: ["openrouter:web_search"] } }],
+      },
     },
     captured,
   );
   const provider = new OpenAICompatibleProvider({
     definition: definition("openrouter", "OpenRouter"),
     endpoint: "https://openrouter.ai/api/v1/chat/completions",
-    nativeWebSearch: {
-      toolName: "openrouter:web",
-      bodyPatch: { plugins: [{ id: "web" }] },
-    },
+    extraHeaders: { "X-OpenRouter-Metadata": "enabled" },
+    nativeWebSearch: openRouterSearch("server_tool"),
   });
 
   await provider.run(input());
-  const offPlugins = captured[0]?.body.plugins;
-  assert.equal(offPlugins, undefined);
+  assert.equal(captured[0]?.body.tools, undefined);
 
-  const result = await provider.run(input({ webSearchEnabled: true }));
-  const onPlugins = captured[1]?.body.plugins;
-  assert.deepEqual(onPlugins, [{ id: "web" }]);
+  const result = await provider.run(input({ model: "openai/gpt-5", webSearchEnabled: true, webSearchMode: "provider_native" }));
+  assert.deepEqual(captured[1]?.body.tools, [{ type: "openrouter:web_search", parameters: { engine: "native" } }]);
+  assert.equal(captured[1]?.body.tool_choice, "required");
+  assert.equal(captured[1]?.body.provider, undefined);
+  assert.equal(captured[1]?.headers["X-OpenRouter-Metadata"], "enabled");
   assert.equal(result.search?.usedMode, "provider_native");
-  assert.equal(result.search?.toolName, "openrouter:web");
+  assert.equal(result.search?.executionMode, "native");
+  assert.equal(result.search?.requestMode, "provider_native");
+  assert.equal(result.search?.toolName, "openrouter:web_search");
 });
 
-test("does not report optional web search as used without response evidence", async () => {
+test("records a confirmed OpenRouter server-search SDK execution without calling it model-built-in", async () => {
   const captured: CapturedRequest[] = [];
   mockFetch(
     {
       model: "openai/gpt-4o-mini",
-      choices: [{ message: { content: "NiubiGEO is mentioned.", annotations: [] } }],
+      choices: [{ message: { content: "NiubiGEO is mentioned.", annotations: [{ url: "https://niubigeo.ai/" }] } }],
       usage: { prompt_tokens: 1, completion_tokens: 2, total_tokens: 3 },
+      openrouter_metadata: {
+        pipeline: [{ type: "server_tools", data: { mode: "sdk", tools: ["openrouter:web_search"] } }],
+      },
     },
     captured,
   );
   const provider = new OpenAICompatibleProvider({
     definition: definition("openrouter", "OpenRouter"),
     endpoint: "https://openrouter.ai/api/v1/chat/completions",
-    nativeWebSearch: {
-      toolName: "openrouter:web",
-      bodyPatch: { plugins: [{ id: "web" }] },
-    },
+    nativeWebSearch: openRouterSearch("server_tool"),
   });
 
-  const result = await provider.run(input({ webSearchEnabled: true }));
+  const result = await provider.run(input({ model: "anthropic/claude-haiku-4.5", webSearchEnabled: true, webSearchMode: "provider_native" }));
 
-  assert.deepEqual(captured[0]?.body.plugins, [{ id: "web" }]);
+  assert.deepEqual(captured[0]?.body.tools, [{ type: "openrouter:web_search", parameters: { engine: "native" } }]);
   assert.equal(result.search?.requested, true);
-  assert.equal(result.search?.used, false);
-  assert.equal(result.search?.usedMode, "requested_not_confirmed");
+  assert.equal(result.search?.used, true);
+  assert.equal(result.search?.usedMode, "provider_native");
+  assert.equal(result.search?.executionMode, "sdk");
+});
+
+test("OpenRouter sends one generic search request and trusts returned execution evidence", async () => {
+  const captured: CapturedRequest[] = [];
+  mockFetch({
+    model: "vendor/model",
+    choices: [{ message: { content: "Grounded answer." } }],
+    openrouter_metadata: {
+      pipeline: [{ type: "server_tools", data: { mode: "native", tools: ["openrouter:web_search"] } }],
+    },
+  }, captured);
+  const provider = new OpenAICompatibleProvider({
+    definition: definition("openrouter", "OpenRouter"),
+    endpoint: "https://openrouter.ai/api/v1/chat/completions",
+    nativeWebSearch: openRouterSearch("server_tool"),
+  });
+
+  const result = await provider.run(input({ model: "vendor/model", webSearchEnabled: true, webSearchMode: "provider_native" }));
+  assert.deepEqual(captured[0]?.body.tools, [{ type: "openrouter:web_search", parameters: { engine: "native" } }]);
+  assert.equal(captured[0]?.body.provider, undefined);
+  assert.equal(result.search?.executionMode, "native");
+});
+
+test("OpenRouter does not inject provider routing preferences for native search", async () => {
+  const captured: CapturedRequest[] = [];
+  mockFetch(
+    {
+      model: "google/gemini-3.1-flash-lite",
+      choices: [{ message: { content: "Grounded answer.", annotations: [{ url: "https://example.com/" }] } }],
+      openrouter_metadata: {
+        pipeline: [{ type: "server_tools", data: { mode: "native", tools: ["openrouter:web_search"] } }],
+      },
+    },
+    captured,
+  );
+  const provider = new OpenAICompatibleProvider({
+    definition: definition("openrouter", "OpenRouter"),
+    endpoint: "https://openrouter.ai/api/v1/chat/completions",
+    nativeWebSearch: openRouterSearch("server_tool"),
+  });
+
+  const result = await provider.run(
+    input({ model: "google/gemini-3.1-flash-lite", webSearchEnabled: true, webSearchMode: "provider_native" }),
+  );
+
+  assert.equal(captured[0]?.body.provider, undefined);
+  assert.equal(captured[0]?.body.tool_choice, "required");
+  assert.equal(result.search?.executionMode, "native");
+});
+
+test("OpenRouter verifies model-native grounding without model-specific branches", async () => {
+  const captured: CapturedRequest[] = [];
+  mockFetch(
+    {
+      model: "perplexity/sonar",
+      choices: [{ message: { content: "Grounded answer.", annotations: [{ url: "https://example.com/" }] } }],
+      usage: { prompt_tokens: 2, completion_tokens: 3, total_tokens: 5 },
+      openrouter_metadata: {
+        pipeline: [{ type: "server_tools", data: { mode: "native", tools: ["openrouter:web_search"] } }],
+      },
+    },
+    captured,
+  );
+  const provider = new OpenAICompatibleProvider({
+    definition: definition("openrouter", "OpenRouter"),
+    endpoint: "https://openrouter.ai/api/v1/chat/completions",
+    nativeWebSearch: openRouterSearch("built_in_grounding"),
+  });
+
+  const result = await provider.run(input({ model: "perplexity/sonar", webSearchEnabled: true, webSearchMode: "provider_native" }));
+
+  assert.equal(captured[0]?.body.tools, undefined);
+  assert.equal(captured[0]?.body.tool_choice, undefined);
+  assert.deepEqual(captured[0]?.body.web_search_options, { search_context_size: "medium" });
+  assert.equal(captured[0]?.body.provider, undefined);
+  assert.equal(result.search?.usedMode, "provider_native");
+  assert.equal(result.search?.executionMode, "provider_always_on");
+  assert.equal(result.search?.toolName, "model_web_grounding");
 });
 
 test("OpenAI-compatible provider can request JSON object output for analyzer calls", async () => {
@@ -142,6 +244,96 @@ test("OpenAI-compatible provider can request JSON object output for analyzer cal
 
   assert.deepEqual(captured[0]?.body.response_format, { type: "json_object" });
   assert.equal(captured[0]?.body.plugins, undefined);
+});
+
+test("OpenAI-compatible provider can enforce a JSON schema for structured analysis", async () => {
+  const captured: CapturedRequest[] = [];
+  mockFetch(
+    {
+      model: "openai/gpt-4o-mini",
+      choices: [{ message: { content: "{\"ok\":true}", annotations: [] } }],
+      usage: { prompt_tokens: 1, completion_tokens: 2, total_tokens: 3 },
+    },
+    captured,
+  );
+  const provider = new OpenAICompatibleProvider({
+    definition: definition("openrouter", "OpenRouter"),
+    endpoint: "https://openrouter.ai/api/v1/chat/completions",
+  });
+  const schema = { type: "object", properties: { ok: { type: "boolean" } }, required: ["ok"] };
+
+  await provider.run(input({ responseJsonSchema: { name: "analysis_result", schema } }));
+
+  assert.deepEqual(captured[0]?.body.response_format, {
+    type: "json_schema",
+    json_schema: { name: "analysis_result", strict: true, schema },
+  });
+});
+
+test("OpenAI-compatible provider can require routing support for structured parameters", async () => {
+  const captured: CapturedRequest[] = [];
+  mockFetch(
+    {
+      model: "openai/gpt-4o-mini",
+      choices: [{ message: { content: "{\"ok\":true}", annotations: [] } }],
+      usage: { prompt_tokens: 1, completion_tokens: 2, total_tokens: 3 },
+    },
+    captured,
+  );
+  const provider = new OpenAICompatibleProvider({
+    definition: definition("openrouter", "OpenRouter"),
+    endpoint: "https://openrouter.ai/api/v1/chat/completions",
+  });
+  const schema = { type: "object", properties: { ok: { type: "boolean" } }, required: ["ok"] };
+
+  await provider.run(input({ responseJsonSchema: { name: "analysis_result", schema }, requireProviderParameters: true }));
+
+  assert.deepEqual(captured[0]?.body.provider, { require_parameters: true });
+});
+
+test("OpenAI-compatible provider can combine Provider-native search with a strict structured output tool", async () => {
+  const captured: CapturedRequest[] = [];
+  const argumentsText = "{\"ok\":true}";
+  mockFetch(
+    {
+      model: "vendor/model",
+      choices: [{
+        message: {
+          content: null,
+          tool_calls: [{ type: "function", function: { name: "record_observation", arguments: argumentsText } }],
+          annotations: [{ url: "https://source.example/" }],
+        },
+      }],
+      usage: { prompt_tokens: 1, completion_tokens: 2, total_tokens: 3 },
+      openrouter_metadata: {
+        pipeline: [{ type: "server_tools", data: { mode: "native", tools: ["openrouter:web_search"] } }],
+      },
+    },
+    captured,
+  );
+  const provider = new OpenAICompatibleProvider({
+    definition: definition("openrouter", "OpenRouter"),
+    endpoint: "https://openrouter.ai/api/v1/chat/completions",
+    nativeWebSearch: openRouterSearch("server_tool"),
+  });
+  const schema = { type: "object", properties: { ok: { type: "boolean" } }, required: ["ok"] };
+
+  const result = await provider.run(input({
+    model: "vendor/model",
+    webSearchEnabled: true,
+    webSearchMode: "provider_native",
+    requireProviderParameters: true,
+    structuredOutputTool: { name: "record_observation", description: "Record an observation.", schema },
+  }));
+
+  assert.equal(captured[0]?.body.response_format, undefined);
+  assert.deepEqual(captured[0]?.body.tools, [
+    { type: "openrouter:web_search", parameters: { engine: "native" } },
+    { type: "function", function: { name: "record_observation", description: "Record an observation.", parameters: schema, strict: true } },
+  ]);
+  assert.deepEqual(captured[0]?.body.provider, { require_parameters: true });
+  assert.equal(result.text, argumentsText);
+  assert.equal(result.citations[0]?.url, "https://source.example/");
 });
 
 test("Responses-compatible provider sends web_search and reads returned citations", async () => {

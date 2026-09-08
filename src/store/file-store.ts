@@ -1,12 +1,10 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { resolve, join } from "node:path";
-import type { AuditMetrics, AuditRun, GeoGapAnalysis, PromptRun, ReportBundle } from "../core/types.js";
-import { slugify } from "../utils/domain.js";
-import { sha256 } from "../utils/hash.js";
+import type { AuditMetrics, AuditRun, GeoGapAnalysis, ReportBundle } from "../core/types.js";
 import { ReportBuilder } from "../report/report-builder.js";
 import { ReportModelBuilder } from "../report/report-model.js";
 
-const DEBUG_PERSISTENCE_KEYS = new Set(["rawJson", "rawJsonPath", "tokenUsage", "costUsd", "latencyMs"]);
+const DEBUG_PERSISTENCE_KEYS = new Set(["tokenUsage", "costUsd", "latencyMs"]);
 
 function publicReportData(value: unknown): unknown {
   if (Array.isArray(value)) return value.map((item) => publicReportData(item));
@@ -26,18 +24,12 @@ export class FileStore {
     return resolve(this.rootDir, auditId);
   }
 
-  async saveRawJson(auditId: string, name: string, value: unknown): Promise<string> {
-    const rawDir = join(this.auditDir(auditId), "raw");
-    await mkdir(rawDir, { recursive: true });
-    const json = JSON.stringify(value, null, 2);
-    const fileName = `${slugify(name)}-${sha256(json).slice(0, 10)}.json`;
-    const path = join(rawDir, fileName);
-    await writeFile(path, json);
+  async saveAuditState(audit: AuditRun): Promise<string> {
+    const runDir = this.auditDir(audit.id);
+    await mkdir(runDir, { recursive: true });
+    const path = join(runDir, "audit-state.json");
+    await writeFile(path, JSON.stringify(audit, null, 2));
     return path;
-  }
-
-  async savePromptRunRaw(auditId: string, run: PromptRun): Promise<string> {
-    return this.saveRawJson(auditId, run.id, run.result?.rawJson ?? { error: run.error });
   }
 
   async saveAudit(

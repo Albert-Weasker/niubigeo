@@ -1,13 +1,7 @@
-import type { MonitoringPrompt, PromptAuditCategory, PromptType } from "../core/types.js";
-
-const COMPARISON_TYPES = new Set<PromptType>(["comparison", "alternative", "keyword_comparison", "keyword_alternative"]);
+import type { MonitoringPrompt, PromptAuditCategory } from "../core/types.js";
 
 export function inferPromptAuditCategory(prompt: Pick<MonitoringPrompt, "auditCategory" | "targetIncluded" | "type">): PromptAuditCategory {
-  if (prompt.auditCategory) return prompt.auditCategory;
-  if (COMPARISON_TYPES.has(prompt.type)) return "comparison";
-  if (prompt.type === "brand") return "brand_awareness";
-  if (prompt.targetIncluded === false) return "organic_discovery";
-  return "brand_awareness";
+  return prompt.auditCategory || "other";
 }
 
 export function promptAuditCategoryLabel(category: PromptAuditCategory): string {

@@ -1,4 +1,5 @@
 import type { IntentRunAnalysis } from "../intent/intent-schema.js";
+import type { ProviderCallRecord } from "../telemetry/provider-call-ledger.js";
 
 export type SourceType = "api" | "browser" | "human_verified";
 
@@ -39,6 +40,54 @@ export type KeywordMode = "site_plus_user" | "user_only" | "site_only";
 
 export type PromptAuditCategory = "brand_awareness" | "organic_discovery" | "comparison" | "other";
 
+export const BRAND_QUESTION_INTENTS = [
+  "product_understanding",
+  "brand_evaluation",
+  "recommendation",
+  "comparison",
+  "alternative",
+  "pricing",
+  "product_fit",
+  "product_usage",
+  "purchase_decision",
+  "risk_evaluation",
+  "adoption",
+  "source_analysis",
+] as const;
+
+export type BrandQuestionIntent = (typeof BRAND_QUESTION_INTENTS)[number];
+
+export const PROMPT_INTENT_SCHEMA_VERSION = "prompt-intent-v1" as const;
+
+export interface PromptIntentProfile {
+  schemaVersion: typeof PROMPT_INTENT_SCHEMA_VERSION;
+  intents: BrandQuestionIntent[];
+  candidateApplicable: boolean;
+  recommendationApplicable: boolean;
+  reason: string;
+  analyzer: {
+    providerId: string;
+    model: string;
+    sourceLabel: string;
+  };
+  status: "completed";
+}
+
+export interface BrandQuestionIntentCheck {
+  intent: BrandQuestionIntent;
+  requested: boolean;
+  reason?: string | undefined;
+}
+
+export interface BrandQuestionClassification {
+  domainMatched: boolean;
+  targetBrand: string;
+  intents: BrandQuestionIntent[];
+  intentChecks?: BrandQuestionIntentCheck[] | undefined;
+  status: "complete" | "rejected";
+  reason?: string | undefined;
+}
+
 export type CitationSource =
   | "provider_annotation"
   | "provider_citation_array"
@@ -49,6 +98,8 @@ export type CitationSource =
 export type WebSearchRequestMode = "auto" | "provider_native";
 
 export type WebSearchUsedMode = "none" | "requested_not_confirmed" | "provider_native" | "provider_always_on";
+
+export type WebSearchExecutionMode = "native" | "sdk" | "provider_always_on" | "unverified";
 
 export type ProviderEndpointKind = "official_api" | "custom_gateway";
 
@@ -107,6 +158,8 @@ export interface MonitoringPrompt {
   keywordClusterId?: string | undefined;
   keywordIntent?: KeywordIntent | undefined;
   seedSource?: KeywordSeedSource | undefined;
+  brandQuestion?: BrandQuestionClassification | undefined;
+  intentProfile?: PromptIntentProfile | undefined;
 }
 
 export interface TokenUsage {
@@ -123,6 +176,7 @@ export interface Citation {
   citationIndex: number;
   source: CitationSource;
   citationType: CitationType;
+  providerPayloadPath?: string | undefined;
   entityId?: string | undefined;
   entityName?: string | undefined;
   promptId?: string | undefined;
@@ -135,11 +189,19 @@ export interface ProviderDefinition {
   sourceType: SourceType;
   envKeys: string[];
   defaultModels: string[];
+  defaultModelCapabilities?: ProviderModelCapabilityDefinition[] | undefined;
+  analysisModel?: string | undefined;
   supportsAnyModel?: boolean | undefined;
+  supportsJsonSchema?: boolean | undefined;
   supportsNativeCitations: boolean;
   supportsWebSearch: boolean;
   nativeWebSearch?: NativeWebSearchCapability | undefined;
   resultCaveat: string;
+}
+
+export interface ProviderModelCapabilityDefinition {
+  model: string;
+  nativeWebSearchSupported: boolean;
 }
 
 export interface ProviderRunInput {
@@ -151,6 +213,16 @@ export interface ProviderRunInput {
   webSearchEnabled: boolean;
   webSearchMode?: WebSearchRequestMode | undefined;
   responseFormat?: "json_object" | undefined;
+  responseJsonSchema?: {
+    name: string;
+    schema: Record<string, unknown>;
+  } | undefined;
+  structuredOutputTool?: {
+    name: string;
+    description: string;
+    schema: Record<string, unknown>;
+  } | undefined;
+  requireProviderParameters?: boolean | undefined;
 }
 
 export interface SearchExecution {
@@ -164,7 +236,13 @@ export interface SearchExecution {
   toolName?: string | undefined;
   webQueries: string[];
   citationCount: number;
+  executionMode?: WebSearchExecutionMode | undefined;
   note?: string | undefined;
+}
+
+export interface ProviderStructuredOutput {
+  transport: "response_json_schema" | "function_tool";
+  value: unknown;
 }
 
 export interface AnswerResult {
@@ -176,7 +254,8 @@ export interface AnswerResult {
   model: string;
   modelVersion: string;
   text: string;
-  rawJson: unknown;
+  structuredOutput?: ProviderStructuredOutput | undefined;
+  rawProviderResponse?: unknown;
   citations: Citation[];
   webQueries: string[];
   search?: SearchExecution | undefined;
@@ -226,7 +305,6 @@ export interface PromptGenerationEvidence {
   model: string;
   sourceLabel: string;
   prompt: string;
-  rawJsonPath?: string | undefined;
   text: string;
 }
 
@@ -249,6 +327,8 @@ export interface DomainProfile {
     type: PromptType;
     topic: string;
     prompt: string;
+    auditCategory: PromptAuditCategory;
+    targetIncluded: boolean;
   }>;
 }
 
@@ -266,7 +346,6 @@ export interface DiscoveryEvidence {
     title?: string | undefined;
   }> | undefined;
   prompt: string;
-  rawJsonPath?: string | undefined;
   text: string;
 }
 
@@ -303,7 +382,6 @@ export interface SiteEvidence {
   sitemapUrls: string[];
   github?: GitHubEvidence | undefined;
   collectedAt: string;
-  rawJsonPath?: string | undefined;
 }
 
 export interface KeywordCandidate {
@@ -340,6 +418,8 @@ export interface KeywordRelevance {
 
 export interface PromptRun {
   id: string;
+  sampleIndex?: number | undefined;
+  sampleCount?: number | undefined;
   prompt: MonitoringPrompt;
   executionPrompt?: string | undefined;
   target: Entity;
@@ -354,9 +434,10 @@ export interface PromptRun {
   startedAt: string;
   finishedAt: string;
   result?: AnswerResult | undefined;
-  rawJsonPath?: string | undefined;
   analysis?: PromptRunAnalysis | undefined;
   intentAnalysis?: IntentRunAnalysis | undefined;
+  analysisStatus?: "pending" | "completed" | "partial" | "failed" | undefined;
+  analysisError?: string | undefined;
   error?: string | undefined;
 }
 
@@ -379,7 +460,9 @@ export interface AuditRun {
   keywords?: KeywordCandidate[] | undefined;
   keywordClusters?: KeywordCluster[] | undefined;
   keywordRelevance?: KeywordRelevance[] | undefined;
+  keywordAnalysis?: PromptGenerationEvidence | undefined;
   promptGeneration?: PromptGenerationEvidence | undefined;
+  providerCalls?: ProviderCallRecord[] | undefined;
   runs: PromptRun[];
   startedAt: string;
   finishedAt: string;
@@ -414,6 +497,7 @@ export interface AuditPlan {
   keywords?: KeywordCandidate[] | undefined;
   keywordClusters?: KeywordCluster[] | undefined;
   keywordRelevance?: KeywordRelevance[] | undefined;
+  keywordAnalysis?: PromptGenerationEvidence | undefined;
   promptGeneration?: PromptGenerationEvidence | undefined;
   estimate: AuditPlanEstimate;
 }
@@ -469,7 +553,6 @@ export interface PromptOutcome {
   keywordIds: string[];
   keywordIntent?: KeywordIntent | undefined;
   winner: string | null;
-  rawJsonPath: string | null;
   costUsd?: number | undefined;
 }
 

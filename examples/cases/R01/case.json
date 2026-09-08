@@ -1,0 +1,12 @@
+{
+  "id": "R01",
+  "domain": "niubistar.com",
+  "category": {
+    "zh": "开发者项目推广",
+    "en": "Developer project promotion"
+  },
+  "language": "zh",
+  "sponsorDisclosure": true,
+  "studyPlan": "../../study-plan.json",
+  "evidenceIndex": "./evidence-index.json"
+}

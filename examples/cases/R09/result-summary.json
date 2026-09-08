@@ -1,0 +1,283 @@
+{
+  "caseId": "R09",
+  "status": "completed",
+  "sourceStatus": "completed",
+  "observation": {
+    "en": "Initial D: 3/3 analyzable current answers. Measurement D: 3/3 analyzable first answers. K: 0/0 analyzable first answers. These are answer-coverage counts, not recognition rates or product metric denominators.",
+    "zh": "初始 D：3/3 条当前回答可分析；测量 D：3/3 条首次回答可分析；K：0/0 条首次回答可分析。这些是回答覆盖计数，不是认识率或产品指标分母。"
+  },
+  "initialD": {
+    "attempted": 3,
+    "valid": 3,
+    "basis": "current_attempt_analyzable_answer",
+    "isMetricDenominator": false,
+    "models": [
+      {
+        "scope": "initialD",
+        "modelId": "openai/gpt-4.1-mini",
+        "modelRunId": "2b2cb49b-4e4a-4551-a094-eede830ba3ce",
+        "attemptId": "679410aa-1184-46da-b78d-85e1b5c39fb2",
+        "resultAttemptId": "679410aa-1184-46da-b78d-85e1b5c39fb2",
+        "webSearchMode": "provider_native",
+        "executionMode": "native",
+        "domainRecognition": "recognized",
+        "analysisStatus": "recognized",
+        "localAnalysis": "complete"
+      },
+      {
+        "scope": "initialD",
+        "modelId": "openai/gpt-4o-mini",
+        "modelRunId": "4491bc68-13cc-4c48-a82a-3f9c3ffccdd7",
+        "attemptId": "e7a48c0b-f8ac-4798-98d0-422e8be7b50d",
+        "resultAttemptId": "e7a48c0b-f8ac-4798-98d0-422e8be7b50d",
+        "webSearchMode": "off",
+        "executionMode": "unverified",
+        "domainRecognition": "recognized",
+        "analysisStatus": "recognized",
+        "localAnalysis": "complete"
+      },
+      {
+        "scope": "initialD",
+        "modelId": "google/gemini-2.5-flash-lite",
+        "modelRunId": "f3827d60-2de4-4b8b-8ac6-00669a8ca90d",
+        "attemptId": "5d2c6641-55b1-477c-80b2-3f8fa8d55de1",
+        "resultAttemptId": "5d2c6641-55b1-477c-80b2-3f8fa8d55de1",
+        "webSearchMode": "off",
+        "executionMode": "unverified",
+        "domainRecognition": "recognized",
+        "analysisStatus": "recognized",
+        "localAnalysis": "complete"
+      }
+    ]
+  },
+  "measurementD": {
+    "attempted": 3,
+    "valid": 3,
+    "basis": "first_attempt_analyzable_answer",
+    "isMetricDenominator": false,
+    "models": [
+      {
+        "scope": "measurementD",
+        "modelId": "openai/gpt-4.1-mini",
+        "runId": "49417523-7fc1-4948-9eae-854537ba0fe6",
+        "probeId": "f61f5385-d056-4f81-bb1b-78971ea5c8be",
+        "attemptId": "62c29410-b945-41e4-916b-5088d145cf41",
+        "resultAttemptId": "62c29410-b945-41e4-916b-5088d145cf41",
+        "webSearchMode": "provider_native",
+        "executionMode": "native",
+        "domainRecognition": "recognized",
+        "analysisStatus": "recognized",
+        "localAnalysis": null
+      },
+      {
+        "scope": "measurementD",
+        "modelId": "openai/gpt-4o-mini",
+        "runId": "49417523-7fc1-4948-9eae-854537ba0fe6",
+        "probeId": "20449994-0d54-49c3-9f23-da25be601346",
+        "attemptId": "18ab8754-5a6e-4c74-81c1-f9a3af7c8593",
+        "resultAttemptId": "18ab8754-5a6e-4c74-81c1-f9a3af7c8593",
+        "webSearchMode": "off",
+        "executionMode": "unverified",
+        "domainRecognition": "recognized",
+        "analysisStatus": "recognized",
+        "localAnalysis": null
+      },
+      {
+        "scope": "measurementD",
+        "modelId": "google/gemini-2.5-flash-lite",
+        "runId": "49417523-7fc1-4948-9eae-854537ba0fe6",
+        "probeId": "c8e453d1-b16b-47a3-b9f0-51f217094788",
+        "attemptId": "b2f3f845-5109-4197-9286-4e9efcdb17f7",
+        "resultAttemptId": "b2f3f845-5109-4197-9286-4e9efcdb17f7",
+        "webSearchMode": "off",
+        "executionMode": "unverified",
+        "domainRecognition": "recognized",
+        "analysisStatus": "recognized",
+        "localAnalysis": null
+      }
+    ]
+  },
+  "d": {
+    "attempted": 6,
+    "valid": 6,
+    "basis": "initialD_plus_measurementD_answer_coverage",
+    "isMetricDenominator": false,
+    "models": [
+      {
+        "scope": "initialD",
+        "modelId": "openai/gpt-4.1-mini",
+        "modelRunId": "2b2cb49b-4e4a-4551-a094-eede830ba3ce",
+        "attemptId": "679410aa-1184-46da-b78d-85e1b5c39fb2",
+        "resultAttemptId": "679410aa-1184-46da-b78d-85e1b5c39fb2",
+        "webSearchMode": "provider_native",
+        "executionMode": "native",
+        "domainRecognition": "recognized",
+        "analysisStatus": "recognized",
+        "localAnalysis": "complete"
+      },
+      {
+        "scope": "initialD",
+        "modelId": "openai/gpt-4o-mini",
+        "modelRunId": "4491bc68-13cc-4c48-a82a-3f9c3ffccdd7",
+        "attemptId": "e7a48c0b-f8ac-4798-98d0-422e8be7b50d",
+        "resultAttemptId": "e7a48c0b-f8ac-4798-98d0-422e8be7b50d",
+        "webSearchMode": "off",
+        "executionMode": "unverified",
+        "domainRecognition": "recognized",
+        "analysisStatus": "recognized",
+        "localAnalysis": "complete"
+      },
+      {
+        "scope": "initialD",
+        "modelId": "google/gemini-2.5-flash-lite",
+        "modelRunId": "f3827d60-2de4-4b8b-8ac6-00669a8ca90d",
+        "attemptId": "5d2c6641-55b1-477c-80b2-3f8fa8d55de1",
+        "resultAttemptId": "5d2c6641-55b1-477c-80b2-3f8fa8d55de1",
+        "webSearchMode": "off",
+        "executionMode": "unverified",
+        "domainRecognition": "recognized",
+        "analysisStatus": "recognized",
+        "localAnalysis": "complete"
+      },
+      {
+        "scope": "measurementD",
+        "modelId": "openai/gpt-4.1-mini",
+        "runId": "49417523-7fc1-4948-9eae-854537ba0fe6",
+        "probeId": "f61f5385-d056-4f81-bb1b-78971ea5c8be",
+        "attemptId": "62c29410-b945-41e4-916b-5088d145cf41",
+        "resultAttemptId": "62c29410-b945-41e4-916b-5088d145cf41",
+        "webSearchMode": "provider_native",
+        "executionMode": "native",
+        "domainRecognition": "recognized",
+        "analysisStatus": "recognized",
+        "localAnalysis": null
+      },
+      {
+        "scope": "measurementD",
+        "modelId": "openai/gpt-4o-mini",
+        "runId": "49417523-7fc1-4948-9eae-854537ba0fe6",
+        "probeId": "20449994-0d54-49c3-9f23-da25be601346",
+        "attemptId": "18ab8754-5a6e-4c74-81c1-f9a3af7c8593",
+        "resultAttemptId": "18ab8754-5a6e-4c74-81c1-f9a3af7c8593",
+        "webSearchMode": "off",
+        "executionMode": "unverified",
+        "domainRecognition": "recognized",
+        "analysisStatus": "recognized",
+        "localAnalysis": null
+      },
+      {
+        "scope": "measurementD",
+        "modelId": "google/gemini-2.5-flash-lite",
+        "runId": "49417523-7fc1-4948-9eae-854537ba0fe6",
+        "probeId": "c8e453d1-b16b-47a3-b9f0-51f217094788",
+        "attemptId": "b2f3f845-5109-4197-9286-4e9efcdb17f7",
+        "resultAttemptId": "b2f3f845-5109-4197-9286-4e9efcdb17f7",
+        "webSearchMode": "off",
+        "executionMode": "unverified",
+        "domainRecognition": "recognized",
+        "analysisStatus": "recognized",
+        "localAnalysis": null
+      }
+    ]
+  },
+  "k": {
+    "attempted": 0,
+    "valid": 0,
+    "basis": "first_attempt_analyzable_answer",
+    "isMetricDenominator": false
+  },
+  "issues": [],
+  "schedule": null,
+  "screenshots": [
+    {
+      "path": "assets/screenshots/v0.2.0-rc.1/R09-models.png",
+      "sha256": "d912df76ddea69160d89b738a074901fd04df3b621920cdf0b1be37a2ea5525b",
+      "caseId": "R09",
+      "view": "models",
+      "runIds": [
+        "5e42d293-837b-46ae-87f0-4d7ee24a1224"
+      ],
+      "modelRunIds": [
+        "2b2cb49b-4e4a-4551-a094-eede830ba3ce",
+        "4491bc68-13cc-4c48-a82a-3f9c3ffccdd7",
+        "f3827d60-2de4-4b8b-8ac6-00669a8ca90d"
+      ],
+      "attemptIds": [
+        "679410aa-1184-46da-b78d-85e1b5c39fb2",
+        "e7a48c0b-f8ac-4798-98d0-422e8be7b50d",
+        "5d2c6641-55b1-477c-80b2-3f8fa8d55de1"
+      ],
+      "observedAt": [
+        "2026-09-08T06:09:04.252Z"
+      ],
+      "capturedAt": "2026-09-08T07:19:04.477Z",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "browser": "152.0.7977.64",
+      "candidateImageDigest": "sha256:d71d68ff642465580680b40f95692b65eccb67c01e879524dc3241810bcd4f77",
+      "platform": "linux/arm64",
+      "pagePath": "/?projectId=61c45561-42ed-4d8d-b179-3b94d3504b52",
+      "redacted": false,
+      "alt": {
+        "en": "cloudflare.com: individual domain recognition results",
+        "zh": "cloudflare.com：各模型域名认知结果"
+      },
+      "caption": {
+        "en": "R09 · cloudflare.com · D · 3 archived attempts · openai/gpt-4o-mini (off), google/gemini-2.5-flash-lite (off), openai/gpt-4.1-mini (provider_native) · 2026-09-08T06:09:04.252Z to 2026-09-08T06:09:04.252Z. Original failures remain visible.",
+        "zh": "R09 · cloudflare.com · D · 3 条归档尝试 · openai/gpt-4o-mini（off）、google/gemini-2.5-flash-lite（off）、openai/gpt-4.1-mini（provider_native） · 2026-09-08T06:09:04.252Z 至 2026-09-08T06:09:04.252Z。保留原始失败状态。"
+      },
+      "trace": {
+        "status": "private_archive",
+        "sha256": "f132650bef26abcc6b2fb52745d2a8277061d80d82cdc980342af40b432ce2b9",
+        "publicUrl": null
+      }
+    },
+    {
+      "path": "assets/screenshots/v0.2.0-rc.1/R09-answers.png",
+      "sha256": "db76daf7f5560dacdf80e5df484a70affe3c710ac79ea470b5dd7be124f432d1",
+      "caseId": "R09",
+      "view": "answers",
+      "runIds": [
+        "5e42d293-837b-46ae-87f0-4d7ee24a1224"
+      ],
+      "modelRunIds": [
+        "2b2cb49b-4e4a-4551-a094-eede830ba3ce",
+        "4491bc68-13cc-4c48-a82a-3f9c3ffccdd7",
+        "f3827d60-2de4-4b8b-8ac6-00669a8ca90d"
+      ],
+      "attemptIds": [
+        "679410aa-1184-46da-b78d-85e1b5c39fb2",
+        "e7a48c0b-f8ac-4798-98d0-422e8be7b50d",
+        "5d2c6641-55b1-477c-80b2-3f8fa8d55de1"
+      ],
+      "observedAt": [
+        "2026-09-08T06:09:04.252Z"
+      ],
+      "capturedAt": "2026-09-08T07:19:04.852Z",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "browser": "152.0.7977.64",
+      "candidateImageDigest": "sha256:d71d68ff642465580680b40f95692b65eccb67c01e879524dc3241810bcd4f77",
+      "platform": "linux/arm64",
+      "pagePath": "/?projectId=61c45561-42ed-4d8d-b179-3b94d3504b52",
+      "redacted": false,
+      "alt": {
+        "en": "cloudflare.com: original answers and source categories",
+        "zh": "cloudflare.com：原始回答及来源类别"
+      },
+      "caption": {
+        "en": "R09 · cloudflare.com · D · 3 archived attempts · openai/gpt-4o-mini (off), google/gemini-2.5-flash-lite (off), openai/gpt-4.1-mini (provider_native) · 2026-09-08T06:09:04.252Z to 2026-09-08T06:09:04.252Z. Original failures remain visible.",
+        "zh": "R09 · cloudflare.com · D · 3 条归档尝试 · openai/gpt-4o-mini（off）、google/gemini-2.5-flash-lite（off）、openai/gpt-4.1-mini（provider_native） · 2026-09-08T06:09:04.252Z 至 2026-09-08T06:09:04.252Z。保留原始失败状态。"
+      },
+      "trace": {
+        "status": "private_archive",
+        "sha256": "f132650bef26abcc6b2fb52745d2a8277061d80d82cdc980342af40b432ce2b9",
+        "publicUrl": null
+      }
+    }
+  ]
+}

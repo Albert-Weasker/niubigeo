@@ -1,4 +1,7 @@
+import { randomUUID } from "node:crypto";
 import type { AnswerProvider, AnswerResult, ProviderRunInput } from "../core/types.js";
+import { providerFailureCode, type ProviderFailureCode } from "./provider-error.js";
+import type { ProviderAttemptEvent, ProviderCallContext } from "../telemetry/provider-call-ledger.js";
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -16,38 +19,66 @@ function baseDelayMs(): number {
   return Math.max(250, Math.min(Math.floor(configured), 10000));
 }
 
-export function isRetryableProviderError(error: unknown): boolean {
-  const message = error instanceof Error ? error.message : String(error);
-  const text = message.toLowerCase();
-  if (text.includes("unauthorized")) return false;
-  if (text.includes("forbidden")) return false;
-  if (text.includes("invalid api key")) return false;
-  if (text.includes("billing")) return false;
-  if (text.includes("in-flight")) return true;
-  if (text.includes("in flight")) return true;
-  if (text.includes("rate limit")) return true;
-  if (text.includes("try again")) return true;
-  if (text.includes("retry after")) return true;
-  if (text.includes("temporarily")) return true;
-  if (text.includes("timeout")) return true;
-  if (text.includes("overloaded")) return true;
-  if (text.includes("http 429")) return true;
-  if (text.includes("http 500")) return true;
-  if (text.includes("http 502")) return true;
-  if (text.includes("http 503")) return true;
-  if (text.includes("http 504")) return true;
-  return false;
+function emptyAnswerMaxTokens(): number {
+  const configured = Number(process.env.PROVIDER_EMPTY_ANSWER_MAX_TOKENS || 4000);
+  if (!Number.isFinite(configured) || configured <= 0) return 4000;
+  return Math.max(1200, Math.min(Math.floor(configured), 16000));
 }
 
-export async function runProviderWithRetry(provider: AnswerProvider, input: ProviderRunInput): Promise<AnswerResult> {
+export function isRetryableProviderError(error: unknown): boolean {
+  const code = providerFailureCode(error);
+  return code === "empty_answer" || code === "rate_limited" || code === "timeout" || code === "upstream_unavailable";
+}
+
+export interface ProviderRetryOptions {
+  callId?: string | undefined;
+  context?: ProviderCallContext | undefined;
+  onAttempt?: ((event: ProviderAttemptEvent) => void | Promise<void>) | undefined;
+}
+
+export async function runProviderWithRetry(
+  provider: AnswerProvider,
+  input: ProviderRunInput,
+  options: ProviderRetryOptions = {},
+): Promise<AnswerResult> {
   let lastError: unknown;
   const totalAttempts = attempts();
+  let maxTokens = input.maxTokens;
+  const callId = options.callId || `provider-call-${randomUUID()}`;
   for (let attempt = 1; attempt <= totalAttempts; attempt += 1) {
+    const startedAt = new Date().toISOString();
     try {
-      return await provider.run(input);
+      const result = await provider.run({ ...input, maxTokens });
+      if (options.context && options.onAttempt) {
+        await options.onAttempt({
+          callId,
+          attempt,
+          context: options.context,
+          providerId: provider.definition.id,
+          model: input.model,
+          startedAt,
+          finishedAt: new Date().toISOString(),
+          result,
+        });
+      }
+      return result;
     } catch (error) {
       lastError = error;
+      const failureCode: ProviderFailureCode = providerFailureCode(error);
+      if (options.context && options.onAttempt) {
+        await options.onAttempt({
+          callId,
+          attempt,
+          context: options.context,
+          providerId: provider.definition.id,
+          model: input.model,
+          startedAt,
+          finishedAt: new Date().toISOString(),
+          failureCode,
+        });
+      }
       if (attempt === totalAttempts || !isRetryableProviderError(error)) break;
+      if (failureCode === "empty_answer") maxTokens = Math.min(maxTokens * 2, emptyAnswerMaxTokens());
       await sleep(baseDelayMs() * attempt);
     }
   }

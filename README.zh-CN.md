@@ -1,403 +1,242 @@
-<div align="center">
-
-<img src="./assets/brand/niubigeo-readme-hero.svg" width="100%" alt="NiubiGEO — 开源 AI 品牌可见度与竞争报告工具" />
-
-### AI 会不会推荐你的产品？谁正在抢走你的曝光？
-
-**输入一个域名，看看 AI 是否会推荐你，以及哪些竞争对手更容易出现。**
-
-[Next 预告版](./NEXT_PREVIEW.zh-CN.md) · [English](./README.md) · [快速开始](#3-分钟开始审计) · [Releases](https://github.com/Albert-Weasker/niubigeo/releases) · [Packages](https://github.com/Albert-Weasker/niubigeo/pkgs/container/niubigeo) · [查看对比](#niubigeo-与商业-ai-可见度工具)
-
-<p>
-  <strong>NiubiGEO Next 预告版已发布：</strong><br />
-  <a href="./NEXT_PREVIEW.zh-CN.md"><strong>查看新版 AI 域名认知监测方向</strong></a>
-  ·
-  <a href="./NEXT_PREVIEW.md">Read in English</a>
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/brand/niubigeo-lockup.svg">
+    <source media="(prefers-color-scheme: light)" srcset="assets/brand/niubigeo-lockup-light.svg">
+    <img src="assets/brand/niubigeo-lockup-light.svg" width="336" alt="NiubiGEO">
+  </picture>
 </p>
 
-<br />
+<p align="center">
+  <a href="https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.2.0"><img src="assets/readme/version.svg" alt="NiubiGEO v0.2.0" width="172" height="28"></a>
+  <a href="LICENSE"><img src="assets/readme/license.svg" alt="Apache-2.0" width="172" height="28"></a>
+  <a href="docs/deployment/docker.md"><img src="assets/readme/self-hosted.svg" alt="Self-hosted" width="132" height="28"></a>
+</p>
 
-![Alpha](https://img.shields.io/badge/ALPHA-v0.1.0-51FFB7?style=flat-square&labelColor=07110F)
-![Open Source](https://img.shields.io/badge/OPEN_SOURCE-COMMUNITY-31D7FF?style=flat-square&labelColor=07110F)
-![Self-hosted](https://img.shields.io/badge/SELF_HOSTED-YES-B5FF3D?style=flat-square&labelColor=07110F)
-![BYOK](https://img.shields.io/badge/BYOK-SUPPORTED-51FFB7?style=flat-square&labelColor=07110F)
-![中文](https://img.shields.io/badge/简体中文-支持-31D7FF?style=flat-square&labelColor=07110F)
+# AI 会推荐你的产品吗？谁出现在答案里？
 
-</div>
+**输入域名，对照不同模型的产品描述、推荐对象和引用来源。**
+
+<p align="center">
+  <strong><a href="https://github.com/Albert-Weasker/niubigeo">项目仓库</a> · <a href="README.md">English</a> · <a href="#quick-start">快速开始</a> · <a href="#cases">20 组真实案例</a> · <a href="https://github.com/Albert-Weasker/niubigeo/releases">发布版本</a> · <a href="https://github.com/Albert-Weasker/niubigeo/pkgs/container/niubigeo">容器镜像</a> · <a href="#docs">文档</a></strong>
+  <br>
+  <a href="#features">功能一览</a> · <a href="#how-to">使用流程</a> · <a href="#monitoring">持续监测</a> · <a href="#niubigeo-vs-commercial-ai-visibility-tools">工具对比</a> · <a href="#why">为什么做</a> · <a href="#sponsors">赞助商</a>
+</p>
+
+你做了产品、写了文档，也投入了推广。你想知道：当用户向 AI 寻找工具时，你的产品有没有机会出现在答案里？
+
+**NiubiGEO 是一个开源的 AI 品牌可见度与竞争观察工具。** 从一个域名开始，查看不同模型如何描述你、提到哪些竞争对象，再通过关键词测试观察回答里出现了谁。点开结果，就能查看原始回答和返回的来源。
+
+> **打破 GEO 报告黑盒，把证据交还给用户。**
 
 ---
 
-> [!IMPORTANT]
-> **NiubiGEO Next 预告版已发布。** 下一版本将从一次性 AI 可见度审计转向长期 AI 域名认知监测。[查看预告版](./NEXT_PREVIEW.zh-CN.md) / [English](./NEXT_PREVIEW.md)。
+## 用它看清什么？
 
-## 你发布了产品，但 AI 知道吗？
-
-越来越多用户不再逐条浏览搜索结果，而是直接询问 AI：
-
-> 有哪些适合我的工具？  
-> 这个领域有哪些产品？  
-> 谁是某个产品的替代方案？  
-> 我应该选择哪一个？
-
-你的官网可能已经被搜索引擎收录，但 AI 仍然可能：
-
-- 想不到你的品牌；
-- 误解你的产品定位；
-- 只记住一小部分能力；
-- 在推荐时优先列出竞争对手；
-- 引用第三方页面，却没有引用你的官网。
-
-NiubiGEO 不给你一个难以解释的综合分数。它把问题、回答、竞争对手和引用来源摊开，让你看清 AI 眼中的市场。
-
-## 运行一次审计，你会得到什么
-
-<table>
-<tr>
-<td width="50%" valign="top">
-
-### AI 怎样理解你
-
-查看不同模型是否认识你的品牌、如何描述你的产品，以及哪些重要能力没有被理解。
-
-</td>
-<td width="50%" valign="top">
-
-### 谁正在与你竞争
-
-当用户没有说出你的品牌名时，查看 AI 主动想到哪些产品，并区分已确认竞争对手和疑似相关品牌。
-
-</td>
-</tr>
-<tr>
-<td width="50%" valign="top">
-
-### 你在哪些问题中缺席
-
-找到竞争产品出现、你的产品却没有出现的真实用户问题。
-
-</td>
-<td width="50%" valign="top">
-
-### AI 主要参考了什么
-
-查看 AI 引用的官网、社区和第三方来源，并打开支持结论的原始回答。
-
-</td>
-</tr>
-</table>
-
-**数据来源：**Community Edition 使用你配置的 Provider API 生成结果。每条结论都可以回到对应问题、模型回答和引用来源。
-
-## 一份真正能看懂的 AI 竞争报告
-
-NiubiGEO 不要求你理解复杂的 GEO 指标。报告会直接告诉你：
-
-```text
-总结
-├── AI 是否认识你的产品
-├── AI 如何描述你的品牌
-├── 谁是已确认竞争对手
-├── 哪些问题更容易出现竞争对手
-├── 哪些重要问题没有出现你的品牌
-└── 哪些来源支撑了这些判断
-```
-
-主报告只保留可读结论。完整 AI 回答默认收起，需要时可以展开查看。
-
-## 为什么开源？
-
-我们希望每个团队都能低成本了解自己在 AI 中的真实表现，并且能够验证每一条结论。
-
-NiubiGEO 让你能够：
-
-- 免费、自托管，并使用自己的 Provider Key；
-- 运行前确认所有测试问题；
-- 查看每条结论对应的 AI 原始回答；
-- 检查品牌、竞争对手和引用来源是如何识别的。
-
-## 3 分钟开始审计
-
-### Docker
-
-```bash
-git clone https://github.com/Albert-Weasker/niubigeo.git
-cd niubigeo
-cp .env.example .env
-```
-
-在 `.env` 中至少配置一个 Provider：
-
-```env
-OPENROUTER_API_KEY=
-OPENAI_API_KEY=
-ANTHROPIC_API_KEY=
-GEMINI_API_KEY=
-PERPLEXITY_API_KEY=
-DEEPSEEK_API_KEY=
-```
-
-启动：
-
-```bash
-docker compose up --build
-```
-
-打开 [http://localhost:8787](http://localhost:8787)，输入域名，确认品牌、竞争对手和问题，然后运行审计。
-
-也可以直接拉取已发布镜像：
-
-```bash
-docker pull ghcr.io/albert-weasker/niubigeo:v0.1.0-alpha
-```
+- **AI 怎样理解你。** 它认为你的品牌叫什么、做什么业务？不同模型的描述是否一致？
+- **回答里还有谁。** 模型把谁与你联系在一起？在关键词测试中，你和竞争对象有没有被提到？
+- **哪些词与你有关。** 查看模型关联给你和各个竞争对象的关键词，找到值得进一步检查的差异。
+- **结果从哪里来。** 查看原始回答、模型返回的引用，以及多次测试之间的变化。
 
 <details>
-<summary><strong>使用 Node.js 启动</strong></summary>
+<summary><strong>打开真实工作台截图：PostHog 的模型回答与证据入口</strong></summary>
 
-NiubiGEO 需要 Node.js 22 或更高版本。
+[![PostHog：各模型的原始域名认知结果，含业务描述、竞争对象及证据入口](assets/screenshots/v0.2.0-rc.1/R04-models.png)](examples/cases/R04/README.zh-CN.md)
+
+*查看模型实际说了什么，再打开来源核对。来自 2026-09-08 的真实归档截图。[查看 PostHog 案例](examples/cases/R04/README.zh-CN.md)。*
+
+</details>
+
+<a id="quick-start"></a>
+<a id="3-minute-audit"></a>
+
+## 开始使用
+
+**想先看看效果？[直接打开 20 组真实案例](examples/README.zh-CN.md)。** 不需要安装，也不需要 API Key。
+
+想测试自己的产品，准备 Node.js 22+ 和自己的 OpenRouter API Key：
 
 ```bash
-git clone https://github.com/Albert-Weasker/niubigeo.git
+git clone --branch v0.2.0 --depth 1 https://github.com/Albert-Weasker/niubigeo.git
 cd niubigeo
+npm ci
 cp .env.example .env
-npm install
-npm run self-check
+```
+
+在 `.env` 中填写 `OPENROUTER_API_KEY`，然后启动：
+
+```bash
 npm run server
 ```
 
-</details>
+打开 [**http://localhost:8787**](http://localhost:8787)，开始创建项目。
+
+也可以按 [Docker 部署说明](docs/deployment/docker.md) 运行，已有用户请查看 [备份与升级](docs/upgrade.md)。
+
+<a id="how-to"></a>
+
+## 怎么使用
+
+1. **输入域名。** 创建你的产品项目，项目会先保存下来。
+2. **选择模型。** 搜索并选择一个或多个模型，分别设置是否联网。
+3. **保存配置，开始测试。** 每个模型独立回答；一个模型失败，其他结果仍可查看。
+4. **打开结果。** 查看品牌描述、竞争对象、关键词和来源。想核对某条结论，就打开原始回答。
+5. **继续观察。** 确认待测关键词后进行关键词测试；重复运行或设置定时监测，积累可以比较的记录。
+
+第一次可以只选一个模型，了解结果后再增加。阅读案例免费；测试自己的项目会消耗所选模型及搜索服务的 API 额度。
+
+<a id="features"></a>
+
+## 从一次回答，到持续观察
+
+| 你想做什么 | NiubiGEO 提供什么 |
+| :--- | :--- |
+| **管理多个产品** | 每个域名有独立项目、配置、运行记录和证据。切换项目查看，不把不同产品混在一份报告里。 |
+| **对照多个模型** | 搜索、筛选并选择 OpenRouter 模型；分别查看回答、结果和错误，失败模型可以单独重试。 |
+| **自己决定是否联网** | 每个模型单独选择不联网或其支持的 Provider 原生联网方式，结果保留实际执行条件。 |
+| **看清品牌与竞争对象** | 并排查看模型描述的业务、类别、竞争对象，以及分别关联给它们的关键词。 |
+| **测试没点名品牌时出现了谁** | 确认关键词后执行不包含目标品牌名的关键词测试，查看实际提及、推荐及原文。 |
+| **检查每条结果的证据** | 原始回答、原文位置、Provider Citation、正文普通 URL 分别展示，失败与无法确认的记录保留。 |
+| **积累后续观察** | 保存待测范围，重复测量或设置定时任务；从历史记录与数据点回到组成结果的回答。 |
+
+<a id="monitoring"></a>
+
+### 持续测量与定时监测
+
+第一次域名认知让你看到模型本次怎样描述产品；确认竞争对象与关键词后，可以继续测量同一范围，或创建定时任务。模型选择改变后保留旧记录，新模型不会凭空拥有历史数据。
+
+定时执行需要同时启动 [监测 worker](docs/deployment/docker.md#显式启用-worker)。[PostHog 的三轮真实记录](examples/cases/R04/README.zh-CN.md) 包含定时触发，可逐轮查看回答与失败；几分钟的复测不代表长期增长。
+
+**[完整工作原理](docs/how-it-works.md)** · [指标与可比条件](docs/measurement-methodology.md) · [已知问题](docs/known-issues.md)
+
+<a id="cases"></a>
+
+## 先看三个真实例子
+
+| Notion | Figma | PostHog |
+| :--- | :--- | :--- |
+| [模型怎样理解产品](#case-notion) | [不点名品牌时出现了谁](#case-figma) | [来源与复测记录](#case-posthog) |
+
+<a id="case-notion"></a>
+
+### Notion · 同一个产品，模型理解的重点不同
+
+对 `notion.so` 的测试中，模型分别强调了笔记、工作空间和协作，列出的竞争对象也不完全相同。
+
+把回答并排放在一起，就能看到产品的哪些能力被提到、哪些没有出现，以及模型把它与谁放在一起比较。
+
+这些是本次回答中的描述，点名域名后的识别不等于主动推荐。
+
+**[查看 Notion 的品牌描述与竞争对象](examples/cases/R08/README.zh-CN.md)**
 
 <details>
-<summary><strong>使用 CLI</strong></summary>
+<summary>查看 Notion 的真实模型结果截图</summary>
 
-```bash
-npm run audit -- \
-  --domain example.com \
-  --provider openrouter \
-  --models openai/gpt-4o-mini,perplexity/sonar \
-  --prompt-count 8
-```
-
-指定关键词和用户问题：
-
-```bash
-npm run audit -- \
-  --domain example.com \
-  --keywords "category keyword,buyer intent keyword" \
-  --competitors rival.com,other.com \
-  --prompts "What are the best tools in this category?|What are the alternatives?"
-```
-
-报告默认写入本地 `runs/` 目录。
+![Notion：三个模型分别返回的业务、竞争对象和关键词](assets/screenshots/v0.2.0-rc.1/R08-models.png)
 
 </details>
 
-## 支持的 Provider
+<a id="case-figma"></a>
 
-| Provider | 状态 | 使用方式 |
-|---|:---:|---|
-| OpenRouter | 支持 | 一个 Key 运行多个提供商的模型；支持 OpenRouter 原生 web 插件 |
-| OpenAI | 支持 | 使用 OpenAI 官方 Responses API；支持原生 `web_search` |
-| Anthropic | 支持 | 使用 Anthropic 官方 Messages API；支持 Claude 原生联网搜索 |
-| Google Gemini | 支持 | 使用 Gemini 官方 API；支持 Google Search grounding |
-| Perplexity | 支持 | 使用 Sonar 天然联网回答和 Provider 返回引用 |
-| DeepSeek | 支持 | 使用 DeepSeek Responses 兼容 API；支持原生 `web_search` |
-| OpenAI-compatible API | 支持 | 通过 `OPENAI_COMPATIBLE_BASE_URL` 和 `OPENAI_COMPATIBLE_API_KEY` 接入自定义中转 |
+### Figma · 没有点名品牌，回答里会出现谁？
 
-每个 Provider 的具体联网执行路径见 [Provider 原生联网搜索](docs/PROVIDER_NATIVE_SEARCH.zh-CN.md)。
+在未点名 Figma 的 **Prototyping** 关键词测试中，两条离线回答主要解释原型设计的概念；一条请求联网的回答出现了 Figma，并描述了它的原型能力。
 
-## Packages
+这里能看到的是：哪些回答出现了具体产品，哪些只解释了概念。出现品牌、正面描述和明确推荐，需要分别判断。
 
-Docker 镜像已发布到 GitHub Container Registry：
+> Figma’s prototyping tools make it easy to build and share high-fidelity, no-code, interactive prototypes.
 
-```bash
-docker pull ghcr.io/albert-weasker/niubigeo:v0.1.0-alpha
-docker pull ghcr.io/albert-weasker/niubigeo:latest
-```
+*模型原文节选：[GPT-4.1 mini · 请求原生联网](examples/cases/R14/README.zh-CN.md#attempt-2afd57bb-3566-40f2-b339-995bd17b3687)。*
 
-## 中文不是附加功能
+**[查看 Figma 的关键词测试](examples/cases/R14/README.zh-CN.md)**
 
-NiubiGEO 支持 English 和简体中文。语言选择会同时影响：
+<a id="case-posthog"></a>
 
-- 产品界面；
-- 自动生成的监测问题；
-- 发送给 Provider 的执行 Prompt；
-- 品牌与竞争对手分析；
-- 最终报告。
+### PostHog · 一个来源链接，可以查到哪里？
 
-## NiubiGEO 与商业 AI 可见度工具
+在 PostHog 案例的 **Feature Flags** 测试中，模型响应返回了指向 Splunk 博客等页面的引用。NiubiGEO 将这些引用与回答正文里普通出现的网址分开保存。
 
-商业 AI 可见度产品通常适合已经准备好购买 SaaS、托管数据和团队流程的公司。NiubiGEO 适合希望先用开源方式验证问题、控制模型和保留证据的团队。
+你可以从来源打开对应回答，核对它出现在哪里。引用能帮助检查这次回答，但不能单凭一个链接断定它导致了模型推荐。
 
-以下比较基于各产品官网公开信息，最后核对日期为 **2026-09-03**。产品能力会变化，请以对应官网为准。
+这个案例还包含三次短间隔复测与一次定时触发，可查看每轮结果和失败记录；这些记录用于演示复测，不代表长期增长趋势。
 
-### NiubiGEO vs Profound
+**[查看 PostHog 的来源与复测记录](examples/cases/R04/README.zh-CN.md)**
 
-- **选择 Profound：**适合需要托管式企业监测、成熟团队工作流和大规模数据能力的组织。
-- **选择 NiubiGEO：**适合希望免费开始、自行部署、自由选择模型并查看原始证据的团队。
+### 还有 17 个产品
 
-[查看 Profound 官网](https://www.tryprofound.com/)
+本批案例覆盖 **20 个真实域名**，每个域名至少取得一条可分析的域名回答，其中 **11 例还执行了关键词测试**。每个案例都有具体测试条件、结果、原始回答和截图，也保留失败与无法确认的记录。
 
-### NiubiGEO vs Peec AI
-
-- **选择 Peec AI：**适合希望开箱即用、持续追踪品牌指标的营销团队。
-- **选择 NiubiGEO：**适合不想先购买 SaaS 订阅，并希望控制问题、模型和数据的用户。
-
-[查看 Peec AI 官网](https://peec.ai/)
-
-### NiubiGEO vs Otterly.AI
-
-- **选择 Otterly.AI：**适合需要托管式 AI 搜索监测、定期报告和优化工作流的团队。
-- **选择 NiubiGEO：**适合希望用自己的 API Key 快速验证品牌是否被 AI 推荐的团队。
-
-[查看 Otterly.AI 官网](https://otterly.ai/)
-
-### NiubiGEO vs Semrush AI Visibility
-
-- **选择 Semrush：**适合已经使用 Semrush，并希望把 AI 可见度纳入 SEO 与营销数据体系的团队。
-- **选择 NiubiGEO：**适合不依赖专有 SEO 数据，只想围绕自己的问题和模型生成可检查报告的用户。
-
-[查看 Semrush AI Visibility](https://www.semrush.com/pricing/ai/)
-
-### NiubiGEO vs Ahrefs Brand Radar
-
-- **选择 Ahrefs：**适合需要大规模关键词、搜索需求和 AI 可见度数据库的 SEO 团队。
-- **选择 NiubiGEO：**适合希望自己定义问题、自己运行模型，并从本地报告开始验证的团队。
-
-[查看 Ahrefs Brand Radar](https://ahrefs.com/brand-radar)
-
-### NiubiGEO vs AthenaHQ
-
-- **选择 AthenaHQ：**适合需要完整 GEO 工作流、行动建议和团队协作的组织。
-- **选择 NiubiGEO：**适合先把 AI 是否认识品牌、引用哪些来源、竞争对手是谁这些基础事实查清楚的团队。
-
-[查看 AthenaHQ 官网](https://athenahq.ai/)
-
-### NiubiGEO vs Scrunch
-
-- **选择 Scrunch：**适合需要企业级监测、优化建议和面向 AI Agent 的内容交付能力的团队。
-- **选择 NiubiGEO：**适合希望先用开源工具完成基础 AI 品牌审计，并保留完整证据链的用户。
-
-[查看 Scrunch 官网](https://scrunch.com/)
-
-<details>
-<summary><strong>查看快速比较表</strong></summary>
-
-| 能力 | NiubiGEO | 商业平台 |
-|---|:---:|:---:|
-| 品牌 AI 可见度 | 支持 | 通常支持 |
-| 竞争分析 | 支持 | 通常支持 |
-| 引用来源分析 | 支持 | 通常支持 |
-| 开源 | 支持 | 通常不提供 |
-| 自托管 | 支持 | 通常不提供 |
-| 使用自己的 Provider Key | 支持 | 通常不提供 |
-| 托管基础设施 | 不提供 | 通常提供 |
-| 专有数据集 | 不提供 | 通常提供 |
-| 团队工作流 | 计划中 | 通常提供 |
-
-商标和产品名称归各自权利人所有。
-
-</details>
-
-## 它是怎么工作的
-
-```mermaid
-flowchart LR
-    A[输入域名] --> B[识别品牌与竞品]
-    B --> C[确认真实用户问题]
-    C --> D[调用 Provider API]
-    D --> E[分析回答与来源]
-    E --> F[生成可读报告]
-```
-
-1. 输入域名或产品页面；
-2. NiubiGEO 识别品牌、别名、类别、关键词和可能的竞争对手；
-3. 用户确认或修改即将发送的问题；
-4. 系统调用用户配置的真实 Provider API；
-5. 分析品牌、竞争对手、推荐语义和 Provider 返回的来源；
-6. 生成简短、可读、每个结论都有证据入口的报告。
-
-## 项目状态
-
-NiubiGEO 当前处于 `v0.1.0-alpha`：核心流程可用，接口、数据结构和报告规则仍可能调整。
-
-- [x] 多 Provider API 审计
-- [x] 审计前问题确认
-- [x] 品牌与竞争对手识别
-- [x] 已确认竞品与疑似相关品牌分离
-- [x] 相关来源过滤
-- [x] 可追溯到原始回答的报告
-- [x] English 与简体中文
-- [ ] 定时监测
-- [ ] 相同条件下的报告对比
-- [ ] 报告导出包
-- [ ] Provider Plugin SDK
-- [ ] 更多 Provider 与兼容端点
-
-## 需要验证真实用户看到的结果？
-
-Community Edition 适合自行运行 API 可见度审计。如果你还需要：
-
-- 不同国家和地区的真人测试；
-- ChatGPT、Gemini、Claude、Perplexity 等消费端页面验证；
-- 截图、来源和完整证据交付；
-- 针对竞争差距制定并执行 GEO 优化方案；
-
-可以了解 **NiubiGEO Managed Service，由 NiubiStar 全球用户网络提供支持。**
-
-<details>
-<summary><strong>查看数据来源与结果边界</strong></summary>
-
-- Community Edition 使用 Provider API，不模拟消费端网页结果；
-- API 与消费端产品的回答可能不同；
-- 引用仅来自 Provider 返回或回答中真实存在的来源；
-- OpenRouter 可以调用不同提供商的模型，但结果仍标记为 OpenRouter API；
-- Provider Key 不能混用，例如 OpenAI Key 只调用 OpenAI，Gemini Key 只调用 Gemini；
-- 没有 Provider Key，就不生成 AI 可见度结果；
-- 核心审计流程不使用 Mock 数据冒充真实回答；
-- 模型回答具有随机性，单次结果不代表永久排名；
-- 真人地区测试和消费端网页验证属于独立服务。
-
-</details>
-
-<details>
-<summary><strong>查看安全与许可证说明</strong></summary>
-
-不要提交 Provider Key、客户报告、私密 Prompt 或包含敏感信息的运行数据。安全问题请按照 [SECURITY.md](./SECURITY.md) 私下报告。
-
-NiubiGEO 使用 [Apache-2.0](./LICENSE) 许可证。
-
-</details>
-
-## 参与贡献
-
-欢迎贡献新的 Provider、实体识别规则、来源过滤规则、报告语言和文档。
-
-- 阅读 [CONTRIBUTING.md](./CONTRIBUTING.md)
-- 提交 Bug：[Issues](https://github.com/Albert-Weasker/niubigeo/issues)
-- 讨论功能：[Discussions](https://github.com/Albert-Weasker/niubigeo/discussions)
-
-## 贡献者
-
-感谢所有参与建设 NiubiGEO 的贡献者。
-
-<p>
-  <a href="https://github.com/Albert-Weasker">
-    <img src="https://avatars.githubusercontent.com/u/186366929?v=4" width="56" alt="Albert-Weasker" />
-    <br />
-    <sub><strong>Albert-Weasker</strong></sub>
-  </a>
-</p>
-
-完整贡献者记录见 [GitHub Contributors](https://github.com/Albert-Weasker/niubigeo/graphs/contributors)。
+**[浏览完整案例库](examples/README.zh-CN.md)** · [查看已知问题](docs/known-issues.md)
 
 ---
 
-<div align="center">
+<a id="niubigeo-vs-commercial-ai-visibility-tools"></a>
 
-**输入一个域名，看看 AI 是否会在关键问题里推荐你的产品。**
+## NiubiGEO 与商业 AI 可见度工具，怎么选？
 
-[开始使用](#3-分钟开始审计) · [提交 Issue](https://github.com/Albert-Weasker/niubigeo/issues) · [查看英文文档](./README.md)
+**选择 NiubiGEO：** 你希望免费获取源码、自行部署、使用自己的 Key 选择模型，并从域名认知和关键词测试回到原始证据。模型、搜索和部署费用由你承担。
 
-Built by [NiubiStar](https://www.niubistar.com/)
+**考虑商业平台：** 如果你更需要托管服务、营销工作流或现成的搜索数据，可以按下面的侧重点了解各产品。
 
-</div>
+| 工具与官网 | 值得了解它的情况 |
+| :--- | :--- |
+| [Profound](https://www.tryprofound.com/) | AI 品牌监测、提问需求数据与内容营销工作流。 |
+| [Peec AI](https://peec.ai/) | 面向营销团队的 AI 搜索分析与品牌表现追踪。 |
+| [Otterly.AI](https://otterly.ai/) | AI 搜索监测、内容审计与优化建议。 |
+| [Semrush AI Visibility](https://www.semrush.com/pricing/ai/) | 在 Semrush 产品体系中查看 AI 可见度与品牌表现。 |
+| [Ahrefs Brand Radar](https://ahrefs.com/brand-radar) | 品牌可见度索引、自定义问题追踪和搜索数据。 |
+| [AthenaHQ](https://athenahq.ai/) | AI 搜索来源分析、内容缺口识别与行动建议。 |
+| [Scrunch](https://scrunch.com/) | 品牌监测、引用分析，以及面向 AI 代理的内容交付。 |
+
+*这是基于各产品官网的选型建议，不是同条件性能测试或排名；资料核对于 2026-09-08，当前套餐与能力以链接中的官网为准。*
+
+<a id="why"></a>
+
+## 为什么做 NiubiGEO？
+
+做产品的人，关心的不只是一个分数。我们想知道：自己的产品有没有被看见，哪里被理解错了，竞争对象为什么出现在这份回答里，以及下一步该检查什么。
+
+如果一份报告没有原文、来源和测试条件，就很难判断这些结论是否值得相信，更难决定把时间和预算花在哪里。
+
+NiubiGEO 想让这件事变得具体：看到不同模型的回答，找到描述与关键词上的差异，打开来源核查，再继续观察。没有证据的地方，留下“无法确认”；失败的运行，也留下记录。
+
+### 我们希望走向哪里
+
+让开发者、小团队和品牌都能自己检查 AI 如何描述自己的产品。
+
+发现描述不准确，可以回头检查官网和文档；看到竞争对象关联了不同关键词，可以研究这些差异是否与你的业务有关；修改内容后，可以继续测试，观察后续回答。
+
+我们希望 NiubiGEO 帮你找到值得行动的问题，并留下之后可以复查的记录。它不会承诺发一篇文章就能被 AI 推荐，也不会把一次回答当成永久排名。
+
+<a id="community"></a>
+
+## 开源、费用与社区
+
+Community Edition 使用 **[Apache-2.0](LICENSE)** 许可证，免费开源、支持自托管。你使用自己的 API Key，自行承担模型、搜索服务和部署成本。
+
+想贡献代码、反馈问题，或加入讨论，直接提交 [Issue](https://github.com/Albert-Weasker/niubigeo/issues) 或 [Pull Request](https://github.com/Albert-Weasker/niubigeo/pulls) 即可。
+
+<a id="sponsors"></a>
+
+## 赞助商
+
+感谢以下赞助商对 NiubiGEO 开源开发的支持。
+
+<p align="center">
+  <a href="https://www.niubistar.com/"><strong>NiubiStar</strong></a>
+</p>
+
+<a id="docs"></a>
+
+## 文档与项目入口
+
+[项目仓库](https://github.com/Albert-Weasker/niubigeo) · [发布版本](https://github.com/Albert-Weasker/niubigeo/releases) · [容器镜像](https://github.com/Albert-Weasker/niubigeo/pkgs/container/niubigeo) · [问题反馈](https://github.com/Albert-Weasker/niubigeo/issues) · [参与开发](https://github.com/Albert-Weasker/niubigeo/pulls)
+
+- [工作原理](docs/how-it-works.md) · [架构说明](docs/ARCHITECTURE.md)
+- [测量方法](docs/measurement-methodology.md) · [来源与证据](docs/evidence-model.md)
+- [部署](docs/deployment/docker.md) · [备份与升级](docs/upgrade.md)
+- [已知问题](docs/known-issues.md) · [能力边界](docs/limitations.md) · [发布说明](https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.2.0)
+- [贡献指南](CONTRIBUTING.md) · [安全政策](SECURITY.md) · [许可证](LICENSE)
+
+---
+
+NiubiGEO 观察的是 Provider API 回答，不代表消费端聊天页面的结果；不联网与联网测试分开理解。目前不提供传统搜索引擎排名监测。

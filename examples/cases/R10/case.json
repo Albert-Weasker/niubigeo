@@ -1,0 +1,11 @@
+{
+  "id": "R10",
+  "domain": "replit.com",
+  "category": {
+    "zh": "在线开发",
+    "en": "Online development"
+  },
+  "language": "en",
+  "studyPlan": "../../study-plan.json",
+  "evidenceIndex": "./evidence-index.json"
+}

@@ -1,0 +1,2953 @@
+{
+  "schemaVersion": "public-case-evidence/v1",
+  "caseId": "R01",
+  "domain": "niubistar.com",
+  "provenance": "product_api_archive",
+  "studyPlanHash": "5b745e193da43810b6737c9708d0a91d569ddc9cf4fba39e1517f43ccb13ed5e",
+  "state": {
+    "caseId": "R01",
+    "domain": "niubistar.com",
+    "status": "completed",
+    "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+    "recognitionRuns": [
+      {
+        "run": {
+          "id": "c940314f-0143-4e82-b8e8-47002f7f22ee",
+          "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+          "baselineId": "e32c157b-b371-4cca-bb42-19e781a5c8a5",
+          "baselineVersion": 1,
+          "status": "completed",
+          "plannedModelRunCount": 3,
+          "successfulModelRunCount": 3,
+          "failedModelRunCount": 0,
+          "idempotencyKey": "5b745e193da43810b6737c9708d0a91d569ddc9cf4fba39e1517f43ccb13ed5e:R01:recognition",
+          "createdAt": "2026-09-08T06:01:00.290Z",
+          "startedAt": "2026-09-08T06:01:00.291Z",
+          "completedAt": "2026-09-08T06:01:09.439Z"
+        },
+        "modelRuns": [
+          {
+            "id": "63972b7e-7773-4613-b683-54798d11c494",
+            "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+            "runId": "c940314f-0143-4e82-b8e8-47002f7f22ee",
+            "baselineId": "e32c157b-b371-4cca-bb42-19e781a5c8a5",
+            "modelSnapshot": {
+              "selectionId": "3a1fca5c-eda4-4e66-95a8-1e8a2640a69d",
+              "providerId": "openrouter",
+              "modelId": "google/gemini-2.5-flash-lite",
+              "displayName": "Google: Gemini 2.5 Flash Lite",
+              "webSearchMode": "off",
+              "nativeWebSearchSupported": true,
+              "capabilityCheckedAt": "2026-09-08T06:01:00.282Z"
+            },
+            "recognitionMode": "unaided_domain_recognition",
+            "status": "completed",
+            "attemptIds": [
+              "8e05a5ef-6cb5-4844-949d-3fcf87e34e9d"
+            ],
+            "createdAt": "2026-09-08T06:01:00.290Z",
+            "currentAttemptId": "8e05a5ef-6cb5-4844-949d-3fcf87e34e9d",
+            "startedAt": "2026-09-08T06:01:00.294Z",
+            "completedAt": "2026-09-08T06:01:01.732Z"
+          },
+          {
+            "id": "c92c0650-4038-49b6-ad40-dc5c4f1be65c",
+            "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+            "runId": "c940314f-0143-4e82-b8e8-47002f7f22ee",
+            "baselineId": "e32c157b-b371-4cca-bb42-19e781a5c8a5",
+            "modelSnapshot": {
+              "selectionId": "ec41dfe1-6978-4425-9e9a-efc0d8028f8d",
+              "providerId": "openrouter",
+              "modelId": "openai/gpt-4.1-mini",
+              "displayName": "OpenAI: GPT-4.1 Mini",
+              "webSearchMode": "provider_native",
+              "nativeWebSearchSupported": true,
+              "capabilityCheckedAt": "2026-09-08T06:01:00.282Z"
+            },
+            "recognitionMode": "native_web_domain_discovery",
+            "status": "completed",
+            "attemptIds": [
+              "0aec67ab-66c8-4f9a-976e-0cffe244f51c"
+            ],
+            "createdAt": "2026-09-08T06:01:00.290Z",
+            "currentAttemptId": "0aec67ab-66c8-4f9a-976e-0cffe244f51c",
+            "startedAt": "2026-09-08T06:01:00.294Z",
+            "completedAt": "2026-09-08T06:01:06.020Z"
+          },
+          {
+            "id": "cb93a803-3f66-4343-b50e-6cd8245acee8",
+            "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+            "runId": "c940314f-0143-4e82-b8e8-47002f7f22ee",
+            "baselineId": "e32c157b-b371-4cca-bb42-19e781a5c8a5",
+            "modelSnapshot": {
+              "selectionId": "4b0add6c-3862-48fa-b329-ad04d8a220b5",
+              "providerId": "openrouter",
+              "modelId": "openai/gpt-4o-mini",
+              "displayName": "OpenAI: GPT-4o-mini",
+              "webSearchMode": "off",
+              "nativeWebSearchSupported": false,
+              "capabilityCheckedAt": "2026-09-08T06:01:00.282Z"
+            },
+            "recognitionMode": "unaided_domain_recognition",
+            "status": "completed",
+            "attemptIds": [
+              "25b2cd1e-350e-4bbe-ae0f-dd6a7357d096"
+            ],
+            "createdAt": "2026-09-08T06:01:00.290Z",
+            "currentAttemptId": "25b2cd1e-350e-4bbe-ae0f-dd6a7357d096",
+            "startedAt": "2026-09-08T06:01:00.294Z",
+            "completedAt": "2026-09-08T06:01:09.437Z"
+          }
+        ],
+        "models": [
+          {
+            "modelRun": {
+              "id": "63972b7e-7773-4613-b683-54798d11c494",
+              "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+              "runId": "c940314f-0143-4e82-b8e8-47002f7f22ee",
+              "baselineId": "e32c157b-b371-4cca-bb42-19e781a5c8a5",
+              "modelSnapshot": {
+                "selectionId": "3a1fca5c-eda4-4e66-95a8-1e8a2640a69d",
+                "providerId": "openrouter",
+                "modelId": "google/gemini-2.5-flash-lite",
+                "displayName": "Google: Gemini 2.5 Flash Lite",
+                "webSearchMode": "off",
+                "nativeWebSearchSupported": true,
+                "capabilityCheckedAt": "2026-09-08T06:01:00.282Z"
+              },
+              "recognitionMode": "unaided_domain_recognition",
+              "status": "completed",
+              "attemptIds": [
+                "8e05a5ef-6cb5-4844-949d-3fcf87e34e9d"
+              ],
+              "createdAt": "2026-09-08T06:01:00.290Z",
+              "currentAttemptId": "8e05a5ef-6cb5-4844-949d-3fcf87e34e9d",
+              "startedAt": "2026-09-08T06:01:00.294Z",
+              "completedAt": "2026-09-08T06:01:01.732Z"
+            },
+            "attempts": [
+              {
+                "id": "8e05a5ef-6cb5-4844-949d-3fcf87e34e9d",
+                "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+                "runId": "c940314f-0143-4e82-b8e8-47002f7f22ee",
+                "modelRunId": "63972b7e-7773-4613-b683-54798d11c494",
+                "attemptNumber": 1,
+                "status": "completed",
+                "promptHash": "0bd74d33e00f8c125479330334615cb3de26f6a1f46427419a2768eedf640acf",
+                "requestParameters": {
+                  "model": "google/gemini-2.5-flash-lite",
+                  "temperature": 0,
+                  "maxTokens": 900,
+                  "responseSchemaName": "domain_recognition_result",
+                  "responseSchemaHash": "02baab4ac0667bac34dc16f80aad12d58397454ce11c9ca6c4e1465c1f8ff860",
+                  "structuredOutputTransport": "response_json_schema",
+                  "requireProviderParameters": true,
+                  "webSearchEnabled": false,
+                  "webSearchMode": "off"
+                },
+                "providerId": "openrouter",
+                "costUsd": 0.0000856,
+                "createdAt": "2026-09-08T06:01:00.294Z",
+                "startedAt": "2026-09-08T06:01:00.294Z",
+                "rawProviderResponse": {
+                  "id": "gen-1788847262-36Z043motmXO3nTr6fui",
+                  "object": "chat.completion",
+                  "created": 1788847262,
+                  "model": "google/gemini-2.5-flash-lite",
+                  "provider": "Google",
+                  "system_fingerprint": null,
+                  "service_tier": "default",
+                  "choices": [
+                    {
+                      "index": 0,
+                      "logprobs": null,
+                      "finish_reason": "stop",
+                      "native_finish_reason": "STOP",
+                      "message": {
+                        "role": "assistant",
+                        "content": "{\n  \"domainRecognition\": \"recognized\",\n  \"analysisStatus\": \"recognized\",\n  \"recognizedBrand\": {\n    \"value\": \"Niubistar\",\n    \"citationUrls\": []\n  },\n  \"businessDescription\": {\n    \"value\": \"Niubistar 是一家提供在线游戏和娱乐服务的公司。\",\n    \"citationUrls\": []\n  },\n  \"productCategory\": {\n    \"value\": \"在线游戏\",\n    \"citationUrls\": []\n  },\n  \"competitors\": [],\n  \"brandKeywords\": [\n    {\n      \"keyword\": \"在线游戏\",\n      \"citationUrls\": []\n    },\n    {\n      \"keyword\": \"娱乐服务\",\n      \"citationUrls\": []\n    }\n  ],\n  \"unknowns\": []\n}",
+                        "refusal": null,
+                        "reasoning": null
+                      }
+                    }
+                  ],
+                  "usage": {
+                    "prompt_tokens": 144,
+                    "completion_tokens": 178,
+                    "total_tokens": 322,
+                    "cost": 0.0000856,
+                    "is_byok": false,
+                    "prompt_tokens_details": {
+                      "cached_tokens": 0,
+                      "cache_write_tokens": 0,
+                      "audio_tokens": 0,
+                      "video_tokens": 0
+                    },
+                    "cost_details": {
+                      "upstream_inference_cost": 0.0000856,
+                      "upstream_inference_prompt_cost": 0.0000144,
+                      "upstream_inference_completions_cost": 0.0000712
+                    },
+                    "completion_tokens_details": {
+                      "reasoning_tokens": 0,
+                      "image_tokens": 0,
+                      "audio_tokens": 0
+                    }
+                  },
+                  "openrouter_metadata": {
+                    "requested": "google/gemini-2.5-flash-lite",
+                    "strategy": "direct",
+                    "region": "ORD",
+                    "summary": "available=3, selected=Google",
+                    "attempt": 1,
+                    "is_byok": false,
+                    "endpoints": {
+                      "total": 5,
+                      "available": [
+                        {
+                          "provider": "Google",
+                          "model": "google/gemini-2.5-flash-lite",
+                          "selected": true
+                        },
+                        {
+                          "provider": "Google",
+                          "model": "google/gemini-2.5-flash-lite",
+                          "selected": false
+                        },
+                        {
+                          "provider": "Google AI Studio",
+                          "model": "google/gemini-2.5-flash-lite",
+                          "selected": false
+                        }
+                      ]
+                    },
+                    "generation_time": 799
+                  }
+                },
+                "rawAnswer": "{\n  \"domainRecognition\": \"recognized\",\n  \"analysisStatus\": \"recognized\",\n  \"recognizedBrand\": {\n    \"value\": \"Niubistar\",\n    \"citationUrls\": []\n  },\n  \"businessDescription\": {\n    \"value\": \"Niubistar 是一家提供在线游戏和娱乐服务的公司。\",\n    \"citationUrls\": []\n  },\n  \"productCategory\": {\n    \"value\": \"在线游戏\",\n    \"citationUrls\": []\n  },\n  \"competitors\": [],\n  \"brandKeywords\": [\n    {\n      \"keyword\": \"在线游戏\",\n      \"citationUrls\": []\n    },\n    {\n      \"keyword\": \"娱乐服务\",\n      \"citationUrls\": []\n    }\n  ],\n  \"unknowns\": []\n}",
+                "providerModel": "google/gemini-2.5-flash-lite",
+                "providerModelVersion": "google/gemini-2.5-flash-lite",
+                "providerSearch": {
+                  "requested": false,
+                  "requestMode": "auto",
+                  "used": false,
+                  "usedMode": "none",
+                  "endpointKind": "official_api",
+                  "endpointProtocol": "chat_completions",
+                  "endpointUrl": "https://openrouter.ai/api/v1/chat/completions",
+                  "webQueries": [],
+                  "citationCount": 0,
+                  "executionMode": "unverified"
+                },
+                "tokenUsage": {
+                  "input": 144,
+                  "output": 178,
+                  "total": 322
+                },
+                "latencyMs": 1420,
+                "completedAt": "2026-09-08T06:01:01.732Z"
+              }
+            ],
+            "archives": [
+              {
+                "result": {
+                  "id": "832e6f1e-d01c-4930-81d1-000d624f73c5",
+                  "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+                  "runId": "c940314f-0143-4e82-b8e8-47002f7f22ee",
+                  "modelRunId": "63972b7e-7773-4613-b683-54798d11c494",
+                  "attemptId": "8e05a5ef-6cb5-4844-949d-3fcf87e34e9d",
+                  "recognitionMode": "unaided_domain_recognition",
+                  "analysisStatus": "recognized",
+                  "domainRecognition": "recognized",
+                  "recognizedBrand": {
+                    "value": "Niubistar",
+                    "evidence": {
+                      "quote": "Niubistar",
+                      "start": 110,
+                      "end": 119,
+                      "encoding": "utf16_code_unit"
+                    }
+                  },
+                  "businessDescription": {
+                    "value": "Niubistar 是一家提供在线游戏和娱乐服务的公司。",
+                    "evidence": {
+                      "quote": "Niubistar 是一家提供在线游戏和娱乐服务的公司。",
+                      "start": 191,
+                      "end": 219,
+                      "encoding": "utf16_code_unit"
+                    }
+                  },
+                  "productCategory": {
+                    "value": "在线游戏",
+                    "evidence": {
+                      "quote": "在线游戏",
+                      "start": 206,
+                      "end": 210,
+                      "encoding": "utf16_code_unit"
+                    }
+                  },
+                  "detailedDescription": {
+                    "value": null,
+                    "evidence": null
+                  },
+                  "unknowns": [],
+                  "fieldIssues": [],
+                  "mappingVersion": "recognition-current/v1",
+                  "createdAt": "2026-09-08T06:01:01.731Z"
+                },
+                "competitors": [],
+                "brandKeywords": [
+                  {
+                    "id": "af3c7395-0103-45e8-9955-b631ba4bef17",
+                    "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+                    "runId": "c940314f-0143-4e82-b8e8-47002f7f22ee",
+                    "modelRunId": "63972b7e-7773-4613-b683-54798d11c494",
+                    "attemptId": "8e05a5ef-6cb5-4844-949d-3fcf87e34e9d",
+                    "recognitionResultId": "832e6f1e-d01c-4930-81d1-000d624f73c5",
+                    "keyword": "在线游戏",
+                    "normalizedKeyword": "在线游戏",
+                    "evidence": {
+                      "quote": "在线游戏",
+                      "start": 206,
+                      "end": 210,
+                      "encoding": "utf16_code_unit"
+                    },
+                    "createdAt": "2026-09-08T06:01:01.731Z"
+                  },
+                  {
+                    "id": "9e845012-1672-4e17-8053-ed8c4468f32e",
+                    "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+                    "runId": "c940314f-0143-4e82-b8e8-47002f7f22ee",
+                    "modelRunId": "63972b7e-7773-4613-b683-54798d11c494",
+                    "attemptId": "8e05a5ef-6cb5-4844-949d-3fcf87e34e9d",
+                    "recognitionResultId": "832e6f1e-d01c-4930-81d1-000d624f73c5",
+                    "keyword": "娱乐服务",
+                    "normalizedKeyword": "娱乐服务",
+                    "evidence": {
+                      "quote": "娱乐服务",
+                      "start": 211,
+                      "end": 215,
+                      "encoding": "utf16_code_unit"
+                    },
+                    "createdAt": "2026-09-08T06:01:01.731Z"
+                  }
+                ],
+                "competitorKeywords": [],
+                "providerCitations": [],
+                "answerMentionedUrls": [],
+                "claimCitationLinks": []
+              }
+            ],
+            "analysisRevisions": [],
+            "archive": {
+              "result": {
+                "id": "832e6f1e-d01c-4930-81d1-000d624f73c5",
+                "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+                "runId": "c940314f-0143-4e82-b8e8-47002f7f22ee",
+                "modelRunId": "63972b7e-7773-4613-b683-54798d11c494",
+                "attemptId": "8e05a5ef-6cb5-4844-949d-3fcf87e34e9d",
+                "recognitionMode": "unaided_domain_recognition",
+                "analysisStatus": "recognized",
+                "domainRecognition": "recognized",
+                "recognizedBrand": {
+                  "value": "Niubistar",
+                  "evidence": {
+                    "quote": "Niubistar",
+                    "start": 110,
+                    "end": 119,
+                    "encoding": "utf16_code_unit"
+                  }
+                },
+                "businessDescription": {
+                  "value": "Niubistar 是一家提供在线游戏和娱乐服务的公司。",
+                  "evidence": {
+                    "quote": "Niubistar 是一家提供在线游戏和娱乐服务的公司。",
+                    "start": 191,
+                    "end": 219,
+                    "encoding": "utf16_code_unit"
+                  }
+                },
+                "productCategory": {
+                  "value": "在线游戏",
+                  "evidence": {
+                    "quote": "在线游戏",
+                    "start": 206,
+                    "end": 210,
+                    "encoding": "utf16_code_unit"
+                  }
+                },
+                "detailedDescription": {
+                  "value": null,
+                  "evidence": null
+                },
+                "unknowns": [],
+                "fieldIssues": [],
+                "mappingVersion": "recognition-current/v1",
+                "createdAt": "2026-09-08T06:01:01.731Z"
+              },
+              "competitors": [],
+              "brandKeywords": [
+                {
+                  "id": "af3c7395-0103-45e8-9955-b631ba4bef17",
+                  "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+                  "runId": "c940314f-0143-4e82-b8e8-47002f7f22ee",
+                  "modelRunId": "63972b7e-7773-4613-b683-54798d11c494",
+                  "attemptId": "8e05a5ef-6cb5-4844-949d-3fcf87e34e9d",
+                  "recognitionResultId": "832e6f1e-d01c-4930-81d1-000d624f73c5",
+                  "keyword": "在线游戏",
+                  "normalizedKeyword": "在线游戏",
+                  "evidence": {
+                    "quote": "在线游戏",
+                    "start": 206,
+                    "end": 210,
+                    "encoding": "utf16_code_unit"
+                  },
+                  "createdAt": "2026-09-08T06:01:01.731Z"
+                },
+                {
+                  "id": "9e845012-1672-4e17-8053-ed8c4468f32e",
+                  "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+                  "runId": "c940314f-0143-4e82-b8e8-47002f7f22ee",
+                  "modelRunId": "63972b7e-7773-4613-b683-54798d11c494",
+                  "attemptId": "8e05a5ef-6cb5-4844-949d-3fcf87e34e9d",
+                  "recognitionResultId": "832e6f1e-d01c-4930-81d1-000d624f73c5",
+                  "keyword": "娱乐服务",
+                  "normalizedKeyword": "娱乐服务",
+                  "evidence": {
+                    "quote": "娱乐服务",
+                    "start": 211,
+                    "end": 215,
+                    "encoding": "utf16_code_unit"
+                  },
+                  "createdAt": "2026-09-08T06:01:01.731Z"
+                }
+              ],
+              "competitorKeywords": [],
+              "providerCitations": [],
+              "answerMentionedUrls": [],
+              "claimCitationLinks": []
+            },
+            "presentation": {
+              "requestExecution": "response_received",
+              "responseCompleteness": "complete",
+              "localAnalysis": "complete",
+              "domainRecognition": "recognized",
+              "primaryAction": "none",
+              "statusLabel": "回答已收到，整理完成",
+              "detail": null
+            }
+          },
+          {
+            "modelRun": {
+              "id": "c92c0650-4038-49b6-ad40-dc5c4f1be65c",
+              "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+              "runId": "c940314f-0143-4e82-b8e8-47002f7f22ee",
+              "baselineId": "e32c157b-b371-4cca-bb42-19e781a5c8a5",
+              "modelSnapshot": {
+                "selectionId": "ec41dfe1-6978-4425-9e9a-efc0d8028f8d",
+                "providerId": "openrouter",
+                "modelId": "openai/gpt-4.1-mini",
+                "displayName": "OpenAI: GPT-4.1 Mini",
+                "webSearchMode": "provider_native",
+                "nativeWebSearchSupported": true,
+                "capabilityCheckedAt": "2026-09-08T06:01:00.282Z"
+              },
+              "recognitionMode": "native_web_domain_discovery",
+              "status": "completed",
+              "attemptIds": [
+                "0aec67ab-66c8-4f9a-976e-0cffe244f51c"
+              ],
+              "createdAt": "2026-09-08T06:01:00.290Z",
+              "currentAttemptId": "0aec67ab-66c8-4f9a-976e-0cffe244f51c",
+              "startedAt": "2026-09-08T06:01:00.294Z",
+              "completedAt": "2026-09-08T06:01:06.020Z"
+            },
+            "attempts": [
+              {
+                "id": "0aec67ab-66c8-4f9a-976e-0cffe244f51c",
+                "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+                "runId": "c940314f-0143-4e82-b8e8-47002f7f22ee",
+                "modelRunId": "c92c0650-4038-49b6-ad40-dc5c4f1be65c",
+                "attemptNumber": 1,
+                "status": "completed",
+                "promptHash": "0bd74d33e00f8c125479330334615cb3de26f6a1f46427419a2768eedf640acf",
+                "requestParameters": {
+                  "model": "openai/gpt-4.1-mini",
+                  "temperature": 0,
+                  "maxTokens": 900,
+                  "responseSchemaName": "domain_recognition_result",
+                  "responseSchemaHash": "02baab4ac0667bac34dc16f80aad12d58397454ce11c9ca6c4e1465c1f8ff860",
+                  "structuredOutputTransport": "response_json_schema",
+                  "requireProviderParameters": true,
+                  "webSearchEnabled": true,
+                  "webSearchMode": "provider_native"
+                },
+                "providerId": "openrouter",
+                "costUsd": 0.0139968,
+                "createdAt": "2026-09-08T06:01:00.294Z",
+                "startedAt": "2026-09-08T06:01:00.294Z",
+                "rawProviderResponse": {
+                  "id": "gen-1788847264-rJUvOd1OiYZpxzmEfsQB",
+                  "object": "chat.completion",
+                  "created": 1788847264,
+                  "model": "openai/gpt-4.1-mini",
+                  "provider": "OpenAI",
+                  "system_fingerprint": null,
+                  "service_tier": "auto",
+                  "choices": [
+                    {
+                      "index": 0,
+                      "logprobs": null,
+                      "finish_reason": "stop",
+                      "native_finish_reason": "completed",
+                      "message": {
+                        "role": "assistant",
+                        "content": "{\"domainRecognition\":\"recognized\",\"analysisStatus\":\"recognized\",\"recognizedBrand\":{\"value\":\"牛逼Star\",\"citationUrls\":[]},\"businessDescription\":{\"value\":\"GitHub 互赞平台，提供 GitHub Stars 增长服务，帮助开发者提升项目的可信度和可见性。\",\"citationUrls\":[]},\"productCategory\":{\"value\":\"GitHub Stars 增长服务\",\"citationUrls\":[]},\"competitors\":[{\"name\":\"StarBoost\",\"domain\":\"starboost.io\",\"businessDescription\":\"提供 GitHub Stars 增长服务，帮助开发者提升项目的可见性和可信度。\",\"productCategory\":\"GitHub Stars 增长服务\",\"keywords\":[{\"keyword\":\"GitHub Stars 增长\",\"citationUrls\":[]}],\"citationUrls\":[]}],\"brandKeywords\":[{\"keyword\":\"牛逼Star\",\"citationUrls\":[]}],\"unknowns\":[]} ",
+                        "refusal": null,
+                        "reasoning": null
+                      }
+                    }
+                  ],
+                  "usage": {
+                    "prompt_tokens": 9284,
+                    "completion_tokens": 177,
+                    "total_tokens": 9461,
+                    "cost": 0.0139968,
+                    "is_byok": false,
+                    "prompt_tokens_details": {
+                      "cached_tokens": 0,
+                      "cache_write_tokens": 0,
+                      "audio_tokens": 0,
+                      "video_tokens": 0
+                    },
+                    "cost_details": {
+                      "upstream_inference_cost": 0.0139968,
+                      "upstream_inference_prompt_cost": 0.0037136,
+                      "upstream_inference_completions_cost": 0.0002832
+                    },
+                    "completion_tokens_details": {
+                      "reasoning_tokens": 0,
+                      "image_tokens": 0,
+                      "audio_tokens": 0
+                    },
+                    "server_tool_use_details": {
+                      "web_search_requests": 1
+                    }
+                  },
+                  "openrouter_metadata": {
+                    "requested": "openai/gpt-4.1-mini",
+                    "strategy": "direct",
+                    "region": "ORD",
+                    "summary": "available=1, selected=OpenAI",
+                    "attempt": 1,
+                    "is_byok": false,
+                    "endpoints": {
+                      "total": 3,
+                      "available": [
+                        {
+                          "provider": "OpenAI",
+                          "model": "openai/gpt-4.1-mini-2025-04-14",
+                          "selected": true
+                        }
+                      ]
+                    },
+                    "generation_time": 2647,
+                    "pipeline": [
+                      {
+                        "type": "server_tools",
+                        "name": "server-tools",
+                        "summary": "Server tools invoked (native): openrouter:web_search",
+                        "data": {
+                          "mode": "native",
+                          "tools": [
+                            "openrouter:web_search"
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                "rawAnswer": "{\"domainRecognition\":\"recognized\",\"analysisStatus\":\"recognized\",\"recognizedBrand\":{\"value\":\"牛逼Star\",\"citationUrls\":[]},\"businessDescription\":{\"value\":\"GitHub 互赞平台，提供 GitHub Stars 增长服务，帮助开发者提升项目的可信度和可见性。\",\"citationUrls\":[]},\"productCategory\":{\"value\":\"GitHub Stars 增长服务\",\"citationUrls\":[]},\"competitors\":[{\"name\":\"StarBoost\",\"domain\":\"starboost.io\",\"businessDescription\":\"提供 GitHub Stars 增长服务，帮助开发者提升项目的可见性和可信度。\",\"productCategory\":\"GitHub Stars 增长服务\",\"keywords\":[{\"keyword\":\"GitHub Stars 增长\",\"citationUrls\":[]}],\"citationUrls\":[]}],\"brandKeywords\":[{\"keyword\":\"牛逼Star\",\"citationUrls\":[]}],\"unknowns\":[]}",
+                "providerModel": "openai/gpt-4.1-mini",
+                "providerModelVersion": "openai/gpt-4.1-mini",
+                "providerSearch": {
+                  "requested": true,
+                  "requestMode": "provider_native",
+                  "used": true,
+                  "usedMode": "provider_native",
+                  "endpointKind": "official_api",
+                  "endpointProtocol": "chat_completions",
+                  "endpointUrl": "https://openrouter.ai/api/v1/chat/completions",
+                  "toolName": "openrouter:web_search",
+                  "webQueries": [],
+                  "citationCount": 0,
+                  "executionMode": "native",
+                  "note": "OpenRouter metadata confirmed provider-native web search."
+                },
+                "tokenUsage": {
+                  "input": 9284,
+                  "output": 177,
+                  "total": 9461
+                },
+                "latencyMs": 3174,
+                "completedAt": "2026-09-08T06:01:06.020Z"
+              }
+            ],
+            "archives": [
+              {
+                "result": {
+                  "id": "b27154fe-a93d-4f4e-8c51-800b64375af9",
+                  "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+                  "runId": "c940314f-0143-4e82-b8e8-47002f7f22ee",
+                  "modelRunId": "c92c0650-4038-49b6-ad40-dc5c4f1be65c",
+                  "attemptId": "0aec67ab-66c8-4f9a-976e-0cffe244f51c",
+                  "recognitionMode": "native_web_domain_discovery",
+                  "analysisStatus": "recognized",
+                  "domainRecognition": "recognized",
+                  "recognizedBrand": {
+                    "value": "牛逼Star",
+                    "evidence": {
+                      "quote": "牛逼Star",
+                      "start": 92,
+                      "end": 98,
+                      "encoding": "utf16_code_unit"
+                    }
+                  },
+                  "businessDescription": {
+                    "value": "GitHub 互赞平台，提供 GitHub Stars 增长服务，帮助开发者提升项目的可信度和可见性。",
+                    "evidence": {
+                      "quote": "GitHub 互赞平台，提供 GitHub Stars 增长服务，帮助开发者提升项目的可信度和可见性。",
+                      "start": 151,
+                      "end": 202,
+                      "encoding": "utf16_code_unit"
+                    }
+                  },
+                  "productCategory": {
+                    "value": "GitHub Stars 增长服务",
+                    "evidence": {
+                      "quote": "GitHub Stars 增长服务",
+                      "start": 166,
+                      "end": 183,
+                      "encoding": "utf16_code_unit"
+                    }
+                  },
+                  "detailedDescription": {
+                    "value": null,
+                    "evidence": null
+                  },
+                  "unknowns": [],
+                  "fieldIssues": [],
+                  "mappingVersion": "recognition-current/v1",
+                  "createdAt": "2026-09-08T06:01:06.018Z"
+                },
+                "competitors": [
+                  {
+                    "id": "6659bd90-9120-434a-9409-bcb285b90710",
+                    "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+                    "runId": "c940314f-0143-4e82-b8e8-47002f7f22ee",
+                    "modelRunId": "c92c0650-4038-49b6-ad40-dc5c4f1be65c",
+                    "attemptId": "0aec67ab-66c8-4f9a-976e-0cffe244f51c",
+                    "recognitionResultId": "b27154fe-a93d-4f4e-8c51-800b64375af9",
+                    "name": "StarBoost",
+                    "domain": "starboost.io",
+                    "businessDescription": {
+                      "value": "提供 GitHub Stars 增长服务，帮助开发者提升项目的可见性和可信度。",
+                      "evidence": {
+                        "quote": "提供 GitHub Stars 增长服务，帮助开发者提升项目的可见性和可信度。",
+                        "start": 371,
+                        "end": 410,
+                        "encoding": "utf16_code_unit"
+                      }
+                    },
+                    "productCategory": {
+                      "value": "GitHub Stars 增长服务",
+                      "evidence": {
+                        "quote": "GitHub Stars 增长服务",
+                        "start": 166,
+                        "end": 183,
+                        "encoding": "utf16_code_unit"
+                      }
+                    },
+                    "evidence": {
+                      "quote": "StarBoost",
+                      "start": 313,
+                      "end": 322,
+                      "encoding": "utf16_code_unit"
+                    },
+                    "createdAt": "2026-09-08T06:01:06.018Z"
+                  }
+                ],
+                "brandKeywords": [
+                  {
+                    "id": "1ac9ba9a-d2d7-484c-8d70-199f1ce8ebcd",
+                    "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+                    "runId": "c940314f-0143-4e82-b8e8-47002f7f22ee",
+                    "modelRunId": "c92c0650-4038-49b6-ad40-dc5c4f1be65c",
+                    "attemptId": "0aec67ab-66c8-4f9a-976e-0cffe244f51c",
+                    "recognitionResultId": "b27154fe-a93d-4f4e-8c51-800b64375af9",
+                    "keyword": "牛逼Star",
+                    "normalizedKeyword": "牛逼star",
+                    "evidence": {
+                      "quote": "牛逼Star",
+                      "start": 92,
+                      "end": 98,
+                      "encoding": "utf16_code_unit"
+                    },
+                    "createdAt": "2026-09-08T06:01:06.018Z"
+                  }
+                ],
+                "competitorKeywords": [
+                  {
+                    "id": "bb90131d-1e20-4a2b-a6b7-3395363e00fe",
+                    "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+                    "runId": "c940314f-0143-4e82-b8e8-47002f7f22ee",
+                    "modelRunId": "c92c0650-4038-49b6-ad40-dc5c4f1be65c",
+                    "attemptId": "0aec67ab-66c8-4f9a-976e-0cffe244f51c",
+                    "recognitionResultId": "b27154fe-a93d-4f4e-8c51-800b64375af9",
+                    "competitorRecognitionId": "6659bd90-9120-434a-9409-bcb285b90710",
+                    "competitorName": "StarBoost",
+                    "competitorDomain": "starboost.io",
+                    "keyword": "GitHub Stars 增长",
+                    "normalizedKeyword": "github stars 增长",
+                    "evidence": {
+                      "quote": "GitHub Stars 增长",
+                      "start": 166,
+                      "end": 181,
+                      "encoding": "utf16_code_unit"
+                    },
+                    "createdAt": "2026-09-08T06:01:06.018Z"
+                  }
+                ],
+                "providerCitations": [],
+                "answerMentionedUrls": [],
+                "claimCitationLinks": []
+              }
+            ],
+            "analysisRevisions": [],
+            "archive": {
+              "result": {
+                "id": "b27154fe-a93d-4f4e-8c51-800b64375af9",
+                "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+                "runId": "c940314f-0143-4e82-b8e8-47002f7f22ee",
+                "modelRunId": "c92c0650-4038-49b6-ad40-dc5c4f1be65c",
+                "attemptId": "0aec67ab-66c8-4f9a-976e-0cffe244f51c",
+                "recognitionMode": "native_web_domain_discovery",
+                "analysisStatus": "recognized",
+                "domainRecognition": "recognized",
+                "recognizedBrand": {
+                  "value": "牛逼Star",
+                  "evidence": {
+                    "quote": "牛逼Star",
+                    "start": 92,
+                    "end": 98,
+                    "encoding": "utf16_code_unit"
+                  }
+                },
+                "businessDescription": {
+                  "value": "GitHub 互赞平台，提供 GitHub Stars 增长服务，帮助开发者提升项目的可信度和可见性。",
+                  "evidence": {
+                    "quote": "GitHub 互赞平台，提供 GitHub Stars 增长服务，帮助开发者提升项目的可信度和可见性。",
+                    "start": 151,
+                    "end": 202,
+                    "encoding": "utf16_code_unit"
+                  }
+                },
+                "productCategory": {
+                  "value": "GitHub Stars 增长服务",
+                  "evidence": {
+                    "quote": "GitHub Stars 增长服务",
+                    "start": 166,
+                    "end": 183,
+                    "encoding": "utf16_code_unit"
+                  }
+                },
+                "detailedDescription": {
+                  "value": null,
+                  "evidence": null
+                },
+                "unknowns": [],
+                "fieldIssues": [],
+                "mappingVersion": "recognition-current/v1",
+                "createdAt": "2026-09-08T06:01:06.018Z"
+              },
+              "competitors": [
+                {
+                  "id": "6659bd90-9120-434a-9409-bcb285b90710",
+                  "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+                  "runId": "c940314f-0143-4e82-b8e8-47002f7f22ee",
+                  "modelRunId": "c92c0650-4038-49b6-ad40-dc5c4f1be65c",
+                  "attemptId": "0aec67ab-66c8-4f9a-976e-0cffe244f51c",
+                  "recognitionResultId": "b27154fe-a93d-4f4e-8c51-800b64375af9",
+                  "name": "StarBoost",
+                  "domain": "starboost.io",
+                  "businessDescription": {
+                    "value": "提供 GitHub Stars 增长服务，帮助开发者提升项目的可见性和可信度。",
+                    "evidence": {
+                      "quote": "提供 GitHub Stars 增长服务，帮助开发者提升项目的可见性和可信度。",
+                      "start": 371,
+                      "end": 410,
+                      "encoding": "utf16_code_unit"
+                    }
+                  },
+                  "productCategory": {
+                    "value": "GitHub Stars 增长服务",
+                    "evidence": {
+                      "quote": "GitHub Stars 增长服务",
+                      "start": 166,
+                      "end": 183,
+                      "encoding": "utf16_code_unit"
+                    }
+                  },
+                  "evidence": {
+                    "quote": "StarBoost",
+                    "start": 313,
+                    "end": 322,
+                    "encoding": "utf16_code_unit"
+                  },
+                  "createdAt": "2026-09-08T06:01:06.018Z"
+                }
+              ],
+              "brandKeywords": [
+                {
+                  "id": "1ac9ba9a-d2d7-484c-8d70-199f1ce8ebcd",
+                  "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+                  "runId": "c940314f-0143-4e82-b8e8-47002f7f22ee",
+                  "modelRunId": "c92c0650-4038-49b6-ad40-dc5c4f1be65c",
+                  "attemptId": "0aec67ab-66c8-4f9a-976e-0cffe244f51c",
+                  "recognitionResultId": "b27154fe-a93d-4f4e-8c51-800b64375af9",
+                  "keyword": "牛逼Star",
+                  "normalizedKeyword": "牛逼star",
+                  "evidence": {
+                    "quote": "牛逼Star",
+                    "start": 92,
+                    "end": 98,
+                    "encoding": "utf16_code_unit"
+                  },
+                  "createdAt": "2026-09-08T06:01:06.018Z"
+                }
+              ],
+              "competitorKeywords": [
+                {
+                  "id": "bb90131d-1e20-4a2b-a6b7-3395363e00fe",
+                  "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+                  "runId": "c940314f-0143-4e82-b8e8-47002f7f22ee",
+                  "modelRunId": "c92c0650-4038-49b6-ad40-dc5c4f1be65c",
+                  "attemptId": "0aec67ab-66c8-4f9a-976e-0cffe244f51c",
+                  "recognitionResultId": "b27154fe-a93d-4f4e-8c51-800b64375af9",
+                  "competitorRecognitionId": "6659bd90-9120-434a-9409-bcb285b90710",
+                  "competitorName": "StarBoost",
+                  "competitorDomain": "starboost.io",
+                  "keyword": "GitHub Stars 增长",
+                  "normalizedKeyword": "github stars 增长",
+                  "evidence": {
+                    "quote": "GitHub Stars 增长",
+                    "start": 166,
+                    "end": 181,
+                    "encoding": "utf16_code_unit"
+                  },
+                  "createdAt": "2026-09-08T06:01:06.018Z"
+                }
+              ],
+              "providerCitations": [],
+              "answerMentionedUrls": [],
+              "claimCitationLinks": []
+            },
+            "presentation": {
+              "requestExecution": "response_received",
+              "responseCompleteness": "complete",
+              "localAnalysis": "complete",
+              "domainRecognition": "recognized",
+              "primaryAction": "none",
+              "statusLabel": "回答已收到，整理完成",
+              "detail": null
+            }
+          },
+          {
+            "modelRun": {
+              "id": "cb93a803-3f66-4343-b50e-6cd8245acee8",
+              "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+              "runId": "c940314f-0143-4e82-b8e8-47002f7f22ee",
+              "baselineId": "e32c157b-b371-4cca-bb42-19e781a5c8a5",
+              "modelSnapshot": {
+                "selectionId": "4b0add6c-3862-48fa-b329-ad04d8a220b5",
+                "providerId": "openrouter",
+                "modelId": "openai/gpt-4o-mini",
+                "displayName": "OpenAI: GPT-4o-mini",
+                "webSearchMode": "off",
+                "nativeWebSearchSupported": false,
+                "capabilityCheckedAt": "2026-09-08T06:01:00.282Z"
+              },
+              "recognitionMode": "unaided_domain_recognition",
+              "status": "completed",
+              "attemptIds": [
+                "25b2cd1e-350e-4bbe-ae0f-dd6a7357d096"
+              ],
+              "createdAt": "2026-09-08T06:01:00.290Z",
+              "currentAttemptId": "25b2cd1e-350e-4bbe-ae0f-dd6a7357d096",
+              "startedAt": "2026-09-08T06:01:00.294Z",
+              "completedAt": "2026-09-08T06:01:09.437Z"
+            },
+            "attempts": [
+              {
+                "id": "25b2cd1e-350e-4bbe-ae0f-dd6a7357d096",
+                "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+                "runId": "c940314f-0143-4e82-b8e8-47002f7f22ee",
+                "modelRunId": "cb93a803-3f66-4343-b50e-6cd8245acee8",
+                "attemptNumber": 1,
+                "status": "unknown",
+                "promptHash": "0bd74d33e00f8c125479330334615cb3de26f6a1f46427419a2768eedf640acf",
+                "requestParameters": {
+                  "model": "openai/gpt-4o-mini",
+                  "temperature": 0,
+                  "maxTokens": 900,
+                  "responseSchemaName": "domain_recognition_result",
+                  "responseSchemaHash": "02baab4ac0667bac34dc16f80aad12d58397454ce11c9ca6c4e1465c1f8ff860",
+                  "structuredOutputTransport": "response_json_schema",
+                  "requireProviderParameters": true,
+                  "webSearchEnabled": false,
+                  "webSearchMode": "off"
+                },
+                "providerId": "openrouter",
+                "costUsd": 0.0001323,
+                "createdAt": "2026-09-08T06:01:00.294Z",
+                "startedAt": "2026-09-08T06:01:00.294Z",
+                "rawProviderResponse": {
+                  "id": "gen-1788847267-cgQFkaWiY36rYn0iOQpX",
+                  "object": "chat.completion",
+                  "created": 1788847267,
+                  "model": "openai/gpt-4o-mini",
+                  "provider": "OpenAI",
+                  "system_fingerprint": "fp_084a4ba7bb",
+                  "service_tier": null,
+                  "choices": [
+                    {
+                      "index": 0,
+                      "logprobs": null,
+                      "finish_reason": "stop",
+                      "native_finish_reason": "stop",
+                      "message": {
+                        "role": "assistant",
+                        "content": "{\"domainRecognition\":\"not_recognized\",\"analysisStatus\":\"unknown\",\"recognizedBrand\":{\"value\":null,\"citationUrls\":[]},\"businessDescription\":{\"value\":null,\"citationUrls\":[]},\"productCategory\":{\"value\":null,\"citationUrls\":[]},\"competitors\":[],\"brandKeywords\":[],\"unknowns\":[]}",
+                        "refusal": null,
+                        "reasoning": null
+                      }
+                    }
+                  ],
+                  "usage": {
+                    "prompt_tokens": 634,
+                    "completion_tokens": 62,
+                    "total_tokens": 696,
+                    "cost": 0.0001323,
+                    "is_byok": false,
+                    "prompt_tokens_details": {
+                      "cached_tokens": 0,
+                      "cache_write_tokens": 0,
+                      "audio_tokens": 0,
+                      "video_tokens": 0
+                    },
+                    "cost_details": {
+                      "upstream_inference_cost": 0.0001323,
+                      "upstream_inference_prompt_cost": 0.0000951,
+                      "upstream_inference_completions_cost": 0.0000372
+                    },
+                    "completion_tokens_details": {
+                      "reasoning_tokens": 0,
+                      "image_tokens": 0,
+                      "audio_tokens": 0
+                    }
+                  },
+                  "openrouter_metadata": {
+                    "requested": "openai/gpt-4o-mini",
+                    "strategy": "direct",
+                    "region": "ORD",
+                    "summary": "available=1, selected=OpenAI",
+                    "attempt": 1,
+                    "is_byok": false,
+                    "endpoints": {
+                      "total": 3,
+                      "available": [
+                        {
+                          "provider": "OpenAI",
+                          "model": "openai/gpt-4o-mini",
+                          "selected": true
+                        }
+                      ]
+                    },
+                    "generation_time": 782
+                  }
+                },
+                "rawAnswer": "{\"domainRecognition\":\"not_recognized\",\"analysisStatus\":\"unknown\",\"recognizedBrand\":{\"value\":null,\"citationUrls\":[]},\"businessDescription\":{\"value\":null,\"citationUrls\":[]},\"productCategory\":{\"value\":null,\"citationUrls\":[]},\"competitors\":[],\"brandKeywords\":[],\"unknowns\":[]}",
+                "providerModel": "openai/gpt-4o-mini",
+                "providerModelVersion": "openai/gpt-4o-mini",
+                "providerSearch": {
+                  "requested": false,
+                  "requestMode": "auto",
+                  "used": false,
+                  "usedMode": "none",
+                  "endpointKind": "official_api",
+                  "endpointProtocol": "chat_completions",
+                  "endpointUrl": "https://openrouter.ai/api/v1/chat/completions",
+                  "webQueries": [],
+                  "citationCount": 0,
+                  "executionMode": "unverified"
+                },
+                "tokenUsage": {
+                  "input": 634,
+                  "output": 62,
+                  "total": 696
+                },
+                "latencyMs": 3406,
+                "completedAt": "2026-09-08T06:01:09.437Z"
+              }
+            ],
+            "archives": [
+              {
+                "result": {
+                  "id": "f773f3fb-e21c-4235-9c12-add604fbd2de",
+                  "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+                  "runId": "c940314f-0143-4e82-b8e8-47002f7f22ee",
+                  "modelRunId": "cb93a803-3f66-4343-b50e-6cd8245acee8",
+                  "attemptId": "25b2cd1e-350e-4bbe-ae0f-dd6a7357d096",
+                  "recognitionMode": "unaided_domain_recognition",
+                  "analysisStatus": "unknown",
+                  "domainRecognition": "not_recognized",
+                  "recognizedBrand": {
+                    "value": null,
+                    "evidence": null
+                  },
+                  "businessDescription": {
+                    "value": null,
+                    "evidence": null
+                  },
+                  "productCategory": {
+                    "value": null,
+                    "evidence": null
+                  },
+                  "detailedDescription": {
+                    "value": null,
+                    "evidence": null
+                  },
+                  "unknowns": [],
+                  "fieldIssues": [],
+                  "mappingVersion": "recognition-current/v1",
+                  "createdAt": "2026-09-08T06:01:09.436Z"
+                },
+                "competitors": [],
+                "brandKeywords": [],
+                "competitorKeywords": [],
+                "providerCitations": [],
+                "answerMentionedUrls": [],
+                "claimCitationLinks": []
+              }
+            ],
+            "analysisRevisions": [],
+            "archive": {
+              "result": {
+                "id": "f773f3fb-e21c-4235-9c12-add604fbd2de",
+                "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+                "runId": "c940314f-0143-4e82-b8e8-47002f7f22ee",
+                "modelRunId": "cb93a803-3f66-4343-b50e-6cd8245acee8",
+                "attemptId": "25b2cd1e-350e-4bbe-ae0f-dd6a7357d096",
+                "recognitionMode": "unaided_domain_recognition",
+                "analysisStatus": "unknown",
+                "domainRecognition": "not_recognized",
+                "recognizedBrand": {
+                  "value": null,
+                  "evidence": null
+                },
+                "businessDescription": {
+                  "value": null,
+                  "evidence": null
+                },
+                "productCategory": {
+                  "value": null,
+                  "evidence": null
+                },
+                "detailedDescription": {
+                  "value": null,
+                  "evidence": null
+                },
+                "unknowns": [],
+                "fieldIssues": [],
+                "mappingVersion": "recognition-current/v1",
+                "createdAt": "2026-09-08T06:01:09.436Z"
+              },
+              "competitors": [],
+              "brandKeywords": [],
+              "competitorKeywords": [],
+              "providerCitations": [],
+              "answerMentionedUrls": [],
+              "claimCitationLinks": []
+            },
+            "presentation": {
+              "requestExecution": "response_received",
+              "responseCompleteness": "complete",
+              "localAnalysis": "complete",
+              "domainRecognition": "not_recognized",
+              "primaryAction": "none",
+              "statusLabel": "回答已收到，整理完成",
+              "detail": null
+            }
+          }
+        ],
+        "report": {
+          "reportId": "recognition-report-58d20b771010167d2542",
+          "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+          "runId": "c940314f-0143-4e82-b8e8-47002f7f22ee",
+          "baselineId": "e32c157b-b371-4cca-bb42-19e781a5c8a5",
+          "reportRevision": 1,
+          "sourceFingerprint": "58d20b771010167d25420d17e97ad9dac5600c575488cb1593fe2c86b8aee376",
+          "sourceAttemptMap": [
+            {
+              "modelRunId": "63972b7e-7773-4613-b683-54798d11c494",
+              "attemptId": "8e05a5ef-6cb5-4844-949d-3fcf87e34e9d",
+              "archiveAttemptId": "8e05a5ef-6cb5-4844-949d-3fcf87e34e9d"
+            },
+            {
+              "modelRunId": "c92c0650-4038-49b6-ad40-dc5c4f1be65c",
+              "attemptId": "0aec67ab-66c8-4f9a-976e-0cffe244f51c",
+              "archiveAttemptId": "0aec67ab-66c8-4f9a-976e-0cffe244f51c"
+            },
+            {
+              "modelRunId": "cb93a803-3f66-4343-b50e-6cd8245acee8",
+              "attemptId": "25b2cd1e-350e-4bbe-ae0f-dd6a7357d096",
+              "archiveAttemptId": "25b2cd1e-350e-4bbe-ae0f-dd6a7357d096"
+            }
+          ],
+          "sourceRecordHashes": [
+            {
+              "source": "run",
+              "id": "c940314f-0143-4e82-b8e8-47002f7f22ee",
+              "sha256": "c95f02d749558edc0a08934f98ad5d672b66db5f21fe50bf8db58ca996c846b4"
+            },
+            {
+              "source": "baseline",
+              "id": "e32c157b-b371-4cca-bb42-19e781a5c8a5",
+              "sha256": "4081b5d0d0b19ad0edd18f19358ae91bb62bfc4d79836deb830ad3e94e506206"
+            },
+            {
+              "source": "model_run",
+              "id": "63972b7e-7773-4613-b683-54798d11c494",
+              "sha256": "92f8d05f24601e46a820572884eae4da914c99211795d587bf5ec4d7c1c2fab2"
+            },
+            {
+              "source": "attempt",
+              "id": "8e05a5ef-6cb5-4844-949d-3fcf87e34e9d",
+              "sha256": "1f742e3e9aabc518bebe3eb460fbf1911b790338871c005a22306e75c9195300"
+            },
+            {
+              "source": "archive",
+              "id": "832e6f1e-d01c-4930-81d1-000d624f73c5",
+              "sha256": "30bc7441dab25c25992482e1242798a8b972377de620a95e093e42da2ba30f27"
+            },
+            {
+              "source": "model_run",
+              "id": "c92c0650-4038-49b6-ad40-dc5c4f1be65c",
+              "sha256": "a9906282406b2f7b087d3e854c820dd07dadb93193cf8e61135857547fe33516"
+            },
+            {
+              "source": "attempt",
+              "id": "0aec67ab-66c8-4f9a-976e-0cffe244f51c",
+              "sha256": "b157ac528128af7abbf452a85fb956f4c5f22c67fe2594e11c3de6a391c82a8a"
+            },
+            {
+              "source": "archive",
+              "id": "b27154fe-a93d-4f4e-8c51-800b64375af9",
+              "sha256": "6fae86242b663d64c3ff49b0d417f3fba5925281c13cbdec6f90cef8ccc0cc5a"
+            },
+            {
+              "source": "model_run",
+              "id": "cb93a803-3f66-4343-b50e-6cd8245acee8",
+              "sha256": "6c630a07103f503c4e67d64bc5df639ea622f0f7ff111d1694a9a9479d3f9098"
+            },
+            {
+              "source": "attempt",
+              "id": "25b2cd1e-350e-4bbe-ae0f-dd6a7357d096",
+              "sha256": "f3f56966498957447c8a0074731d65d958aea01a5628fa1b4ed9d85e15e6b295"
+            },
+            {
+              "source": "archive",
+              "id": "f773f3fb-e21c-4235-9c12-add604fbd2de",
+              "sha256": "afc78bd2f0979b1bd373b06b5774ab59c27a6ba0898926aff98de4b08460db5a"
+            }
+          ],
+          "reportSchemaVersion": "recognition-report/v1",
+          "groupingRuleVersion": "exact-name-host/v1",
+          "generatedAt": "2026-09-08T06:01:10.345Z",
+          "contentStatus": "ready",
+          "runStatus": "completed",
+          "domain": "niubistar.com",
+          "language": "zh",
+          "monitoringConfigurationVersion": 1,
+          "protocol": {
+            "id": "domain-recognition",
+            "version": "v1"
+          },
+          "models": [
+            {
+              "modelRunId": "63972b7e-7773-4613-b683-54798d11c494",
+              "modelId": "google/gemini-2.5-flash-lite",
+              "displayName": "Google: Gemini 2.5 Flash Lite",
+              "recognitionMode": "unaided_domain_recognition",
+              "webSearch": {
+                "requested": false,
+                "used": false,
+                "usedMode": "none",
+                "executionMode": "unverified",
+                "label": "未联网"
+              },
+              "modelRunStatus": "completed",
+              "attemptStatus": "completed",
+              "state": "recognized",
+              "sourceAttemptId": "8e05a5ef-6cb5-4844-949d-3fcf87e34e9d",
+              "rawAnswer": "{\n  \"domainRecognition\": \"recognized\",\n  \"analysisStatus\": \"recognized\",\n  \"recognizedBrand\": {\n    \"value\": \"Niubistar\",\n    \"citationUrls\": []\n  },\n  \"businessDescription\": {\n    \"value\": \"Niubistar 是一家提供在线游戏和娱乐服务的公司。\",\n    \"citationUrls\": []\n  },\n  \"productCategory\": {\n    \"value\": \"在线游戏\",\n    \"citationUrls\": []\n  },\n  \"competitors\": [],\n  \"brandKeywords\": [\n    {\n      \"keyword\": \"在线游戏\",\n      \"citationUrls\": []\n    },\n    {\n      \"keyword\": \"娱乐服务\",\n      \"citationUrls\": []\n    }\n  ],\n  \"unknowns\": []\n}",
+              "rawProviderResponse": {
+                "id": "gen-1788847262-36Z043motmXO3nTr6fui",
+                "object": "chat.completion",
+                "created": 1788847262,
+                "model": "google/gemini-2.5-flash-lite",
+                "provider": "Google",
+                "system_fingerprint": null,
+                "service_tier": "default",
+                "choices": [
+                  {
+                    "index": 0,
+                    "logprobs": null,
+                    "finish_reason": "stop",
+                    "native_finish_reason": "STOP",
+                    "message": {
+                      "role": "assistant",
+                      "content": "{\n  \"domainRecognition\": \"recognized\",\n  \"analysisStatus\": \"recognized\",\n  \"recognizedBrand\": {\n    \"value\": \"Niubistar\",\n    \"citationUrls\": []\n  },\n  \"businessDescription\": {\n    \"value\": \"Niubistar 是一家提供在线游戏和娱乐服务的公司。\",\n    \"citationUrls\": []\n  },\n  \"productCategory\": {\n    \"value\": \"在线游戏\",\n    \"citationUrls\": []\n  },\n  \"competitors\": [],\n  \"brandKeywords\": [\n    {\n      \"keyword\": \"在线游戏\",\n      \"citationUrls\": []\n    },\n    {\n      \"keyword\": \"娱乐服务\",\n      \"citationUrls\": []\n    }\n  ],\n  \"unknowns\": []\n}",
+                      "refusal": null,
+                      "reasoning": null
+                    }
+                  }
+                ],
+                "usage": {
+                  "prompt_tokens": 144,
+                  "completion_tokens": 178,
+                  "total_tokens": 322,
+                  "cost": 0.0000856,
+                  "is_byok": false,
+                  "prompt_tokens_details": {
+                    "cached_tokens": 0,
+                    "cache_write_tokens": 0,
+                    "audio_tokens": 0,
+                    "video_tokens": 0
+                  },
+                  "cost_details": {
+                    "upstream_inference_cost": 0.0000856,
+                    "upstream_inference_prompt_cost": 0.0000144,
+                    "upstream_inference_completions_cost": 0.0000712
+                  },
+                  "completion_tokens_details": {
+                    "reasoning_tokens": 0,
+                    "image_tokens": 0,
+                    "audio_tokens": 0
+                  }
+                },
+                "openrouter_metadata": {
+                  "requested": "google/gemini-2.5-flash-lite",
+                  "strategy": "direct",
+                  "region": "ORD",
+                  "summary": "available=3, selected=Google",
+                  "attempt": 1,
+                  "is_byok": false,
+                  "endpoints": {
+                    "total": 5,
+                    "available": [
+                      {
+                        "provider": "Google",
+                        "model": "google/gemini-2.5-flash-lite",
+                        "selected": true
+                      },
+                      {
+                        "provider": "Google",
+                        "model": "google/gemini-2.5-flash-lite",
+                        "selected": false
+                      },
+                      {
+                        "provider": "Google AI Studio",
+                        "model": "google/gemini-2.5-flash-lite",
+                        "selected": false
+                      }
+                    ]
+                  },
+                  "generation_time": 799
+                }
+              },
+              "recognizedBrand": {
+                "value": "Niubistar",
+                "evidence": {
+                  "evidence": {
+                    "quote": "Niubistar",
+                    "start": 110,
+                    "end": 119,
+                    "encoding": "utf16_code_unit"
+                  },
+                  "integrity": "valid"
+                }
+              },
+              "businessDescription": {
+                "value": "Niubistar 是一家提供在线游戏和娱乐服务的公司。",
+                "evidence": {
+                  "evidence": {
+                    "quote": "Niubistar 是一家提供在线游戏和娱乐服务的公司。",
+                    "start": 191,
+                    "end": 219,
+                    "encoding": "utf16_code_unit"
+                  },
+                  "integrity": "valid"
+                }
+              },
+              "productCategory": {
+                "value": "在线游戏",
+                "evidence": {
+                  "evidence": {
+                    "quote": "在线游戏",
+                    "start": 206,
+                    "end": 210,
+                    "encoding": "utf16_code_unit"
+                  },
+                  "integrity": "valid"
+                }
+              },
+              "unknowns": [],
+              "competitors": [],
+              "brandKeywords": [
+                {
+                  "id": "af3c7395-0103-45e8-9955-b631ba4bef17",
+                  "keyword": "在线游戏",
+                  "normalizedKeyword": "在线游戏",
+                  "evidence": {
+                    "evidence": {
+                      "quote": "在线游戏",
+                      "start": 206,
+                      "end": 210,
+                      "encoding": "utf16_code_unit"
+                    },
+                    "integrity": "valid"
+                  }
+                },
+                {
+                  "id": "9e845012-1672-4e17-8053-ed8c4468f32e",
+                  "keyword": "娱乐服务",
+                  "normalizedKeyword": "娱乐服务",
+                  "evidence": {
+                    "evidence": {
+                      "quote": "娱乐服务",
+                      "start": 211,
+                      "end": 215,
+                      "encoding": "utf16_code_unit"
+                    },
+                    "integrity": "valid"
+                  }
+                }
+              ],
+              "competitorKeywords": [],
+              "providerCitations": [],
+              "answerMentionedUrls": [],
+              "claimCitationLinks": [],
+              "unavailableReason": null,
+              "sourceHashes": [
+                {
+                  "source": "model_run",
+                  "id": "63972b7e-7773-4613-b683-54798d11c494",
+                  "sha256": "92f8d05f24601e46a820572884eae4da914c99211795d587bf5ec4d7c1c2fab2"
+                },
+                {
+                  "source": "attempt",
+                  "id": "8e05a5ef-6cb5-4844-949d-3fcf87e34e9d",
+                  "sha256": "1f742e3e9aabc518bebe3eb460fbf1911b790338871c005a22306e75c9195300"
+                },
+                {
+                  "source": "archive",
+                  "id": "832e6f1e-d01c-4930-81d1-000d624f73c5",
+                  "sha256": "30bc7441dab25c25992482e1242798a8b972377de620a95e093e42da2ba30f27"
+                }
+              ]
+            },
+            {
+              "modelRunId": "c92c0650-4038-49b6-ad40-dc5c4f1be65c",
+              "modelId": "openai/gpt-4.1-mini",
+              "displayName": "OpenAI: GPT-4.1 Mini",
+              "recognitionMode": "native_web_domain_discovery",
+              "webSearch": {
+                "requested": true,
+                "used": true,
+                "usedMode": "provider_native",
+                "executionMode": "native",
+                "label": "Provider 原生联网"
+              },
+              "modelRunStatus": "completed",
+              "attemptStatus": "completed",
+              "state": "recognized",
+              "sourceAttemptId": "0aec67ab-66c8-4f9a-976e-0cffe244f51c",
+              "rawAnswer": "{\"domainRecognition\":\"recognized\",\"analysisStatus\":\"recognized\",\"recognizedBrand\":{\"value\":\"牛逼Star\",\"citationUrls\":[]},\"businessDescription\":{\"value\":\"GitHub 互赞平台，提供 GitHub Stars 增长服务，帮助开发者提升项目的可信度和可见性。\",\"citationUrls\":[]},\"productCategory\":{\"value\":\"GitHub Stars 增长服务\",\"citationUrls\":[]},\"competitors\":[{\"name\":\"StarBoost\",\"domain\":\"starboost.io\",\"businessDescription\":\"提供 GitHub Stars 增长服务，帮助开发者提升项目的可见性和可信度。\",\"productCategory\":\"GitHub Stars 增长服务\",\"keywords\":[{\"keyword\":\"GitHub Stars 增长\",\"citationUrls\":[]}],\"citationUrls\":[]}],\"brandKeywords\":[{\"keyword\":\"牛逼Star\",\"citationUrls\":[]}],\"unknowns\":[]}",
+              "rawProviderResponse": {
+                "id": "gen-1788847264-rJUvOd1OiYZpxzmEfsQB",
+                "object": "chat.completion",
+                "created": 1788847264,
+                "model": "openai/gpt-4.1-mini",
+                "provider": "OpenAI",
+                "system_fingerprint": null,
+                "service_tier": "auto",
+                "choices": [
+                  {
+                    "index": 0,
+                    "logprobs": null,
+                    "finish_reason": "stop",
+                    "native_finish_reason": "completed",
+                    "message": {
+                      "role": "assistant",
+                      "content": "{\"domainRecognition\":\"recognized\",\"analysisStatus\":\"recognized\",\"recognizedBrand\":{\"value\":\"牛逼Star\",\"citationUrls\":[]},\"businessDescription\":{\"value\":\"GitHub 互赞平台，提供 GitHub Stars 增长服务，帮助开发者提升项目的可信度和可见性。\",\"citationUrls\":[]},\"productCategory\":{\"value\":\"GitHub Stars 增长服务\",\"citationUrls\":[]},\"competitors\":[{\"name\":\"StarBoost\",\"domain\":\"starboost.io\",\"businessDescription\":\"提供 GitHub Stars 增长服务，帮助开发者提升项目的可见性和可信度。\",\"productCategory\":\"GitHub Stars 增长服务\",\"keywords\":[{\"keyword\":\"GitHub Stars 增长\",\"citationUrls\":[]}],\"citationUrls\":[]}],\"brandKeywords\":[{\"keyword\":\"牛逼Star\",\"citationUrls\":[]}],\"unknowns\":[]} ",
+                      "refusal": null,
+                      "reasoning": null
+                    }
+                  }
+                ],
+                "usage": {
+                  "prompt_tokens": 9284,
+                  "completion_tokens": 177,
+                  "total_tokens": 9461,
+                  "cost": 0.0139968,
+                  "is_byok": false,
+                  "prompt_tokens_details": {
+                    "cached_tokens": 0,
+                    "cache_write_tokens": 0,
+                    "audio_tokens": 0,
+                    "video_tokens": 0
+                  },
+                  "cost_details": {
+                    "upstream_inference_cost": 0.0139968,
+                    "upstream_inference_prompt_cost": 0.0037136,
+                    "upstream_inference_completions_cost": 0.0002832
+                  },
+                  "completion_tokens_details": {
+                    "reasoning_tokens": 0,
+                    "image_tokens": 0,
+                    "audio_tokens": 0
+                  },
+                  "server_tool_use_details": {
+                    "web_search_requests": 1
+                  }
+                },
+                "openrouter_metadata": {
+                  "requested": "openai/gpt-4.1-mini",
+                  "strategy": "direct",
+                  "region": "ORD",
+                  "summary": "available=1, selected=OpenAI",
+                  "attempt": 1,
+                  "is_byok": false,
+                  "endpoints": {
+                    "total": 3,
+                    "available": [
+                      {
+                        "provider": "OpenAI",
+                        "model": "openai/gpt-4.1-mini-2025-04-14",
+                        "selected": true
+                      }
+                    ]
+                  },
+                  "generation_time": 2647,
+                  "pipeline": [
+                    {
+                      "type": "server_tools",
+                      "name": "server-tools",
+                      "summary": "Server tools invoked (native): openrouter:web_search",
+                      "data": {
+                        "mode": "native",
+                        "tools": [
+                          "openrouter:web_search"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              },
+              "recognizedBrand": {
+                "value": "牛逼Star",
+                "evidence": {
+                  "evidence": {
+                    "quote": "牛逼Star",
+                    "start": 92,
+                    "end": 98,
+                    "encoding": "utf16_code_unit"
+                  },
+                  "integrity": "valid"
+                }
+              },
+              "businessDescription": {
+                "value": "GitHub 互赞平台，提供 GitHub Stars 增长服务，帮助开发者提升项目的可信度和可见性。",
+                "evidence": {
+                  "evidence": {
+                    "quote": "GitHub 互赞平台，提供 GitHub Stars 增长服务，帮助开发者提升项目的可信度和可见性。",
+                    "start": 151,
+                    "end": 202,
+                    "encoding": "utf16_code_unit"
+                  },
+                  "integrity": "valid"
+                }
+              },
+              "productCategory": {
+                "value": "GitHub Stars 增长服务",
+                "evidence": {
+                  "evidence": {
+                    "quote": "GitHub Stars 增长服务",
+                    "start": 166,
+                    "end": 183,
+                    "encoding": "utf16_code_unit"
+                  },
+                  "integrity": "valid"
+                }
+              },
+              "unknowns": [],
+              "competitors": [
+                {
+                  "id": "6659bd90-9120-434a-9409-bcb285b90710",
+                  "name": "StarBoost",
+                  "domain": "starboost.io",
+                  "businessDescription": {
+                    "value": "提供 GitHub Stars 增长服务，帮助开发者提升项目的可见性和可信度。",
+                    "evidence": {
+                      "evidence": {
+                        "quote": "提供 GitHub Stars 增长服务，帮助开发者提升项目的可见性和可信度。",
+                        "start": 371,
+                        "end": 410,
+                        "encoding": "utf16_code_unit"
+                      },
+                      "integrity": "valid"
+                    }
+                  },
+                  "productCategory": {
+                    "value": "GitHub Stars 增长服务",
+                    "evidence": {
+                      "evidence": {
+                        "quote": "GitHub Stars 增长服务",
+                        "start": 166,
+                        "end": 183,
+                        "encoding": "utf16_code_unit"
+                      },
+                      "integrity": "valid"
+                    }
+                  },
+                  "evidence": {
+                    "evidence": {
+                      "quote": "StarBoost",
+                      "start": 313,
+                      "end": 322,
+                      "encoding": "utf16_code_unit"
+                    },
+                    "integrity": "valid"
+                  },
+                  "keywordIds": [
+                    "bb90131d-1e20-4a2b-a6b7-3395363e00fe"
+                  ]
+                }
+              ],
+              "brandKeywords": [
+                {
+                  "id": "1ac9ba9a-d2d7-484c-8d70-199f1ce8ebcd",
+                  "keyword": "牛逼Star",
+                  "normalizedKeyword": "牛逼star",
+                  "evidence": {
+                    "evidence": {
+                      "quote": "牛逼Star",
+                      "start": 92,
+                      "end": 98,
+                      "encoding": "utf16_code_unit"
+                    },
+                    "integrity": "valid"
+                  }
+                }
+              ],
+              "competitorKeywords": [
+                {
+                  "id": "bb90131d-1e20-4a2b-a6b7-3395363e00fe",
+                  "keyword": "GitHub Stars 增长",
+                  "normalizedKeyword": "github stars 增长",
+                  "competitorRecordId": "6659bd90-9120-434a-9409-bcb285b90710",
+                  "evidence": {
+                    "evidence": {
+                      "quote": "GitHub Stars 增长",
+                      "start": 166,
+                      "end": 181,
+                      "encoding": "utf16_code_unit"
+                    },
+                    "integrity": "valid"
+                  }
+                }
+              ],
+              "providerCitations": [],
+              "answerMentionedUrls": [],
+              "claimCitationLinks": [],
+              "unavailableReason": null,
+              "sourceHashes": [
+                {
+                  "source": "model_run",
+                  "id": "c92c0650-4038-49b6-ad40-dc5c4f1be65c",
+                  "sha256": "a9906282406b2f7b087d3e854c820dd07dadb93193cf8e61135857547fe33516"
+                },
+                {
+                  "source": "attempt",
+                  "id": "0aec67ab-66c8-4f9a-976e-0cffe244f51c",
+                  "sha256": "b157ac528128af7abbf452a85fb956f4c5f22c67fe2594e11c3de6a391c82a8a"
+                },
+                {
+                  "source": "archive",
+                  "id": "b27154fe-a93d-4f4e-8c51-800b64375af9",
+                  "sha256": "6fae86242b663d64c3ff49b0d417f3fba5925281c13cbdec6f90cef8ccc0cc5a"
+                }
+              ]
+            },
+            {
+              "modelRunId": "cb93a803-3f66-4343-b50e-6cd8245acee8",
+              "modelId": "openai/gpt-4o-mini",
+              "displayName": "OpenAI: GPT-4o-mini",
+              "recognitionMode": "unaided_domain_recognition",
+              "webSearch": {
+                "requested": false,
+                "used": false,
+                "usedMode": "none",
+                "executionMode": "unverified",
+                "label": "未联网"
+              },
+              "modelRunStatus": "completed",
+              "attemptStatus": "unknown",
+              "state": "not_recognized",
+              "sourceAttemptId": "25b2cd1e-350e-4bbe-ae0f-dd6a7357d096",
+              "rawAnswer": "{\"domainRecognition\":\"not_recognized\",\"analysisStatus\":\"unknown\",\"recognizedBrand\":{\"value\":null,\"citationUrls\":[]},\"businessDescription\":{\"value\":null,\"citationUrls\":[]},\"productCategory\":{\"value\":null,\"citationUrls\":[]},\"competitors\":[],\"brandKeywords\":[],\"unknowns\":[]}",
+              "rawProviderResponse": {
+                "id": "gen-1788847267-cgQFkaWiY36rYn0iOQpX",
+                "object": "chat.completion",
+                "created": 1788847267,
+                "model": "openai/gpt-4o-mini",
+                "provider": "OpenAI",
+                "system_fingerprint": "fp_084a4ba7bb",
+                "service_tier": null,
+                "choices": [
+                  {
+                    "index": 0,
+                    "logprobs": null,
+                    "finish_reason": "stop",
+                    "native_finish_reason": "stop",
+                    "message": {
+                      "role": "assistant",
+                      "content": "{\"domainRecognition\":\"not_recognized\",\"analysisStatus\":\"unknown\",\"recognizedBrand\":{\"value\":null,\"citationUrls\":[]},\"businessDescription\":{\"value\":null,\"citationUrls\":[]},\"productCategory\":{\"value\":null,\"citationUrls\":[]},\"competitors\":[],\"brandKeywords\":[],\"unknowns\":[]}",
+                      "refusal": null,
+                      "reasoning": null
+                    }
+                  }
+                ],
+                "usage": {
+                  "prompt_tokens": 634,
+                  "completion_tokens": 62,
+                  "total_tokens": 696,
+                  "cost": 0.0001323,
+                  "is_byok": false,
+                  "prompt_tokens_details": {
+                    "cached_tokens": 0,
+                    "cache_write_tokens": 0,
+                    "audio_tokens": 0,
+                    "video_tokens": 0
+                  },
+                  "cost_details": {
+                    "upstream_inference_cost": 0.0001323,
+                    "upstream_inference_prompt_cost": 0.0000951,
+                    "upstream_inference_completions_cost": 0.0000372
+                  },
+                  "completion_tokens_details": {
+                    "reasoning_tokens": 0,
+                    "image_tokens": 0,
+                    "audio_tokens": 0
+                  }
+                },
+                "openrouter_metadata": {
+                  "requested": "openai/gpt-4o-mini",
+                  "strategy": "direct",
+                  "region": "ORD",
+                  "summary": "available=1, selected=OpenAI",
+                  "attempt": 1,
+                  "is_byok": false,
+                  "endpoints": {
+                    "total": 3,
+                    "available": [
+                      {
+                        "provider": "OpenAI",
+                        "model": "openai/gpt-4o-mini",
+                        "selected": true
+                      }
+                    ]
+                  },
+                  "generation_time": 782
+                }
+              },
+              "recognizedBrand": {
+                "value": null,
+                "evidence": {
+                  "evidence": null,
+                  "integrity": "missing"
+                }
+              },
+              "businessDescription": {
+                "value": null,
+                "evidence": {
+                  "evidence": null,
+                  "integrity": "missing"
+                }
+              },
+              "productCategory": {
+                "value": null,
+                "evidence": {
+                  "evidence": null,
+                  "integrity": "missing"
+                }
+              },
+              "unknowns": [],
+              "competitors": [],
+              "brandKeywords": [],
+              "competitorKeywords": [],
+              "providerCitations": [],
+              "answerMentionedUrls": [],
+              "claimCitationLinks": [],
+              "unavailableReason": null,
+              "sourceHashes": [
+                {
+                  "source": "model_run",
+                  "id": "cb93a803-3f66-4343-b50e-6cd8245acee8",
+                  "sha256": "6c630a07103f503c4e67d64bc5df639ea622f0f7ff111d1694a9a9479d3f9098"
+                },
+                {
+                  "source": "attempt",
+                  "id": "25b2cd1e-350e-4bbe-ae0f-dd6a7357d096",
+                  "sha256": "f3f56966498957447c8a0074731d65d958aea01a5628fa1b4ed9d85e15e6b295"
+                },
+                {
+                  "source": "archive",
+                  "id": "f773f3fb-e21c-4235-9c12-add604fbd2de",
+                  "sha256": "afc78bd2f0979b1bd373b06b5774ab59c27a6ba0898926aff98de4b08460db5a"
+                }
+              ]
+            }
+          ],
+          "competitorGroups": [
+            {
+              "id": "competitor-5d50cf519d09f398",
+              "name": "StarBoost",
+              "host": "starboost.io",
+              "identity": "confirmed_exact",
+              "groupingRule": "exact-name-host/v1",
+              "sourceRecordIds": [
+                "6659bd90-9120-434a-9409-bcb285b90710"
+              ],
+              "cells": [
+                {
+                  "modelRunId": "63972b7e-7773-4613-b683-54798d11c494",
+                  "state": "not_reported",
+                  "recordIds": [],
+                  "keywordRecordIds": []
+                },
+                {
+                  "modelRunId": "c92c0650-4038-49b6-ad40-dc5c4f1be65c",
+                  "state": "reported",
+                  "recordIds": [
+                    "6659bd90-9120-434a-9409-bcb285b90710"
+                  ],
+                  "keywordRecordIds": [
+                    "bb90131d-1e20-4a2b-a6b7-3395363e00fe"
+                  ]
+                },
+                {
+                  "modelRunId": "cb93a803-3f66-4343-b50e-6cd8245acee8",
+                  "state": "not_reported",
+                  "recordIds": [],
+                  "keywordRecordIds": []
+                }
+              ]
+            }
+          ],
+          "brandKeywordGroups": [
+            {
+              "id": "brand-keyword-303f63dab2460629",
+              "keyword": "在线游戏",
+              "normalizedKeyword": "在线游戏",
+              "sourceRecordIds": [
+                "af3c7395-0103-45e8-9955-b631ba4bef17"
+              ],
+              "cells": [
+                {
+                  "modelRunId": "63972b7e-7773-4613-b683-54798d11c494",
+                  "state": "reported",
+                  "recordIds": [
+                    "af3c7395-0103-45e8-9955-b631ba4bef17"
+                  ],
+                  "keywordRecordIds": [
+                    "af3c7395-0103-45e8-9955-b631ba4bef17"
+                  ]
+                },
+                {
+                  "modelRunId": "c92c0650-4038-49b6-ad40-dc5c4f1be65c",
+                  "state": "not_reported",
+                  "recordIds": [],
+                  "keywordRecordIds": []
+                },
+                {
+                  "modelRunId": "cb93a803-3f66-4343-b50e-6cd8245acee8",
+                  "state": "not_reported",
+                  "recordIds": [],
+                  "keywordRecordIds": []
+                }
+              ]
+            },
+            {
+              "id": "brand-keyword-d785e3d1f9a0958c",
+              "keyword": "娱乐服务",
+              "normalizedKeyword": "娱乐服务",
+              "sourceRecordIds": [
+                "9e845012-1672-4e17-8053-ed8c4468f32e"
+              ],
+              "cells": [
+                {
+                  "modelRunId": "63972b7e-7773-4613-b683-54798d11c494",
+                  "state": "reported",
+                  "recordIds": [
+                    "9e845012-1672-4e17-8053-ed8c4468f32e"
+                  ],
+                  "keywordRecordIds": [
+                    "9e845012-1672-4e17-8053-ed8c4468f32e"
+                  ]
+                },
+                {
+                  "modelRunId": "c92c0650-4038-49b6-ad40-dc5c4f1be65c",
+                  "state": "not_reported",
+                  "recordIds": [],
+                  "keywordRecordIds": []
+                },
+                {
+                  "modelRunId": "cb93a803-3f66-4343-b50e-6cd8245acee8",
+                  "state": "not_reported",
+                  "recordIds": [],
+                  "keywordRecordIds": []
+                }
+              ]
+            },
+            {
+              "id": "brand-keyword-904a56e25af99834",
+              "keyword": "牛逼Star",
+              "normalizedKeyword": "牛逼star",
+              "sourceRecordIds": [
+                "1ac9ba9a-d2d7-484c-8d70-199f1ce8ebcd"
+              ],
+              "cells": [
+                {
+                  "modelRunId": "63972b7e-7773-4613-b683-54798d11c494",
+                  "state": "not_reported",
+                  "recordIds": [],
+                  "keywordRecordIds": []
+                },
+                {
+                  "modelRunId": "c92c0650-4038-49b6-ad40-dc5c4f1be65c",
+                  "state": "reported",
+                  "recordIds": [
+                    "1ac9ba9a-d2d7-484c-8d70-199f1ce8ebcd"
+                  ],
+                  "keywordRecordIds": [
+                    "1ac9ba9a-d2d7-484c-8d70-199f1ce8ebcd"
+                  ]
+                },
+                {
+                  "modelRunId": "cb93a803-3f66-4343-b50e-6cd8245acee8",
+                  "state": "not_reported",
+                  "recordIds": [],
+                  "keywordRecordIds": []
+                }
+              ]
+            }
+          ]
+        },
+        "reportError": null
+      }
+    ],
+    "measurementRuns": [
+      {
+        "run": {
+          "id": "00d942a5-5155-42df-a79e-e1488f005048",
+          "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+          "baselineId": "e32c157b-b371-4cca-bb42-19e781a5c8a5",
+          "baselineVersion": 1,
+          "watchSetId": "5e8e79e2-b962-4058-a776-e34baa29e0a7",
+          "watchSetVersion": 1,
+          "source": "manual",
+          "modelScope": [
+            "google/gemini-2.5-flash-lite",
+            "openai/gpt-4.1-mini",
+            "openai/gpt-4o-mini"
+          ],
+          "plannedProbeCount": 3,
+          "completedProbeCount": 3,
+          "failedProbeCount": 0,
+          "status": "completed",
+          "budget": {
+            "requestLimit": 9,
+            "dailyRequestLimit": null,
+            "tokenLimit": null,
+            "costLimitUsd": 2
+          },
+          "idempotencyKey": "5b745e193da43810b6737c9708d0a91d569ddc9cf4fba39e1517f43ccb13ed5e:R01:measurement:1",
+          "createdAt": "2026-09-08T06:01:10.366Z",
+          "startedAt": "2026-09-08T06:01:10.368Z",
+          "completedAt": "2026-09-08T06:01:16.428Z"
+        },
+        "modelRuns": [
+          {
+            "id": "7ffe433a-71c1-482e-868a-0cceecc12172",
+            "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+            "runId": "00d942a5-5155-42df-a79e-e1488f005048",
+            "baselineId": "e32c157b-b371-4cca-bb42-19e781a5c8a5",
+            "modelSnapshot": {
+              "selectionId": "ec41dfe1-6978-4425-9e9a-efc0d8028f8d",
+              "providerId": "openrouter",
+              "modelId": "openai/gpt-4.1-mini",
+              "displayName": "OpenAI: GPT-4.1 Mini",
+              "webSearchMode": "provider_native",
+              "nativeWebSearchSupported": true,
+              "capabilityCheckedAt": "2026-09-08T06:01:00.282Z"
+            },
+            "probeRunIds": [
+              "6b23fd71-ac1e-4b00-b03f-3a15360319ed"
+            ],
+            "status": "completed",
+            "createdAt": "2026-09-08T06:01:10.367Z",
+            "startedAt": "2026-09-08T06:01:10.369Z",
+            "completedAt": "2026-09-08T06:01:15.158Z"
+          },
+          {
+            "id": "ae282331-ff7c-4e8f-89ae-7f43d26bcc1b",
+            "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+            "runId": "00d942a5-5155-42df-a79e-e1488f005048",
+            "baselineId": "e32c157b-b371-4cca-bb42-19e781a5c8a5",
+            "modelSnapshot": {
+              "selectionId": "4b0add6c-3862-48fa-b329-ad04d8a220b5",
+              "providerId": "openrouter",
+              "modelId": "openai/gpt-4o-mini",
+              "displayName": "OpenAI: GPT-4o-mini",
+              "webSearchMode": "off",
+              "nativeWebSearchSupported": false,
+              "capabilityCheckedAt": "2026-09-08T06:01:00.282Z"
+            },
+            "probeRunIds": [
+              "d8b7072d-a2c2-47c9-9bf9-da0502a1c08b"
+            ],
+            "status": "completed",
+            "createdAt": "2026-09-08T06:01:10.367Z",
+            "startedAt": "2026-09-08T06:01:10.369Z",
+            "completedAt": "2026-09-08T06:01:16.426Z"
+          },
+          {
+            "id": "ca58f6f7-5011-4be1-be73-5a683b5858ae",
+            "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+            "runId": "00d942a5-5155-42df-a79e-e1488f005048",
+            "baselineId": "e32c157b-b371-4cca-bb42-19e781a5c8a5",
+            "modelSnapshot": {
+              "selectionId": "3a1fca5c-eda4-4e66-95a8-1e8a2640a69d",
+              "providerId": "openrouter",
+              "modelId": "google/gemini-2.5-flash-lite",
+              "displayName": "Google: Gemini 2.5 Flash Lite",
+              "webSearchMode": "off",
+              "nativeWebSearchSupported": true,
+              "capabilityCheckedAt": "2026-09-08T06:01:00.282Z"
+            },
+            "probeRunIds": [
+              "c2129e79-e3af-4513-9869-14f09f8fd4f0"
+            ],
+            "status": "completed",
+            "createdAt": "2026-09-08T06:01:10.367Z",
+            "startedAt": "2026-09-08T06:01:10.369Z",
+            "completedAt": "2026-09-08T06:01:12.141Z"
+          }
+        ],
+        "probes": [
+          {
+            "probe": {
+              "id": "6b23fd71-ac1e-4b00-b03f-3a15360319ed",
+              "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+              "runId": "00d942a5-5155-42df-a79e-e1488f005048",
+              "modelRunId": "7ffe433a-71c1-482e-868a-0cceecc12172",
+              "protocol": {
+                "id": "domain-recognition/v1",
+                "version": "v1",
+                "language": "zh",
+                "responseSchemaHash": "02baab4ac0667bac34dc16f80aad12d58397454ce11c9ca6c4e1465c1f8ff860",
+                "promptTemplateHash": "54f284b48b0d24e5f29bf7853f3acfe79022fec63596d3ed182cd93ef1c0959d"
+              },
+              "kind": "target_domain",
+              "subjectObjectId": "watch-object-e155c25921270d4e3f22b2d7",
+              "subjectDomain": "niubistar.com",
+              "sampleNumber": 1,
+              "fingerprint": {
+                "value": "a5d699e57a8169f4a246ad25f44f7eec24ce8e5412deae6930614a5e267518a2",
+                "modelId": "openai/gpt-4.1-mini",
+                "webSearchMode": "provider_native",
+                "protocolId": "domain-recognition/v1",
+                "protocolVersion": "v1",
+                "language": "zh",
+                "scenario": null,
+                "subject": "niubistar.com",
+                "repetitions": 1,
+                "matchingRuleVersion": "measurement-matching/v1",
+                "keywordSetHash": null
+              },
+              "status": "completed",
+              "attemptIds": [
+                "43b92502-c357-4666-a0e7-380e0704e8e6"
+              ],
+              "plannedAt": "2026-09-08T06:01:10.370Z",
+              "firstAttemptId": "43b92502-c357-4666-a0e7-380e0704e8e6",
+              "latestAttemptId": "43b92502-c357-4666-a0e7-380e0704e8e6",
+              "startedAt": "2026-09-08T06:01:10.373Z",
+              "completedAt": "2026-09-08T06:01:15.156Z"
+            },
+            "attempts": [
+              {
+                "id": "43b92502-c357-4666-a0e7-380e0704e8e6",
+                "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+                "runId": "00d942a5-5155-42df-a79e-e1488f005048",
+                "modelRunId": "7ffe433a-71c1-482e-868a-0cceecc12172",
+                "probeRunId": "6b23fd71-ac1e-4b00-b03f-3a15360319ed",
+                "attemptNumber": 1,
+                "status": "completed",
+                "promptHash": "0bd74d33e00f8c125479330334615cb3de26f6a1f46427419a2768eedf640acf",
+                "requestParameters": {
+                  "model": "openai/gpt-4.1-mini",
+                  "temperature": 0,
+                  "maxTokens": 900,
+                  "requireProviderParameters": true,
+                  "responseSchemaName": "domain_recognition_result",
+                  "responseSchemaHash": "02baab4ac0667bac34dc16f80aad12d58397454ce11c9ca6c4e1465c1f8ff860",
+                  "structuredOutputTransport": "response_json_schema",
+                  "webSearchEnabled": true,
+                  "webSearchMode": "provider_native"
+                },
+                "providerId": "openrouter",
+                "costUsd": 0.0140224,
+                "costState": "known",
+                "createdAt": "2026-09-08T06:01:10.373Z",
+                "startedAt": "2026-09-08T06:01:10.373Z",
+                "rawProviderResponse": {
+                  "id": "gen-1788847273-aVFT4gsmhdJN1KTfJPWN",
+                  "object": "chat.completion",
+                  "created": 1788847273,
+                  "model": "openai/gpt-4.1-mini",
+                  "provider": "OpenAI",
+                  "system_fingerprint": null,
+                  "service_tier": "auto",
+                  "choices": [
+                    {
+                      "index": 0,
+                      "logprobs": null,
+                      "finish_reason": "stop",
+                      "native_finish_reason": "completed",
+                      "message": {
+                        "role": "assistant",
+                        "content": "{\"domainRecognition\":\"recognized\",\"analysisStatus\":\"recognized\",\"recognizedBrand\":{\"value\":\"牛逼Star\",\"citationUrls\":[]},\"businessDescription\":{\"value\":\"牛逼Star 是一个安全的 GitHub 项目互赞平台，提供 GitHub Stars 增长服务，帮助开发者提升项目的可信度和曝光度。\",\"citationUrls\":[]},\"productCategory\":{\"value\":\"GitHub Stars 增长服务\",\"citationUrls\":[]},\"competitors\":[{\"name\":\"GitHub Stars Exchange\",\"domain\":\"githubstarsexchange.com\",\"businessDescription\":\"提供 GitHub Stars 增长服务，帮助开发者提升项目的可信度和曝光度。\",\"productCategory\":\"GitHub Stars 增长服务\",\"keywords\":[{\"keyword\":\"GitHub Stars 增长服务\",\"citationUrls\":[]}],\"citationUrls\":[]}],\"brandKeywords\":[{\"keyword\":\"GitHub Stars 增长服务\",\"citationUrls\":[]}],\"unknowns\":[]} ",
+                        "refusal": null,
+                        "reasoning": null
+                      }
+                    }
+                  ],
+                  "usage": {
+                    "prompt_tokens": 9284,
+                    "completion_tokens": 193,
+                    "total_tokens": 9477,
+                    "cost": 0.0140224,
+                    "is_byok": false,
+                    "prompt_tokens_details": {
+                      "cached_tokens": 0,
+                      "cache_write_tokens": 0,
+                      "audio_tokens": 0,
+                      "video_tokens": 0
+                    },
+                    "cost_details": {
+                      "upstream_inference_cost": 0.0140224,
+                      "upstream_inference_prompt_cost": 0.0037136,
+                      "upstream_inference_completions_cost": 0.0003088
+                    },
+                    "completion_tokens_details": {
+                      "reasoning_tokens": 0,
+                      "image_tokens": 0,
+                      "audio_tokens": 0
+                    },
+                    "server_tool_use_details": {
+                      "web_search_requests": 1
+                    }
+                  },
+                  "openrouter_metadata": {
+                    "requested": "openai/gpt-4.1-mini",
+                    "strategy": "direct",
+                    "region": "ORD",
+                    "summary": "available=1, selected=OpenAI",
+                    "attempt": 1,
+                    "is_byok": false,
+                    "endpoints": {
+                      "total": 3,
+                      "available": [
+                        {
+                          "provider": "OpenAI",
+                          "model": "openai/gpt-4.1-mini-2025-04-14",
+                          "selected": true
+                        }
+                      ]
+                    },
+                    "generation_time": 2325,
+                    "pipeline": [
+                      {
+                        "type": "server_tools",
+                        "name": "server-tools",
+                        "summary": "Server tools invoked (native): openrouter:web_search",
+                        "data": {
+                          "mode": "native",
+                          "tools": [
+                            "openrouter:web_search"
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                "rawAnswer": "{\"domainRecognition\":\"recognized\",\"analysisStatus\":\"recognized\",\"recognizedBrand\":{\"value\":\"牛逼Star\",\"citationUrls\":[]},\"businessDescription\":{\"value\":\"牛逼Star 是一个安全的 GitHub 项目互赞平台，提供 GitHub Stars 增长服务，帮助开发者提升项目的可信度和曝光度。\",\"citationUrls\":[]},\"productCategory\":{\"value\":\"GitHub Stars 增长服务\",\"citationUrls\":[]},\"competitors\":[{\"name\":\"GitHub Stars Exchange\",\"domain\":\"githubstarsexchange.com\",\"businessDescription\":\"提供 GitHub Stars 增长服务，帮助开发者提升项目的可信度和曝光度。\",\"productCategory\":\"GitHub Stars 增长服务\",\"keywords\":[{\"keyword\":\"GitHub Stars 增长服务\",\"citationUrls\":[]}],\"citationUrls\":[]}],\"brandKeywords\":[{\"keyword\":\"GitHub Stars 增长服务\",\"citationUrls\":[]}],\"unknowns\":[]}",
+                "providerModel": "openai/gpt-4.1-mini",
+                "providerModelVersion": "openai/gpt-4.1-mini",
+                "providerSearch": {
+                  "requested": true,
+                  "requestMode": "provider_native",
+                  "used": true,
+                  "usedMode": "provider_native",
+                  "endpointKind": "official_api",
+                  "endpointProtocol": "chat_completions",
+                  "endpointUrl": "https://openrouter.ai/api/v1/chat/completions",
+                  "toolName": "openrouter:web_search",
+                  "webQueries": [],
+                  "citationCount": 0,
+                  "executionMode": "native",
+                  "note": "OpenRouter metadata confirmed provider-native web search."
+                },
+                "tokenUsage": {
+                  "input": 9284,
+                  "output": 193,
+                  "total": 9477
+                },
+                "latencyMs": 3012,
+                "completedAt": "2026-09-08T06:01:15.156Z"
+              }
+            ],
+            "domainResult": {
+              "id": "7b63d470-d181-40a7-ab07-a3be35196125",
+              "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+              "runId": "00d942a5-5155-42df-a79e-e1488f005048",
+              "modelRunId": "7ffe433a-71c1-482e-868a-0cceecc12172",
+              "probeRunId": "6b23fd71-ac1e-4b00-b03f-3a15360319ed",
+              "attemptId": "43b92502-c357-4666-a0e7-380e0704e8e6",
+              "domainRecognition": "recognized",
+              "analysisStatus": "recognized",
+              "recognizedBrand": "牛逼Star",
+              "businessDescription": "牛逼Star 是一个安全的 GitHub 项目互赞平台，提供 GitHub Stars 增长服务，帮助开发者提升项目的可信度和曝光度。",
+              "productCategory": "GitHub Stars 增长服务",
+              "associatedKeywords": [
+                {
+                  "keyword": "GitHub Stars 增长服务",
+                  "evidence": {
+                    "quote": "GitHub Stars 增长服务",
+                    "start": 182,
+                    "end": 199,
+                    "encoding": "utf16_code_unit"
+                  }
+                }
+              ],
+              "unknowns": [],
+              "createdAt": "2026-09-08T06:01:15.154Z"
+            },
+            "mentions": [],
+            "evidence": {
+              "providerCitations": [],
+              "answerMentionedUrls": []
+            }
+          },
+          {
+            "probe": {
+              "id": "d8b7072d-a2c2-47c9-9bf9-da0502a1c08b",
+              "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+              "runId": "00d942a5-5155-42df-a79e-e1488f005048",
+              "modelRunId": "ae282331-ff7c-4e8f-89ae-7f43d26bcc1b",
+              "protocol": {
+                "id": "domain-recognition/v1",
+                "version": "v1",
+                "language": "zh",
+                "responseSchemaHash": "02baab4ac0667bac34dc16f80aad12d58397454ce11c9ca6c4e1465c1f8ff860",
+                "promptTemplateHash": "54f284b48b0d24e5f29bf7853f3acfe79022fec63596d3ed182cd93ef1c0959d"
+              },
+              "kind": "target_domain",
+              "subjectObjectId": "watch-object-e155c25921270d4e3f22b2d7",
+              "subjectDomain": "niubistar.com",
+              "sampleNumber": 1,
+              "fingerprint": {
+                "value": "2060f516ecde9c9f8694777b7fa02bbd60f3d238c6e0fba4bb3722f72c77bbb3",
+                "modelId": "openai/gpt-4o-mini",
+                "webSearchMode": "off",
+                "protocolId": "domain-recognition/v1",
+                "protocolVersion": "v1",
+                "language": "zh",
+                "scenario": null,
+                "subject": "niubistar.com",
+                "repetitions": 1,
+                "matchingRuleVersion": "measurement-matching/v1",
+                "keywordSetHash": null
+              },
+              "status": "completed",
+              "attemptIds": [
+                "6f7493e2-3af9-47ed-990e-d1bcb15ca393"
+              ],
+              "plannedAt": "2026-09-08T06:01:10.370Z",
+              "firstAttemptId": "6f7493e2-3af9-47ed-990e-d1bcb15ca393",
+              "latestAttemptId": "6f7493e2-3af9-47ed-990e-d1bcb15ca393",
+              "startedAt": "2026-09-08T06:01:10.373Z",
+              "completedAt": "2026-09-08T06:01:16.425Z"
+            },
+            "attempts": [
+              {
+                "id": "6f7493e2-3af9-47ed-990e-d1bcb15ca393",
+                "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+                "runId": "00d942a5-5155-42df-a79e-e1488f005048",
+                "modelRunId": "ae282331-ff7c-4e8f-89ae-7f43d26bcc1b",
+                "probeRunId": "d8b7072d-a2c2-47c9-9bf9-da0502a1c08b",
+                "attemptNumber": 1,
+                "status": "completed",
+                "promptHash": "0bd74d33e00f8c125479330334615cb3de26f6a1f46427419a2768eedf640acf",
+                "requestParameters": {
+                  "model": "openai/gpt-4o-mini",
+                  "temperature": 0,
+                  "maxTokens": 900,
+                  "requireProviderParameters": true,
+                  "responseSchemaName": "domain_recognition_result",
+                  "responseSchemaHash": "02baab4ac0667bac34dc16f80aad12d58397454ce11c9ca6c4e1465c1f8ff860",
+                  "structuredOutputTransport": "response_json_schema",
+                  "webSearchEnabled": false,
+                  "webSearchMode": "off"
+                },
+                "providerId": "openrouter",
+                "costUsd": 0.0001323,
+                "costState": "known",
+                "createdAt": "2026-09-08T06:01:10.373Z",
+                "startedAt": "2026-09-08T06:01:10.373Z",
+                "rawProviderResponse": {
+                  "id": "gen-1788847276-dIZdKqUNexkHHjLyEPJm",
+                  "object": "chat.completion",
+                  "created": 1788847276,
+                  "model": "openai/gpt-4o-mini",
+                  "provider": "OpenAI",
+                  "system_fingerprint": "fp_084a4ba7bb",
+                  "service_tier": null,
+                  "choices": [
+                    {
+                      "index": 0,
+                      "logprobs": null,
+                      "finish_reason": "stop",
+                      "native_finish_reason": "stop",
+                      "message": {
+                        "role": "assistant",
+                        "content": "{\"domainRecognition\":\"not_recognized\",\"analysisStatus\":\"unknown\",\"recognizedBrand\":{\"value\":null,\"citationUrls\":[]},\"businessDescription\":{\"value\":null,\"citationUrls\":[]},\"productCategory\":{\"value\":null,\"citationUrls\":[]},\"competitors\":[],\"brandKeywords\":[],\"unknowns\":[]}",
+                        "refusal": null,
+                        "reasoning": null
+                      }
+                    }
+                  ],
+                  "usage": {
+                    "prompt_tokens": 634,
+                    "completion_tokens": 62,
+                    "total_tokens": 696,
+                    "cost": 0.0001323,
+                    "is_byok": false,
+                    "prompt_tokens_details": {
+                      "cached_tokens": 0,
+                      "cache_write_tokens": 0,
+                      "audio_tokens": 0,
+                      "video_tokens": 0
+                    },
+                    "cost_details": {
+                      "upstream_inference_cost": 0.0001323,
+                      "upstream_inference_prompt_cost": 0.0000951,
+                      "upstream_inference_completions_cost": 0.0000372
+                    },
+                    "completion_tokens_details": {
+                      "reasoning_tokens": 0,
+                      "image_tokens": 0,
+                      "audio_tokens": 0
+                    }
+                  },
+                  "openrouter_metadata": {
+                    "requested": "openai/gpt-4o-mini",
+                    "strategy": "direct",
+                    "region": "ORD",
+                    "summary": "available=1, selected=OpenAI",
+                    "attempt": 1,
+                    "is_byok": false,
+                    "endpoints": {
+                      "total": 3,
+                      "available": [
+                        {
+                          "provider": "OpenAI",
+                          "model": "openai/gpt-4o-mini",
+                          "selected": true
+                        }
+                      ]
+                    },
+                    "generation_time": 765
+                  }
+                },
+                "rawAnswer": "{\"domainRecognition\":\"not_recognized\",\"analysisStatus\":\"unknown\",\"recognizedBrand\":{\"value\":null,\"citationUrls\":[]},\"businessDescription\":{\"value\":null,\"citationUrls\":[]},\"productCategory\":{\"value\":null,\"citationUrls\":[]},\"competitors\":[],\"brandKeywords\":[],\"unknowns\":[]}",
+                "providerModel": "openai/gpt-4o-mini",
+                "providerModelVersion": "openai/gpt-4o-mini",
+                "providerSearch": {
+                  "requested": false,
+                  "requestMode": "auto",
+                  "used": false,
+                  "usedMode": "none",
+                  "endpointKind": "official_api",
+                  "endpointProtocol": "chat_completions",
+                  "endpointUrl": "https://openrouter.ai/api/v1/chat/completions",
+                  "webQueries": [],
+                  "citationCount": 0,
+                  "executionMode": "unverified"
+                },
+                "tokenUsage": {
+                  "input": 634,
+                  "output": 62,
+                  "total": 696
+                },
+                "latencyMs": 1270,
+                "completedAt": "2026-09-08T06:01:16.425Z"
+              }
+            ],
+            "domainResult": {
+              "id": "9837c4f3-a340-4ce6-9fb6-15653f7c9494",
+              "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+              "runId": "00d942a5-5155-42df-a79e-e1488f005048",
+              "modelRunId": "ae282331-ff7c-4e8f-89ae-7f43d26bcc1b",
+              "probeRunId": "d8b7072d-a2c2-47c9-9bf9-da0502a1c08b",
+              "attemptId": "6f7493e2-3af9-47ed-990e-d1bcb15ca393",
+              "domainRecognition": "not_recognized",
+              "analysisStatus": "unknown",
+              "recognizedBrand": null,
+              "businessDescription": null,
+              "productCategory": null,
+              "associatedKeywords": [],
+              "unknowns": [],
+              "createdAt": "2026-09-08T06:01:16.425Z"
+            },
+            "mentions": [],
+            "evidence": {
+              "providerCitations": [],
+              "answerMentionedUrls": []
+            }
+          },
+          {
+            "probe": {
+              "id": "c2129e79-e3af-4513-9869-14f09f8fd4f0",
+              "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+              "runId": "00d942a5-5155-42df-a79e-e1488f005048",
+              "modelRunId": "ca58f6f7-5011-4be1-be73-5a683b5858ae",
+              "protocol": {
+                "id": "domain-recognition/v1",
+                "version": "v1",
+                "language": "zh",
+                "responseSchemaHash": "02baab4ac0667bac34dc16f80aad12d58397454ce11c9ca6c4e1465c1f8ff860",
+                "promptTemplateHash": "54f284b48b0d24e5f29bf7853f3acfe79022fec63596d3ed182cd93ef1c0959d"
+              },
+              "kind": "target_domain",
+              "subjectObjectId": "watch-object-e155c25921270d4e3f22b2d7",
+              "subjectDomain": "niubistar.com",
+              "sampleNumber": 1,
+              "fingerprint": {
+                "value": "1a36268a8ab0bf7eb001f1e9ce5dd658f4c57c5210d5f9728bc54722da3aed08",
+                "modelId": "google/gemini-2.5-flash-lite",
+                "webSearchMode": "off",
+                "protocolId": "domain-recognition/v1",
+                "protocolVersion": "v1",
+                "language": "zh",
+                "scenario": null,
+                "subject": "niubistar.com",
+                "repetitions": 1,
+                "matchingRuleVersion": "measurement-matching/v1",
+                "keywordSetHash": null
+              },
+              "status": "completed",
+              "attemptIds": [
+                "f361c1b5-8d6d-4ed4-a429-98dab92790c9"
+              ],
+              "plannedAt": "2026-09-08T06:01:10.370Z",
+              "firstAttemptId": "f361c1b5-8d6d-4ed4-a429-98dab92790c9",
+              "latestAttemptId": "f361c1b5-8d6d-4ed4-a429-98dab92790c9",
+              "startedAt": "2026-09-08T06:01:10.373Z",
+              "completedAt": "2026-09-08T06:01:12.139Z"
+            },
+            "attempts": [
+              {
+                "id": "f361c1b5-8d6d-4ed4-a429-98dab92790c9",
+                "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+                "runId": "00d942a5-5155-42df-a79e-e1488f005048",
+                "modelRunId": "ca58f6f7-5011-4be1-be73-5a683b5858ae",
+                "probeRunId": "c2129e79-e3af-4513-9869-14f09f8fd4f0",
+                "attemptNumber": 1,
+                "status": "completed",
+                "promptHash": "0bd74d33e00f8c125479330334615cb3de26f6a1f46427419a2768eedf640acf",
+                "requestParameters": {
+                  "model": "google/gemini-2.5-flash-lite",
+                  "temperature": 0,
+                  "maxTokens": 900,
+                  "requireProviderParameters": true,
+                  "responseSchemaName": "domain_recognition_result",
+                  "responseSchemaHash": "02baab4ac0667bac34dc16f80aad12d58397454ce11c9ca6c4e1465c1f8ff860",
+                  "structuredOutputTransport": "response_json_schema",
+                  "webSearchEnabled": false,
+                  "webSearchMode": "off"
+                },
+                "providerId": "openrouter",
+                "costUsd": 0.0000856,
+                "costState": "known",
+                "createdAt": "2026-09-08T06:01:10.373Z",
+                "startedAt": "2026-09-08T06:01:10.373Z",
+                "rawProviderResponse": {
+                  "id": "gen-1788847272-qY6CTMz5FINLDK6lSsL6",
+                  "object": "chat.completion",
+                  "created": 1788847272,
+                  "model": "google/gemini-2.5-flash-lite",
+                  "provider": "Google",
+                  "system_fingerprint": null,
+                  "service_tier": "default",
+                  "choices": [
+                    {
+                      "index": 0,
+                      "logprobs": null,
+                      "finish_reason": "stop",
+                      "native_finish_reason": "STOP",
+                      "message": {
+                        "role": "assistant",
+                        "content": "{\n  \"domainRecognition\": \"recognized\",\n  \"analysisStatus\": \"recognized\",\n  \"recognizedBrand\": {\n    \"value\": \"Niubistar\",\n    \"citationUrls\": []\n  },\n  \"businessDescription\": {\n    \"value\": \"Niubistar 是一家提供在线游戏和娱乐服务的公司。\",\n    \"citationUrls\": []\n  },\n  \"productCategory\": {\n    \"value\": \"在线游戏\",\n    \"citationUrls\": []\n  },\n  \"competitors\": [],\n  \"brandKeywords\": [\n    {\n      \"keyword\": \"在线游戏\",\n      \"citationUrls\": []\n    },\n    {\n      \"keyword\": \"娱乐服务\",\n      \"citationUrls\": []\n    }\n  ],\n  \"unknowns\": []\n}",
+                        "refusal": null,
+                        "reasoning": null
+                      }
+                    }
+                  ],
+                  "usage": {
+                    "prompt_tokens": 144,
+                    "completion_tokens": 178,
+                    "total_tokens": 322,
+                    "cost": 0.0000856,
+                    "is_byok": false,
+                    "prompt_tokens_details": {
+                      "cached_tokens": 0,
+                      "cache_write_tokens": 0,
+                      "audio_tokens": 0,
+                      "video_tokens": 0
+                    },
+                    "cost_details": {
+                      "upstream_inference_cost": 0.0000856,
+                      "upstream_inference_prompt_cost": 0.0000144,
+                      "upstream_inference_completions_cost": 0.0000712
+                    },
+                    "completion_tokens_details": {
+                      "reasoning_tokens": 0,
+                      "image_tokens": 0,
+                      "audio_tokens": 0
+                    }
+                  },
+                  "openrouter_metadata": {
+                    "requested": "google/gemini-2.5-flash-lite",
+                    "strategy": "direct",
+                    "region": "ORD",
+                    "summary": "available=3, selected=Google",
+                    "attempt": 1,
+                    "is_byok": false,
+                    "endpoints": {
+                      "total": 5,
+                      "available": [
+                        {
+                          "provider": "Google",
+                          "model": "google/gemini-2.5-flash-lite",
+                          "selected": true
+                        },
+                        {
+                          "provider": "Google",
+                          "model": "google/gemini-2.5-flash-lite",
+                          "selected": false
+                        },
+                        {
+                          "provider": "Google AI Studio",
+                          "model": "google/gemini-2.5-flash-lite",
+                          "selected": false
+                        }
+                      ]
+                    },
+                    "generation_time": 1261
+                  }
+                },
+                "rawAnswer": "{\n  \"domainRecognition\": \"recognized\",\n  \"analysisStatus\": \"recognized\",\n  \"recognizedBrand\": {\n    \"value\": \"Niubistar\",\n    \"citationUrls\": []\n  },\n  \"businessDescription\": {\n    \"value\": \"Niubistar 是一家提供在线游戏和娱乐服务的公司。\",\n    \"citationUrls\": []\n  },\n  \"productCategory\": {\n    \"value\": \"在线游戏\",\n    \"citationUrls\": []\n  },\n  \"competitors\": [],\n  \"brandKeywords\": [\n    {\n      \"keyword\": \"在线游戏\",\n      \"citationUrls\": []\n    },\n    {\n      \"keyword\": \"娱乐服务\",\n      \"citationUrls\": []\n    }\n  ],\n  \"unknowns\": []\n}",
+                "providerModel": "google/gemini-2.5-flash-lite",
+                "providerModelVersion": "google/gemini-2.5-flash-lite",
+                "providerSearch": {
+                  "requested": false,
+                  "requestMode": "auto",
+                  "used": false,
+                  "usedMode": "none",
+                  "endpointKind": "official_api",
+                  "endpointProtocol": "chat_completions",
+                  "endpointUrl": "https://openrouter.ai/api/v1/chat/completions",
+                  "webQueries": [],
+                  "citationCount": 0,
+                  "executionMode": "unverified"
+                },
+                "tokenUsage": {
+                  "input": 144,
+                  "output": 178,
+                  "total": 322
+                },
+                "latencyMs": 1761,
+                "completedAt": "2026-09-08T06:01:12.139Z"
+              }
+            ],
+            "domainResult": {
+              "id": "46ec9e3a-f16b-45d7-8a8f-5c77901395a5",
+              "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+              "runId": "00d942a5-5155-42df-a79e-e1488f005048",
+              "modelRunId": "ca58f6f7-5011-4be1-be73-5a683b5858ae",
+              "probeRunId": "c2129e79-e3af-4513-9869-14f09f8fd4f0",
+              "attemptId": "f361c1b5-8d6d-4ed4-a429-98dab92790c9",
+              "domainRecognition": "recognized",
+              "analysisStatus": "recognized",
+              "recognizedBrand": "Niubistar",
+              "businessDescription": "Niubistar 是一家提供在线游戏和娱乐服务的公司。",
+              "productCategory": "在线游戏",
+              "associatedKeywords": [
+                {
+                  "keyword": "在线游戏",
+                  "evidence": {
+                    "quote": "在线游戏",
+                    "start": 206,
+                    "end": 210,
+                    "encoding": "utf16_code_unit"
+                  }
+                },
+                {
+                  "keyword": "娱乐服务",
+                  "evidence": {
+                    "quote": "娱乐服务",
+                    "start": 211,
+                    "end": 215,
+                    "encoding": "utf16_code_unit"
+                  }
+                }
+              ],
+              "unknowns": [],
+              "createdAt": "2026-09-08T06:01:12.137Z"
+            },
+            "mentions": [],
+            "evidence": {
+              "providerCitations": [],
+              "answerMentionedUrls": []
+            }
+          }
+        ]
+      }
+    ],
+    "errors": [],
+    "baseline": {
+      "id": "e32c157b-b371-4cca-bb42-19e781a5c8a5",
+      "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+      "version": 1,
+      "normalizedDomain": "niubistar.com",
+      "recognitionProtocol": {
+        "protocolId": "domain-recognition",
+        "protocolVersion": "v1",
+        "inputType": "domain_only",
+        "requestedFields": [
+          "domainRecognition",
+          "brandIdentity",
+          "businessDescription",
+          "productCategory",
+          "competitors",
+          "brandKeywords",
+          "competitorKeywords",
+          "citations",
+          "unknowns"
+        ],
+        "promptTemplateHash": "76cd258fc87e8eb3a1602d2cb0334e6f39e1a0bcc33cc6875ef35c9c2663d391"
+      },
+      "modelSnapshots": [
+        {
+          "selectionId": "3a1fca5c-eda4-4e66-95a8-1e8a2640a69d",
+          "providerId": "openrouter",
+          "modelId": "google/gemini-2.5-flash-lite",
+          "displayName": "Google: Gemini 2.5 Flash Lite",
+          "webSearchMode": "off",
+          "nativeWebSearchSupported": true,
+          "capabilityCheckedAt": "2026-09-08T06:01:00.282Z"
+        },
+        {
+          "selectionId": "ec41dfe1-6978-4425-9e9a-efc0d8028f8d",
+          "providerId": "openrouter",
+          "modelId": "openai/gpt-4.1-mini",
+          "displayName": "OpenAI: GPT-4.1 Mini",
+          "webSearchMode": "provider_native",
+          "nativeWebSearchSupported": true,
+          "capabilityCheckedAt": "2026-09-08T06:01:00.282Z"
+        },
+        {
+          "selectionId": "4b0add6c-3862-48fa-b329-ad04d8a220b5",
+          "providerId": "openrouter",
+          "modelId": "openai/gpt-4o-mini",
+          "displayName": "OpenAI: GPT-4o-mini",
+          "webSearchMode": "off",
+          "nativeWebSearchSupported": false,
+          "capabilityCheckedAt": "2026-09-08T06:01:00.282Z"
+        }
+      ],
+      "language": "zh",
+      "analysisVersion": "recognition-analysis/v1",
+      "configHash": "f48899613a1a74a52b43ab6d19ba9656658ad5475c27b880a92d6963c38467a7",
+      "createdAt": "2026-09-08T06:01:00.284Z"
+    },
+    "keywordManifestHash": "e4f0cad7943f81c5ea98087f6c45edaf8cf033b2ae9f907208c766cbbdd52d93",
+    "keywords": {
+      "schemaVersion": "release-keywords/v1",
+      "caseId": "R01",
+      "studyRule": {
+        "version": "observed-consensus/v1",
+        "minimumIndependentModels": 2,
+        "ordering": [
+          "distinct_model_count_desc",
+          "normalized_keyword_asc"
+        ],
+        "exclusions": [
+          "observed_identity_substring",
+          "no_exact_quote",
+          "insufficient_independent_association"
+        ],
+        "noSemanticRewriting": true
+      },
+      "selected": [],
+      "candidates": [
+        {
+          "id": "watch-keyword-f7181921cade5f4439679164",
+          "keyword": "在线游戏",
+          "normalizedKeyword": "在线游戏",
+          "reason": "insufficient_independent_association",
+          "modelCount": 1,
+          "sources": [
+            {
+              "modelId": "google/gemini-2.5-flash-lite",
+              "recordId": "af3c7395-0103-45e8-9955-b631ba4bef17",
+              "attemptId": "8e05a5ef-6cb5-4844-949d-3fcf87e34e9d",
+              "evidence": {
+                "quote": "在线游戏",
+                "start": 206,
+                "end": 210,
+                "encoding": "utf16_code_unit"
+              }
+            }
+          ]
+        },
+        {
+          "id": "watch-keyword-47f6ec81c008cc5f9a5efd5e",
+          "keyword": "娱乐服务",
+          "normalizedKeyword": "娱乐服务",
+          "reason": "insufficient_independent_association",
+          "modelCount": 1,
+          "sources": [
+            {
+              "modelId": "google/gemini-2.5-flash-lite",
+              "recordId": "9e845012-1672-4e17-8053-ed8c4468f32e",
+              "attemptId": "8e05a5ef-6cb5-4844-949d-3fcf87e34e9d",
+              "evidence": {
+                "quote": "娱乐服务",
+                "start": 211,
+                "end": 215,
+                "encoding": "utf16_code_unit"
+              }
+            }
+          ]
+        },
+        {
+          "id": "watch-keyword-2218c4beca8098efa632fef2",
+          "keyword": "牛逼Star",
+          "normalizedKeyword": "牛逼star",
+          "reason": "contains_observed_identity",
+          "modelCount": 1,
+          "sources": [
+            {
+              "modelId": "openai/gpt-4.1-mini",
+              "recordId": "1ac9ba9a-d2d7-484c-8d70-199f1ce8ebcd",
+              "attemptId": "0aec67ab-66c8-4f9a-976e-0cffe244f51c",
+              "evidence": {
+                "quote": "牛逼Star",
+                "start": 92,
+                "end": 98,
+                "encoding": "utf16_code_unit"
+              }
+            }
+          ]
+        }
+      ],
+      "limitation": "Exact cross-model association and absence of observed identities are mechanically checked. This is not a semantic guarantee or search-demand ranking."
+    },
+    "watchSet": {
+      "id": "5e8e79e2-b962-4058-a776-e34baa29e0a7",
+      "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+      "baselineId": "e32c157b-b371-4cca-bb42-19e781a5c8a5",
+      "version": 1,
+      "status": "draft",
+      "targetObjectId": "watch-object-e155c25921270d4e3f22b2d7",
+      "objects": [
+        {
+          "id": "watch-object-e155c25921270d4e3f22b2d7",
+          "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+          "role": "target",
+          "name": "Niubistar",
+          "domain": "niubistar.com",
+          "aliases": [],
+          "sourceRecordIds": [],
+          "selectedAt": "2026-09-08T06:01:10.359Z",
+          "identityState": "confirmed"
+        }
+      ],
+      "keywords": [],
+      "domainProtocol": {
+        "id": "domain-recognition/v1",
+        "version": "v1",
+        "language": "zh",
+        "responseSchemaHash": "02baab4ac0667bac34dc16f80aad12d58397454ce11c9ca6c4e1465c1f8ff860",
+        "promptTemplateHash": "54f284b48b0d24e5f29bf7853f3acfe79022fec63596d3ed182cd93ef1c0959d"
+      },
+      "keywordProtocol": {
+        "id": "keyword-discovery/v1",
+        "version": "v1",
+        "language": "zh",
+        "scenario": "neutral_product_selection",
+        "responseSchemaHash": "4e5f9b3e7ed60c54cb8b0b3564dfe5fff030328094ad0903a49e2dfa3d5062d8",
+        "promptTemplateHash": "20430840fa1baa117d8d5ecc6ffcf98cb92331657f94215c16ed28f14cd06030"
+      },
+      "repetitions": 1,
+      "matchingRuleVersion": "measurement-matching/v1",
+      "createdAt": "2026-09-08T06:01:10.360Z"
+    },
+    "statistics": {
+      "snapshot": {
+        "id": "stats-b344a6f2eb70581d31c14b3a",
+        "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+        "generatedAt": "2026-09-08T06:01:17.408Z",
+        "sourceRunIds": [
+          "00d942a5-5155-42df-a79e-e1488f005048"
+        ],
+        "points": [
+          {
+            "id": "point-508c1b84fc4013973229546f",
+            "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+            "metric": "domain_recognition",
+            "objectId": "watch-object-e155c25921270d4e3f22b2d7",
+            "comparisonObjectId": null,
+            "keywordId": null,
+            "modelId": "openai/gpt-4.1-mini",
+            "modelDisplayName": "OpenAI: GPT-4.1 Mini",
+            "webSearchMode": "provider_native",
+            "fingerprint": "a5d699e57a8169f4a246ad25f44f7eec24ce8e5412deae6930614a5e267518a2",
+            "runId": "00d942a5-5155-42df-a79e-e1488f005048",
+            "observedAt": "2026-09-08T06:01:10.368Z",
+            "numerator": 1,
+            "denominator": 1,
+            "comparisonNumerator": null,
+            "comparisonDenominator": null,
+            "planned": 1,
+            "failed": 0,
+            "value": 100,
+            "valueUnit": "percentage",
+            "complete": true,
+            "pointState": "complete",
+            "sampleIds": [
+              "6b23fd71-ac1e-4b00-b03f-3a15360319ed"
+            ],
+            "samples": [
+              {
+                "probeRunId": "6b23fd71-ac1e-4b00-b03f-3a15360319ed",
+                "attemptId": "43b92502-c357-4666-a0e7-380e0704e8e6",
+                "included": true,
+                "numerator": true,
+                "exclusionReason": null
+              }
+            ]
+          },
+          {
+            "id": "point-7f3e57f27eef7ce3930bbd2c",
+            "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+            "metric": "domain_recognition",
+            "objectId": "watch-object-e155c25921270d4e3f22b2d7",
+            "comparisonObjectId": null,
+            "keywordId": null,
+            "modelId": "openai/gpt-4o-mini",
+            "modelDisplayName": "OpenAI: GPT-4o-mini",
+            "webSearchMode": "off",
+            "fingerprint": "2060f516ecde9c9f8694777b7fa02bbd60f3d238c6e0fba4bb3722f72c77bbb3",
+            "runId": "00d942a5-5155-42df-a79e-e1488f005048",
+            "observedAt": "2026-09-08T06:01:10.368Z",
+            "numerator": 0,
+            "denominator": 1,
+            "comparisonNumerator": null,
+            "comparisonDenominator": null,
+            "planned": 1,
+            "failed": 0,
+            "value": 0,
+            "valueUnit": "percentage",
+            "complete": true,
+            "pointState": "complete",
+            "sampleIds": [
+              "d8b7072d-a2c2-47c9-9bf9-da0502a1c08b"
+            ],
+            "samples": [
+              {
+                "probeRunId": "d8b7072d-a2c2-47c9-9bf9-da0502a1c08b",
+                "attemptId": "6f7493e2-3af9-47ed-990e-d1bcb15ca393",
+                "included": true,
+                "numerator": false,
+                "exclusionReason": null
+              }
+            ]
+          },
+          {
+            "id": "point-05b94e34f48fdab195467183",
+            "projectId": "e68426b8-9708-48f6-92ae-cc3913857348",
+            "metric": "domain_recognition",
+            "objectId": "watch-object-e155c25921270d4e3f22b2d7",
+            "comparisonObjectId": null,
+            "keywordId": null,
+            "modelId": "google/gemini-2.5-flash-lite",
+            "modelDisplayName": "Google: Gemini 2.5 Flash Lite",
+            "webSearchMode": "off",
+            "fingerprint": "1a36268a8ab0bf7eb001f1e9ce5dd658f4c57c5210d5f9728bc54722da3aed08",
+            "runId": "00d942a5-5155-42df-a79e-e1488f005048",
+            "observedAt": "2026-09-08T06:01:10.368Z",
+            "numerator": 1,
+            "denominator": 1,
+            "comparisonNumerator": null,
+            "comparisonDenominator": null,
+            "planned": 1,
+            "failed": 0,
+            "value": 100,
+            "valueUnit": "percentage",
+            "complete": true,
+            "pointState": "complete",
+            "sampleIds": [
+              "c2129e79-e3af-4513-9869-14f09f8fd4f0"
+            ],
+            "samples": [
+              {
+                "probeRunId": "c2129e79-e3af-4513-9869-14f09f8fd4f0",
+                "attemptId": "f361c1b5-8d6d-4ed4-a429-98dab92790c9",
+                "included": true,
+                "numerator": true,
+                "exclusionReason": null
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "archiveContext": {
+    "keywordManifest": {
+      "schemaVersion": "release-keywords/v1",
+      "caseId": "R01",
+      "studyRule": {
+        "version": "observed-consensus/v1",
+        "minimumIndependentModels": 2,
+        "ordering": [
+          "distinct_model_count_desc",
+          "normalized_keyword_asc"
+        ],
+        "exclusions": [
+          "observed_identity_substring",
+          "no_exact_quote",
+          "insufficient_independent_association"
+        ],
+        "noSemanticRewriting": true
+      },
+      "selected": [],
+      "candidates": [
+        {
+          "id": "watch-keyword-f7181921cade5f4439679164",
+          "keyword": "在线游戏",
+          "normalizedKeyword": "在线游戏",
+          "reason": "insufficient_independent_association",
+          "modelCount": 1,
+          "sources": [
+            {
+              "modelId": "google/gemini-2.5-flash-lite",
+              "recordId": "af3c7395-0103-45e8-9955-b631ba4bef17",
+              "attemptId": "8e05a5ef-6cb5-4844-949d-3fcf87e34e9d",
+              "evidence": {
+                "quote": "在线游戏",
+                "start": 206,
+                "end": 210,
+                "encoding": "utf16_code_unit"
+              }
+            }
+          ]
+        },
+        {
+          "id": "watch-keyword-47f6ec81c008cc5f9a5efd5e",
+          "keyword": "娱乐服务",
+          "normalizedKeyword": "娱乐服务",
+          "reason": "insufficient_independent_association",
+          "modelCount": 1,
+          "sources": [
+            {
+              "modelId": "google/gemini-2.5-flash-lite",
+              "recordId": "9e845012-1672-4e17-8053-ed8c4468f32e",
+              "attemptId": "8e05a5ef-6cb5-4844-949d-3fcf87e34e9d",
+              "evidence": {
+                "quote": "娱乐服务",
+                "start": 211,
+                "end": 215,
+                "encoding": "utf16_code_unit"
+              }
+            }
+          ]
+        },
+        {
+          "id": "watch-keyword-2218c4beca8098efa632fef2",
+          "keyword": "牛逼Star",
+          "normalizedKeyword": "牛逼star",
+          "reason": "contains_observed_identity",
+          "modelCount": 1,
+          "sources": [
+            {
+              "modelId": "openai/gpt-4.1-mini",
+              "recordId": "1ac9ba9a-d2d7-484c-8d70-199f1ce8ebcd",
+              "attemptId": "0aec67ab-66c8-4f9a-976e-0cffe244f51c",
+              "evidence": {
+                "quote": "牛逼Star",
+                "start": 92,
+                "end": 98,
+                "encoding": "utf16_code_unit"
+              }
+            }
+          ]
+        }
+      ],
+      "limitation": "Exact cross-model association and absence of observed identities are mechanically checked. This is not a semantic guarantee or search-demand ranking."
+    },
+    "keywordManifestSource": {
+      "path": "keyword-manifests/R01.json",
+      "sha256": "e4f0cad7943f81c5ea98087f6c45edaf8cf033b2ae9f907208c766cbbdd52d93"
+    },
+    "schedule": null
+  },
+  "redactions": [],
+  "sourceSerializationHash": "9f20239c261e2315b28fa2ed3e49d66f254f7cbf92bc95db0160fae7d14873c2"
+}

@@ -1,66 +1,11 @@
 import type { Citation, Entity, Mention, MentionType, PromptRunAnalysis, Sentiment } from "../core/types.js";
 import { attachCitationTypes } from "./citation-intelligence.js";
 import { normalizeDomain } from "../utils/domain.js";
+import { linkifyit } from "linkify-it";
+import { occurrences } from "../utils/text.js";
+import type { EntityRelationshipType, IntentRunAnalysis } from "../intent/intent-schema.js";
 
-const POSITIVE_TERMS = [
-  "recommend",
-  "recommended",
-  "best",
-  "top",
-  "strong",
-  "excellent",
-  "great",
-  "leading",
-  "popular",
-  "trusted",
-  "reliable",
-  "solid",
-  "standout",
-  "good choice",
-  "consider",
-];
-
-const NEGATIVE_TERMS = [
-  "avoid",
-  "not recommend",
-  "do not recommend",
-  "don't recommend",
-  "weak",
-  "poor",
-  "bad",
-  "risk",
-  "risky",
-  "concern",
-  "limited",
-  "expensive",
-  "worse",
-  "discouraged",
-  "problem with",
-  "problems with",
-  "issue with",
-  "issues with",
-  "drawback",
-  "drawbacks",
-  "limitation",
-  "limitations",
-];
-
-const COMPARISON_TERMS = [" vs ", " versus ", " compared", " compare", "alternative", "competitor", "instead of"];
-
-function escapeRegex(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-function maskUrls(text: string): string {
-  return text.replace(/\bhttps?:\/\/[^\s<>)\]}"]+/gi, (match) => " ".repeat(match.length));
-}
-
-function compileTermPattern(term: string): RegExp {
-  const trimmed = term.trim();
-  const left = /^\w/.test(trimmed) ? "(?<!\\w)" : "";
-  const right = /\w$/.test(trimmed) ? "(?!\\w)" : "";
-  return new RegExp(`${left}${escapeRegex(trimmed)}${right}`, "gi");
-}
+const linkify = linkifyit();
 
 function entityTerms(entity: Entity): string[] {
   const domain = normalizeDomain(entity.domain);
@@ -71,17 +16,21 @@ function entityTerms(entity: Entity): string[] {
 }
 
 function findMatches(text: string, entity: Entity): Array<{ text: string; index: number }> {
-  const masked = maskUrls(text);
+  const maskedCharacters = [...text];
+  for (const match of linkify.match(text) || []) {
+    for (let index = match.index; index < match.lastIndex; index += 1) maskedCharacters[index] = " ";
+  }
+  const masked = maskedCharacters.join("");
+  const lower = masked.toLocaleLowerCase();
   const matches: Array<{ text: string; index: number }> = [];
   const seen = new Set<string>();
   for (const term of entityTerms(entity)) {
-    const pattern = compileTermPattern(term);
-    for (const match of masked.matchAll(pattern)) {
-      if (typeof match.index !== "number") continue;
-      const key = `${match.index}:${match[0].toLowerCase()}`;
+    const needle = term.toLocaleLowerCase();
+    for (const index of occurrences(lower, needle)) {
+      const key = `${index}:${needle}`;
       if (seen.has(key)) continue;
       seen.add(key);
-      matches.push({ text: text.slice(match.index, match.index + match[0].length), index: match.index });
+      matches.push({ text: text.slice(index, index + term.length), index });
     }
   }
   return matches.sort((a, b) => a.index - b.index);
@@ -89,7 +38,7 @@ function findMatches(text: string, entity: Entity): Array<{ text: string; index:
 
 function paragraphAt(text: string, index: number | null): string | null {
   if (index === null) return null;
-  const paragraphs = text.split(/\n{2,}/);
+  const paragraphs = text.split("\n\n");
   let cursor = 0;
   for (const paragraph of paragraphs) {
     const start = cursor;
@@ -107,40 +56,21 @@ function contextAt(text: string, index: number | null): string | null {
 
 function sentenceAt(text: string, index: number | null): string | null {
   if (index === null) return null;
-  const left = text.slice(0, index).search(/[^.!?\n。！？]*$/);
-  const start = left >= 0 ? left : Math.max(0, index - 180);
-  const tail = text.slice(index);
-  const right = tail.search(/[.!?\n。！？]/);
-  const end = right >= 0 ? index + right + 1 : Math.min(text.length, index + 320);
-  return text.slice(start, end).replace(/\s+/g, " ").trim();
-}
-
-function includesAny(text: string, terms: string[]): boolean {
-  return terms.some((term) => compileTermPattern(term).test(text));
-}
-
-function isListContext(context: string): boolean {
-  return /(^|\n)\s*(?:[-*]|\d+[.)])\s+/m.test(context);
+  const boundaries = new Set([".", "!", "?", "\n", "。", "！", "？"]);
+  let start = index;
+  while (start > 0 && !boundaries.has(text[start - 1] || "")) start -= 1;
+  let end = index;
+  while (end < text.length && !boundaries.has(text[end] || "")) end += 1;
+  if (end < text.length) end += 1;
+  return text.slice(start, end).split("\n").join(" ").split("\t").join(" ").trim();
 }
 
 function classifyMention(context: string | null, hasCitationOnly: boolean): MentionType {
   if (!context) return hasCitationOnly ? "citation_source" : "not_mentioned";
-  const lower = context.toLowerCase();
-  if (lower.includes("not recommend") || lower.includes("do not recommend") || lower.includes("don't recommend")) {
-    return "rejection";
-  }
-  if (includesAny(lower, NEGATIVE_TERMS)) return "negative";
-  if (includesAny(lower, COMPARISON_TERMS)) return "comparison";
-  if (includesAny(lower, POSITIVE_TERMS)) return "recommendation";
-  if (isListContext(context)) return "list_appearance";
   return "ordinary";
 }
 
 function sentimentFor(context: string | null): Sentiment {
-  if (!context) return "neutral";
-  const lower = context.toLowerCase();
-  if (includesAny(lower, NEGATIVE_TERMS)) return "negative";
-  if (includesAny(lower, POSITIVE_TERMS)) return "positive";
   return "neutral";
 }
 
@@ -194,4 +124,36 @@ export class ResponseAnalyzer {
 
     return { mentions, citations };
   }
+}
+
+const RECOMMENDATION_RELATIONSHIPS = new Set<EntityRelationshipType>(["recommended_option"]);
+const COMPARISON_RELATIONSHIPS = new Set<EntityRelationshipType>([
+  "compared_option",
+  "direct_alternative",
+  "indirect_alternative",
+  "competitor",
+]);
+
+export function applyIntentSemantics(analysis: PromptRunAnalysis, intent: IntentRunAnalysis): PromptRunAnalysis {
+  if (intent.status !== "completed") return analysis;
+  const targetRelationships = intent.entities.filter((entity) => entity.relationshipToTarget === "target");
+  return {
+    ...analysis,
+    mentions: analysis.mentions.map((mention) => {
+      if (!mention.isMentioned) return mention;
+      const name = mention.entityName.trim().toLocaleLowerCase();
+      const relationships = intent.entities.filter((entity) => {
+        if (mention.entityType === "target" && targetRelationships.includes(entity)) return true;
+        return entity.name.trim().toLocaleLowerCase() === name;
+      });
+      const relationshipValues = relationships.flatMap((entity) => [entity.relationshipToQuestion, entity.relationshipToTarget]);
+      if (relationshipValues.some((relationship) => RECOMMENDATION_RELATIONSHIPS.has(relationship))) {
+        return { ...mention, mentionType: "recommendation", isRecommendation: true };
+      }
+      if (relationshipValues.some((relationship) => COMPARISON_RELATIONSHIPS.has(relationship))) {
+        return { ...mention, mentionType: "comparison", isRecommendation: false };
+      }
+      return mention;
+    }),
+  };
 }

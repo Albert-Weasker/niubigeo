@@ -1,92 +1,63 @@
 import type { SiteEvidence, SiteEvidencePage } from "../core/types.js";
 import { fetchGithubMetadata } from "../ingest/github.js";
 import { normalizeDomain } from "../utils/domain.js";
+import { load, type CheerioAPI } from "cheerio";
+import { compactWhitespace, lastPathExtension, splitByCharacters, trimTrailingCharacters } from "../utils/text.js";
 
-const EXTRA_PAGE_HINT =
-  /(?:^|[-_/])(alternative|alternatives|best|case|cases|compare|comparison|competitor|competitors|customer|customers|docs|documentation|guide|guides|help|learn|pricing|resource|resources|review|reviews|solution|solutions|use-case|use-cases)(?:[-_/]|$)/i;
+const KEYWORD_SEPARATORS = new Set([",", "，", ";", "；", "|", "｜"]);
+const NON_HTML_EXTENSIONS = new Set(["avif", "css", "gif", "ico", "jpg", "jpeg", "js", "json", "pdf", "png", "svg", "webp", "xml"]);
+const TRAILING_SLASH = new Set(["/"]);
 
-function stripHtml(value: string): string {
-  return value.replace(/<script[\s\S]*?<\/script>/gi, "").replace(/<style[\s\S]*?<\/style>/gi, "");
-}
-
-function decodeEntities(value: string): string {
-  return value
-    .replace(/&amp;/g, "&")
-    .replace(/&quot;/g, "\"")
-    .replace(/&#39;/g, "'")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&nbsp;/g, " ");
-}
-
-function attrValue(tag: string, attr: string): string | undefined {
-  const pattern = new RegExp(`\\b${attr}\\s*=\\s*("([^"]*)"|'([^']*)'|([^\\s>]+))`, "i");
-  const match = tag.match(pattern);
-  const value = match?.[2] ?? match?.[3] ?? match?.[4];
-  return value ? decodeEntities(value.trim()) : undefined;
-}
-
-function metaValues(html: string, names: string[]): string[] {
+function metaValues(document: CheerioAPI, names: string[]): string[] {
   const wanted = new Set(names.map((name) => name.toLowerCase()));
   const values: string[] = [];
-  for (const match of html.matchAll(/<meta\b[^>]*>/gi)) {
-    const tag = match[0];
-    const key = (attrValue(tag, "name") || attrValue(tag, "property") || "").toLowerCase();
-    const content = attrValue(tag, "content");
+  document("meta").each((_index, element) => {
+    const row = document(element);
+    const key = (row.attr("name") || row.attr("property") || "").toLowerCase();
+    const content = row.attr("content");
     if (content && wanted.has(key)) values.push(content);
-  }
-  return [...new Set(values.map((value) => value.replace(/\s+/g, " ").trim()).filter(Boolean))];
+  });
+  return [...new Set(values.map(compactWhitespace).filter(Boolean))];
 }
 
-function titleContent(html: string): string | undefined {
-  const match = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
-  if (!match?.[1]) return undefined;
-  return decodeEntities(match[1].replace(/\s+/g, " ").trim());
+function titleContent(document: CheerioAPI): string | undefined {
+  const title = compactWhitespace(document("title").first().text());
+  return title || undefined;
 }
 
-function textFromHtml(value: string): string {
-  return decodeEntities(
-    value
-      .replace(/<noscript[\s\S]*?<\/noscript>/gi, " ")
-      .replace(/<svg[\s\S]*?<\/svg>/gi, " ")
-      .replace(/<[^>]+>/g, " ")
-      .replace(/\s+/g, " ")
-      .trim(),
-  );
-}
-
-function htmlTextSnippet(html: string): string | undefined {
-  const text = textFromHtml(html);
+function htmlTextSnippet(document: CheerioAPI): string | undefined {
+  const copy = load(document.html());
+  copy("script, style, noscript, svg").remove();
+  const text = compactWhitespace(copy.root().text());
   return text ? text.slice(0, 10000) : undefined;
 }
 
-function headings(html: string): string[] {
+function headings(document: CheerioAPI): string[] {
   const values: string[] = [];
-  for (const match of html.matchAll(/<h[12]\b[^>]*>([\s\S]*?)<\/h[12]>/gi)) {
-    const text = textFromHtml(match[1] || "");
+  document("h1, h2").each((_index, element) => {
+    const text = compactWhitespace(document(element).text());
     if (text) values.push(text);
-  }
+  });
   return [...new Set(values)].slice(0, 30);
 }
 
 function splitKeywords(value: string): string[] {
-  return value
-    .split(/[,，;；|]/)
-    .map((item) => item.replace(/\s+/g, " ").trim())
-    .filter(Boolean);
+  return splitByCharacters(value, KEYWORD_SEPARATORS);
 }
 
-function jsonLdScripts(html: string): unknown[] {
+function jsonLdScripts(document: CheerioAPI): unknown[] {
   const rows: unknown[] = [];
-  for (const match of html.matchAll(/<script\b[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)) {
-    const raw = decodeEntities((match[1] || "").trim());
-    if (!raw) continue;
+  document("script").each((_index, element) => {
+    const row = document(element);
+    if ((row.attr("type") || "").toLowerCase() !== "application/ld+json") return;
+    const raw = row.text().trim();
+    if (!raw) return;
     try {
       rows.push(JSON.parse(raw));
     } catch {
-      continue;
+      return;
     }
-  }
+  });
   return rows;
 }
 
@@ -114,31 +85,31 @@ function valuesFromJsonLd(input: unknown, key: "name" | "description" | "keyword
     }
   };
   visit(input);
-  return [...new Set(values.map((item) => item.replace(/\s+/g, " ").trim()).filter(Boolean))].slice(0, 50);
+  return [...new Set(values.map(compactWhitespace).filter(Boolean))].slice(0, 50);
 }
 
 export function extractSiteEvidencePage(input: { url: string; html: string }): SiteEvidencePage {
-  const jsonLd = jsonLdScripts(input.html);
-  const html = stripHtml(input.html);
-  const metaKeywords = metaValues(html, ["keywords"]).flatMap(splitKeywords);
+  const document = load(input.html);
+  const jsonLd = jsonLdScripts(document);
+  const metaKeywords = metaValues(document, ["keywords"]).flatMap(splitKeywords);
   const jsonLdKeywords = jsonLd.flatMap((row) => valuesFromJsonLd(row, "keywords"));
   const jsonLdNames = jsonLd.flatMap((row) => valuesFromJsonLd(row, "name"));
   const jsonLdDescriptions = jsonLd.flatMap((row) => valuesFromJsonLd(row, "description"));
 
   return {
     url: input.url,
-    title: titleContent(html) || metaValues(html, ["og:title"])[0],
-    description: metaValues(html, ["description", "og:description"])[0],
+    title: titleContent(document) || metaValues(document, ["og:title"])[0],
+    description: metaValues(document, ["description", "og:description"])[0],
     metaKeywords: [...new Set(metaKeywords)].slice(0, 50),
-    headings: headings(html),
-    ogTitle: metaValues(html, ["og:title"])[0],
-    ogDescription: metaValues(html, ["og:description"])[0],
-    twitterTitle: metaValues(html, ["twitter:title"])[0],
-    twitterDescription: metaValues(html, ["twitter:description"])[0],
+    headings: headings(document),
+    ogTitle: metaValues(document, ["og:title"])[0],
+    ogDescription: metaValues(document, ["og:description"])[0],
+    twitterTitle: metaValues(document, ["twitter:title"])[0],
+    twitterDescription: metaValues(document, ["twitter:description"])[0],
     jsonLdKeywords: [...new Set(jsonLdKeywords)].slice(0, 50),
     jsonLdNames: [...new Set(jsonLdNames)].slice(0, 30),
     jsonLdDescriptions: [...new Set(jsonLdDescriptions)].slice(0, 30),
-    textSnippet: htmlTextSnippet(html),
+    textSnippet: htmlTextSnippet(document),
   };
 }
 
@@ -146,10 +117,10 @@ function hostForFetch(value: string): string {
   const trimmed = value.trim();
   if (!trimmed) return "";
   try {
-    const url = new URL(trimmed.startsWith("http") ? trimmed : `https://${trimmed}`);
+    const url = new URL(trimmed.includes("://") ? trimmed : `https://${trimmed}`);
     return url.hostname.toLowerCase();
   } catch {
-    return trimmed.replace(/^https?:\/\//i, "").replace(/\/.*$/, "").toLowerCase();
+    return "";
   }
 }
 
@@ -186,25 +157,27 @@ async function fetchEvidencePage(url: string): Promise<SiteEvidencePage | null> 
 
 export function extractSameDomainLinks(html: string, baseUrl: string, rootDomain: string): string[] {
   const links = new Map<string, number>();
-  for (const match of html.matchAll(/\bhref=["']([^"']+)["']/gi)) {
-    const raw = match[1]?.trim();
-    if (!raw || raw.startsWith("#") || raw.startsWith("mailto:") || raw.startsWith("tel:")) continue;
+  const document = load(html);
+  document("a[href]").each((_index, element) => {
+    const raw = document(element).attr("href")?.trim();
+    if (!raw || raw.startsWith("#") || raw.startsWith("mailto:") || raw.startsWith("tel:")) return;
     try {
       const url = new URL(raw, baseUrl);
-      if (!["http:", "https:"].includes(url.protocol)) continue;
-      if (normalizeDomain(url.hostname) !== rootDomain) continue;
+      if (!["http:", "https:"].includes(url.protocol)) return;
+      if (normalizeDomain(url.hostname) !== rootDomain) return;
       url.hash = "";
-      const pathname = url.pathname.replace(/\/+$/, "") || "/";
-      if (pathname === "/") continue;
-      if (/\.(?:avif|css|gif|ico|jpg|jpeg|js|json|pdf|png|svg|webp|xml)$/i.test(pathname)) continue;
-      const score = EXTRA_PAGE_HINT.test(pathname) ? 2 : 1;
-      links.set(url.toString(), Math.max(links.get(url.toString()) || 0, score));
+      const pathname = trimTrailingCharacters(url.pathname, TRAILING_SLASH) || "/";
+      if (pathname === "/") return;
+      if (NON_HTML_EXTENSIONS.has(lastPathExtension(pathname))) return;
+      const depth = pathname.split("/").filter(Boolean).length;
+      const previous = links.get(url.toString());
+      links.set(url.toString(), previous === undefined ? depth : Math.min(previous, depth));
     } catch {
-      continue;
+      return;
     }
-  }
+  });
   return [...links.entries()]
-    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .sort((a, b) => a[1] - b[1] || a[0].localeCompare(b[0]))
     .map(([url]) => url)
     .slice(0, 8);
 }
@@ -215,15 +188,16 @@ async function sitemapUrls(domain: string): Promise<string[]> {
     try {
       const response = await fetchText(host);
       if (!response || !response.contentType.includes("xml")) continue;
-      for (const match of response.text.matchAll(/<loc>([\s\S]*?)<\/loc>/gi)) {
-        const raw = decodeEntities((match[1] || "").trim());
+      const document = load(response.text, { xmlMode: true });
+      document("loc").each((_index, element) => {
+        const raw = document(element).text().trim();
         try {
           const url = new URL(raw);
           if (normalizeDomain(url.hostname) === domain) urls.push(url.toString());
         } catch {
-          continue;
+          return;
         }
-      }
+      });
       if (urls.length > 0) break;
     } catch {
       continue;
@@ -274,7 +248,7 @@ export class SiteEvidenceCollector {
           repo: metadata.repo,
           description: metadata.description,
           topics: metadata.topics,
-          readmeSnippet: metadata.readme?.replace(/\s+/g, " ").trim().slice(0, 12_000),
+          readmeSnippet: metadata.readme ? compactWhitespace(metadata.readme).slice(0, 12_000) : undefined,
           license: metadata.license,
           stars: metadata.stars,
           forks: metadata.forks,

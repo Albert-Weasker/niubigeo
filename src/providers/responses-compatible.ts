@@ -11,6 +11,7 @@ import { dedupeCitations, extractResponseCitations, extractTextUrlCitations } fr
 import { postJsonWithRetry } from "./http.js";
 import { makeSearchExecution } from "./search-execution.js";
 import { extractResponseWebQueries } from "./web-query-extractors.js";
+import { failureCodeForStatus, ProviderRequestError } from "./provider-error.js";
 
 interface ResponsesCompatibleOptions {
   definition: ProviderDefinition;
@@ -107,11 +108,11 @@ export class ResponsesCompatibleProvider implements AnswerProvider {
     const error = asObject(asObject(raw)?.error);
     if (!response.ok || error) {
       const message = typeof error?.message === "string" ? error.message : `Provider ${this.definition.id} failed with HTTP ${response.status}`;
-      throw new Error(message);
+      throw new ProviderRequestError({ code: failureCodeForStatus(response.status), message, status: response.status });
     }
 
     const text = extractText(raw);
-    if (!text) throw new Error(`Provider ${this.definition.id} returned an empty answer.`);
+    if (!text) throw new ProviderRequestError({ code: "empty_answer", message: `Provider ${this.definition.id} returned an empty answer.` });
     const nativeCitations = this.citationExtractor(raw);
     const citations = dedupeCitations([...nativeCitations, ...extractTextUrlCitations(text, nativeCitations.length)]);
     const webQueries = extractResponseWebQueries(raw);
@@ -136,7 +137,7 @@ export class ResponsesCompatibleProvider implements AnswerProvider {
       model: input.model,
       modelVersion: extractModelVersion(raw, input.model),
       text,
-      rawJson: raw,
+      rawProviderResponse: raw,
       citations,
       webQueries,
       search,

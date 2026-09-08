@@ -1,0 +1,22 @@
+[
+  {"id":"R01","domain":"niubistar.com","category":{"zh":"开发者项目推广","en":"Developer project promotion"},"language":"zh","sponsorDisclosure":true},
+  {"id":"R02","domain":"vercel.com","category":{"zh":"应用部署","en":"Application deployment"},"language":"en"},
+  {"id":"R03","domain":"supabase.com","category":{"zh":"开发后端","en":"Application backends"},"language":"zh"},
+  {"id":"R04","domain":"posthog.com","category":{"zh":"产品分析","en":"Product analytics"},"language":"en"},
+  {"id":"R05","domain":"sentry.io","category":{"zh":"应用监控","en":"Application monitoring"},"language":"zh"},
+  {"id":"R06","domain":"linear.app","category":{"zh":"项目协作","en":"Project collaboration"},"language":"en"},
+  {"id":"R07","domain":"canva.com","category":{"zh":"视觉设计","en":"Visual design"},"language":"zh"},
+  {"id":"R08","domain":"notion.so","category":{"zh":"文档协作","en":"Document collaboration"},"language":"en"},
+  {"id":"R09","domain":"cloudflare.com","category":{"zh":"网络基础设施","en":"Network infrastructure"},"language":"zh"},
+  {"id":"R10","domain":"replit.com","category":{"zh":"在线开发","en":"Online development"},"language":"en"},
+  {"id":"R11","domain":"github.com","category":{"zh":"代码协作","en":"Code collaboration"},"language":"zh"},
+  {"id":"R12","domain":"gitlab.com","category":{"zh":"软件开发协作","en":"Software development collaboration"},"language":"en"},
+  {"id":"R13","domain":"docker.com","category":{"zh":"容器工具","en":"Container tools"},"language":"zh"},
+  {"id":"R14","domain":"figma.com","category":{"zh":"界面设计","en":"Interface design"},"language":"en"},
+  {"id":"R15","domain":"framer.com","category":{"zh":"网站制作","en":"Website building"},"language":"zh"},
+  {"id":"R16","domain":"webflow.com","category":{"zh":"网站制作","en":"Website building"},"language":"en"},
+  {"id":"R17","domain":"airtable.com","category":{"zh":"数据与协作","en":"Data and collaboration"},"language":"zh"},
+  {"id":"R18","domain":"zapier.com","category":{"zh":"工作流自动化","en":"Workflow automation"},"language":"en"},
+  {"id":"R19","domain":"n8n.io","category":{"zh":"工作流自动化","en":"Workflow automation"},"language":"zh"},
+  {"id":"R20","domain":"plausible.io","category":{"zh":"网站分析","en":"Website analytics"},"language":"en"}
+]

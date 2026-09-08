@@ -1,0 +1,11 @@
+{
+  "id": "R14",
+  "domain": "figma.com",
+  "category": {
+    "zh": "界面设计",
+    "en": "Interface design"
+  },
+  "language": "en",
+  "studyPlan": "../../study-plan.json",
+  "evidenceIndex": "./evidence-index.json"
+}

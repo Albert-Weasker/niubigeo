@@ -5,9 +5,6 @@ import type {
   DiscoveredCompetitor,
   Entity,
   GeoGapAnalysis,
-  KeywordCandidate,
-  KeywordMode,
-  KeywordRelevance,
   MonitoringPrompt,
   ProviderTarget,
   PromptRun,
@@ -16,10 +13,8 @@ import type {
 import { resolveProviderKey, runsDir } from "../config/env.js";
 import { ProviderCatalog } from "../providers/catalog.js";
 import { runProviderWithRetry } from "../providers/provider-retry.js";
-import { PromptGenerator, promptsFromManual } from "../prompts/prompt-generator.js";
 import { buildExecutionPrompt } from "../prompts/execution-prompt.js";
-import { DomainProfiler } from "../profile/domain-profiler.js";
-import { ResponseAnalyzer } from "../analyzer/response-analyzer.js";
+import { applyIntentSemantics, ResponseAnalyzer } from "../analyzer/response-analyzer.js";
 import { CompetitorDiscovery } from "../analyzer/competitor-discovery.js";
 import { MetricsEngine } from "../metrics/metrics-engine.js";
 import { GeoGapAnalyzer } from "../insights/gap-analyzer.js";
@@ -28,31 +23,41 @@ import { ReportBuilder } from "../report/report-builder.js";
 import { ReportModelBuilder } from "../report/report-model.js";
 import { validateReport } from "../report/report-quality.js";
 import { entityFromInput, normalizeDomain, slugify } from "../utils/domain.js";
-import { SiteEvidenceCollector } from "../keywords/site-evidence.js";
-import { KeywordUniverseBuilder } from "../keywords/keyword-universe.js";
-import { KeywordRelevanceScorer } from "../keywords/keyword-relevance.js";
-import { KeywordPromptPlanner } from "../prompts/keyword-prompt-planner.js";
 import { ANALYSIS_RULES_VERSION, PROMPT_SET_VERSION } from "../core/version.js";
 import { IntentResultPipeline } from "../intent/intent-result-pipeline.js";
+import { analysisModelFor } from "../providers/provider-role.js";
+import type { AuditModelProgress, AuditProgressListener, AuditProgressSnapshot } from "./audit-progress.js";
+import { ProviderCallLedger } from "../telemetry/provider-call-ledger.js";
 
 export interface AuditRunnerInput {
-  target: Entity;
-  confirmedPlan?: AuditPlan | undefined;
-  submittedDomain?: string | undefined;
-  competitors: Entity[];
-  providerTargets: ProviderTarget[];
-  language: string;
-  promptCount: number;
-  manualPrompts?: string[] | undefined;
-  keywords?: string[] | undefined;
-  keywordMode?: KeywordMode | undefined;
-  keywordLimit?: number | undefined;
-  promptsPerKeyword?: number | undefined;
-  autoDiscover?: boolean | undefined;
-  targetNameExplicit?: boolean | undefined;
+  confirmedPlan: AuditPlan;
   maxTokens?: number | undefined;
   temperature?: number | undefined;
   runsRoot?: string | undefined;
+  onProgress?: AuditProgressListener | undefined;
+}
+
+function progressModels(tasks: ProviderRunTask[]): AuditModelProgress[] {
+  const grouped = new Map<string, AuditModelProgress>();
+  for (const task of tasks) {
+    const key = `${task.providerTarget.providerId}::${task.providerTarget.model}`;
+    const current = grouped.get(key);
+    if (current) current.planned += 1;
+    else {
+      grouped.set(key, {
+        providerId: task.providerTarget.providerId,
+        model: task.providerTarget.model,
+        planned: 1,
+        completed: 0,
+        failed: 0,
+      });
+    }
+  }
+  return [...grouped.values()];
+}
+
+async function emitProgress(listener: AuditProgressListener | undefined, progress: AuditProgressSnapshot): Promise<void> {
+  if (listener) await listener(structuredClone(progress));
 }
 
 export interface AuditRunnerOutput {
@@ -60,6 +65,12 @@ export interface AuditRunnerOutput {
   metrics: AuditMetrics;
   gaps: GeoGapAnalysis;
   paths: ReportBundle;
+}
+
+export interface AuditRunnerDependencies {
+  catalog?: Pick<ProviderCatalog, "get" | "validate"> | undefined;
+  competitorDiscovery?: Pick<CompetitorDiscovery, "discover"> | undefined;
+  intentResultPipeline?: Pick<IntentResultPipeline, "analyze"> | undefined;
 }
 
 function timestampId(target: Entity): string {
@@ -70,16 +81,13 @@ function timestampId(target: Entity): string {
   return `${safeTimestamp}-${slugify(target.name || target.domain)}`;
 }
 
-function runId(prompt: MonitoringPrompt, target: ProviderTarget): string {
-  return `${target.providerId}::${target.model}::${prompt.id}`;
+function runId(prompt: MonitoringPrompt, target: ProviderTarget, sampleIndex: number, sampleCount: number): string {
+  const base = `${target.providerId}::${target.model}::${prompt.id}`;
+  return sampleCount > 1 ? `${base}::sample-${sampleIndex}` : base;
 }
 
 function profileTargetScore(target: ProviderTarget): number {
-  const model = target.model.toLowerCase();
-  if (target.webSearchEnabled) return 4;
-  if (target.providerId === "perplexity" || model.includes("perplexity/") || model.includes("sonar")) return 3;
-  if (target.providerId === "openrouter" && (model.includes("search") || model.includes("online") || model.includes("web"))) return 2;
-  return 1;
+  return target.webSearchEnabled ? 2 : 1;
 }
 
 function selectProfileTarget(targets: ProviderTarget[]): ProviderTarget {
@@ -113,9 +121,31 @@ async function mapLimited<T, R>(items: T[], limit: number, mapper: (item: T, ind
   return results;
 }
 
-interface ProviderRunTask {
+export interface ProviderRunTask {
   prompt: MonitoringPrompt;
   providerTarget: ProviderTarget;
+  sampleIndex: number;
+  sampleCount: number;
+}
+
+export function buildProviderRunTasks(
+  prompts: MonitoringPrompt[],
+  providerTargets: ProviderTarget[],
+  sampleCount: number,
+): ProviderRunTask[] {
+  if (!Number.isInteger(sampleCount) || sampleCount <= 0) throw new Error("Run count per prompt must be a positive integer.");
+  return prompts
+    .filter((item) => item.enabled)
+    .flatMap((prompt) =>
+      providerTargets.flatMap((providerTarget) =>
+        Array.from({ length: sampleCount }, (_, index) => ({
+          prompt,
+          providerTarget,
+          sampleIndex: index + 1,
+          sampleCount,
+        })),
+      ),
+    );
 }
 
 function competitorKey(entity: Entity): string {
@@ -126,9 +156,7 @@ function competitorKey(entity: Entity): string {
 
 function competitorIsUsable(item: DiscoveredCompetitor): boolean {
   const relationship = item.relationship || "unknown";
-  const confidence = item.confidence ?? 0;
-  if (relationship === "infrastructure" || relationship === "unknown") return false;
-  return confidence >= 0.55;
+  return relationship === "direct_competitor";
 }
 
 function mergeDiscoveredCompetitors(input: { target: Entity; existing: Entity[]; discovered: DiscoveredCompetitor[] }): Entity[] {
@@ -154,189 +182,156 @@ function mergeDiscoveredCompetitors(input: { target: Entity; existing: Entity[];
 }
 
 export class AuditRunner {
-  private readonly catalog = new ProviderCatalog();
+  private readonly catalog: Pick<ProviderCatalog, "get" | "validate">;
   private readonly analyzer = new ResponseAnalyzer();
   private readonly metrics = new MetricsEngine();
   private readonly gaps = new GeoGapAnalyzer();
-  private readonly domainProfiler = new DomainProfiler();
-  private readonly competitorDiscovery = new CompetitorDiscovery();
-  private readonly promptGenerator = new PromptGenerator();
-  private readonly siteEvidenceCollector = new SiteEvidenceCollector();
-  private readonly keywordUniverse = new KeywordUniverseBuilder();
-  private readonly keywordRelevanceScorer = new KeywordRelevanceScorer();
-  private readonly keywordPromptPlanner = new KeywordPromptPlanner();
+  private readonly competitorDiscovery: Pick<CompetitorDiscovery, "discover">;
   private readonly reportModelBuilder = new ReportModelBuilder();
   private readonly reportBuilder = new ReportBuilder();
-  private readonly intentResultPipeline = new IntentResultPipeline();
+  private readonly intentResultPipeline: Pick<IntentResultPipeline, "analyze">;
+
+  constructor(dependencies: AuditRunnerDependencies = {}) {
+    this.catalog = dependencies.catalog || new ProviderCatalog();
+    this.competitorDiscovery = dependencies.competitorDiscovery || new CompetitorDiscovery();
+    this.intentResultPipeline = dependencies.intentResultPipeline || new IntentResultPipeline();
+  }
 
   async run(input: AuditRunnerInput): Promise<AuditRunnerOutput> {
-    const providerTargets = input.confirmedPlan?.providerTargets || input.providerTargets;
+    const providerTargets = input.confirmedPlan.providerTargets;
     if (providerTargets.length === 0) throw new Error("At least one provider target is required.");
     for (const target of providerTargets) this.catalog.validate(target.providerId, target.model);
 
-    const auditId = timestampId(input.confirmedPlan?.target || input.target);
+    const auditId = timestampId(input.confirmedPlan.target);
     const store = new FileStore(input.runsRoot || runsDir());
     const startedAt = new Date().toISOString();
+    const callLedger = new ProviderCallLedger();
+    const projectId = `project-${slugify(normalizeDomain(input.confirmedPlan.target.domain))}`;
 
-    const firstTarget = providerTargets[0];
-    if (!firstTarget) throw new Error("At least one provider target is required.");
     const profileTarget = selectProfileTarget(providerTargets);
     const profileProvider = this.catalog.get(profileTarget.providerId);
     const profileApiKey = resolveProviderKey(profileTarget.providerId);
-    const firstProvider = this.catalog.get(firstTarget.providerId);
-    const firstApiKey = resolveProviderKey(firstTarget.providerId);
+    const profileAnalysisModel = analysisModelFor(profileProvider, profileTarget.model);
+    let effectiveTarget = input.confirmedPlan.target;
+    let effectiveCompetitors = input.confirmedPlan.competitors;
+    const domainProfile = input.confirmedPlan.domainProfile;
+    const discoveryEvidence = input.confirmedPlan.discoveryEvidence;
+    const siteEvidence = input.confirmedPlan.siteEvidence;
+    const keywords = input.confirmedPlan.keywords || [];
+    const keywordClusters = input.confirmedPlan.keywordClusters || [];
+    const keywordRelevance = input.confirmedPlan.keywordRelevance || [];
+    const keywordAnalysis = input.confirmedPlan.keywordAnalysis;
+    const promptData = {
+      prompts: input.confirmedPlan.prompts,
+      evidence: input.confirmedPlan.promptGeneration,
+    };
 
-    let effectiveTarget = input.target;
-    let effectiveCompetitors = input.competitors;
-    let discoveredPrompts: MonitoringPrompt[] = [];
-    let domainProfile: AuditRun["domainProfile"];
-    let discoveryEvidence: AuditRun["discoveryEvidence"];
-    let siteEvidence: AuditRun["siteEvidence"];
-    let keywords: KeywordCandidate[] = [];
-    let keywordClusters: AuditRun["keywordClusters"] = [];
-    let keywordRelevance: KeywordRelevance[] = [];
-    let promptData: { prompts: MonitoringPrompt[]; evidence: AuditRun["promptGeneration"] };
+    const sampleCount = input.confirmedPlan?.runCountPerPrompt || 1;
+    const runTasks = buildProviderRunTasks(promptData.prompts, providerTargets, sampleCount);
+    const progress: AuditProgressSnapshot = {
+      stage: "preparing",
+      plannedObservationCount: runTasks.length,
+      completedObservationCount: 0,
+      failedObservationCount: 0,
+      models: progressModels(runTasks),
+    };
+    await emitProgress(input.onProgress, progress);
 
-    if (input.confirmedPlan) {
-      effectiveTarget = input.confirmedPlan.target;
-      effectiveCompetitors = input.confirmedPlan.competitors;
-      domainProfile = input.confirmedPlan.domainProfile;
-      discoveryEvidence = input.confirmedPlan.discoveryEvidence;
-      siteEvidence = input.confirmedPlan.siteEvidence;
-      keywords = input.confirmedPlan.keywords || [];
-      keywordClusters = input.confirmedPlan.keywordClusters || [];
-      keywordRelevance = input.confirmedPlan.keywordRelevance || [];
-      promptData = {
-        prompts: input.confirmedPlan.prompts,
-        evidence: input.confirmedPlan.promptGeneration,
-      };
-    } else {
-      if (input.autoDiscover) {
-        const discovered = await this.domainProfiler.discover({
-          auditId,
-          domain: input.submittedDomain || input.target.domain,
-          language: input.language,
-          desiredPrompts: input.promptCount,
-          provider: profileProvider,
-          model: profileTarget.model,
-          apiKey: profileApiKey,
-          store,
+    const checkpointRuns = new Map<string, PromptRun>();
+    let checkpointWrite = Promise.resolve();
+    const auditState = (runs: PromptRun[], finishedAt: string): AuditRun => ({
+      id: auditId,
+      auditPlanId: input.confirmedPlan.id,
+      promptSetId: input.confirmedPlan.promptSetId,
+      promptSetHash: input.confirmedPlan.promptSetHash,
+      promptSetVersion: input.confirmedPlan.promptSetVersion || PROMPT_SET_VERSION,
+      analysisRulesVersion: input.confirmedPlan.analysisRulesVersion || ANALYSIS_RULES_VERSION,
+      runCountPerPrompt: input.confirmedPlan.runCountPerPrompt || 1,
+      submittedDomain: input.confirmedPlan.submittedDomain,
+      target: effectiveTarget,
+      competitors: effectiveCompetitors,
+      prompts: promptData.prompts,
+      providerTargets,
+      domainProfile,
+      discoveryEvidence,
+      siteEvidence,
+      keywords,
+      keywordClusters,
+      keywordRelevance,
+      keywordAnalysis,
+      promptGeneration: promptData.evidence,
+      providerCalls: callLedger.snapshot(),
+      runs,
+      startedAt,
+      finishedAt,
+    });
+    const persistCheckpoint = (run: PromptRun): Promise<void> => {
+      checkpointRuns.set(run.id, run);
+      checkpointWrite = checkpointWrite.then(async () => {
+        const rows = runTasks.flatMap((task) => {
+          const value = checkpointRuns.get(runId(task.prompt, task.providerTarget, task.sampleIndex, task.sampleCount));
+          return value ? [value] : [];
         });
-        domainProfile = discovered.profile;
-        discoveryEvidence = discovered.evidence;
-        discoveredPrompts = discovered.prompts.slice(0, input.promptCount);
+        await store.saveAuditState(auditState(rows, new Date().toISOString()));
+      });
+      return checkpointWrite;
+    };
+    await store.saveAuditState(auditState([], startedAt));
 
-        if (input.targetNameExplicit) {
-          const discoveredAliases = [discovered.target.name, ...discovered.target.aliases].filter(
-            (alias) => alias.toLowerCase() !== input.target.name.toLowerCase(),
-          );
-          effectiveTarget = {
-            ...input.target,
-            aliases: [...new Set([...input.target.aliases, ...discoveredAliases])],
-          };
-        } else {
-          effectiveTarget = discovered.target;
-        }
-
-        if (input.competitors.length === 0 && discovered.competitors.length > 0) {
-          effectiveCompetitors = discovered.competitors;
-        }
-      }
-
-      if (input.target.githubRepo && !effectiveTarget.githubRepo) {
-        effectiveTarget = { ...effectiveTarget, githubRepo: input.target.githubRepo };
-      }
-
-      const manualPrompts = input.manualPrompts?.map((prompt) => prompt.trim()).filter(Boolean);
-      const requestedKeywords = [...new Set((input.keywords || []).map((keyword) => keyword.trim()).filter(Boolean))];
-      const keywordAuditEnabled = Boolean(input.keywordMode || requestedKeywords.length > 0);
-      let keywordPrompts: MonitoringPrompt[] = [];
-
-      if (keywordAuditEnabled) {
-        const submittedDomain = input.submittedDomain || effectiveTarget.domain;
-        const collectedEvidence = await this.siteEvidenceCollector.collect({
-          submittedDomain,
-          maxPages: Math.max(3, Math.min(input.keywordLimit ?? 6, 10)),
-          githubRepo: effectiveTarget.githubRepo,
-        });
-        siteEvidence = collectedEvidence;
-        const universe = this.keywordUniverse.build({
-          siteEvidence,
-          domainProfile,
-          userKeywords: requestedKeywords,
-          language: input.language,
-          mode: input.keywordMode || "site_plus_user",
-          limit: Math.max(1, Math.min(input.keywordLimit ?? input.promptCount, 30)),
-        });
-        keywords = universe.keywords;
-        keywordClusters = universe.clusters;
-        keywordRelevance = this.keywordRelevanceScorer.score({ keywords, siteEvidence });
-        keywordPrompts = this.keywordPromptPlanner.build({
-          target: effectiveTarget,
-          competitors: effectiveCompetitors,
-          keywords,
-          language: input.language,
-          promptsPerKeyword: input.promptsPerKeyword ?? 2,
-        });
-      }
-
-      const manualPromptRows = manualPrompts?.length
-        ? promptsFromManual({
-            target: effectiveTarget,
-            language: input.language,
-            prompts: manualPrompts,
-          })
-        : [];
-      promptData = keywordPrompts.length
-        ? {
-            prompts: [...discoveredPrompts, ...keywordPrompts, ...manualPromptRows],
-            evidence: undefined,
-          }
-        : manualPromptRows.length
-          ? {
-              prompts: manualPromptRows.slice(0, input.promptCount),
-              evidence: undefined,
-            }
-          : discoveredPrompts.length
-            ? {
-                prompts: discoveredPrompts,
-                evidence: undefined,
-              }
-            : await this.promptGenerator.generate({
-                auditId,
-                target: effectiveTarget,
-                competitors: effectiveCompetitors,
-                language: input.language,
-                count: input.promptCount,
-                provider: firstProvider,
-                model: firstTarget.model,
-                apiKey: firstApiKey,
-                store,
-              });
-    }
-
-    const runTasks: ProviderRunTask[] = promptData.prompts
-      .filter((item) => item.enabled)
-      .flatMap((prompt) => providerTargets.map((providerTarget) => ({ prompt, providerTarget })));
-
-    let runs = await mapLimited(runTasks, auditConcurrency(), (task) =>
-      this.executeProviderRun({
+    let runs = await mapLimited(runTasks, auditConcurrency(), async (task) => {
+      progress.stage = "calling_providers";
+      progress.activeProviderId = task.providerTarget.providerId;
+      progress.activeModel = task.providerTarget.model;
+      await emitProgress(input.onProgress, progress);
+      const run = await this.executeProviderRun({
         task,
         target: effectiveTarget,
         competitors: effectiveCompetitors,
         maxTokens: input.maxTokens ?? 900,
         temperature: input.temperature ?? 0,
-      }),
-    );
+        auditId,
+        projectId,
+        callLedger,
+        onProviderAnswer: persistCheckpoint,
+      });
+      await persistCheckpoint(run);
+      const model = progress.models.find(
+        (item) => item.providerId === task.providerTarget.providerId && item.model === task.providerTarget.model,
+      );
+      progress.completedObservationCount += run.status === "completed" ? 1 : 0;
+      progress.failedObservationCount += run.status === "failed" ? 1 : 0;
+      if (model) {
+        model.completed += run.status === "completed" ? 1 : 0;
+        model.failed += run.status === "failed" ? 1 : 0;
+      }
+      await emitProgress(input.onProgress, progress);
+      return run;
+    });
+    await checkpointWrite;
 
+    if (!runs.some((run) => run.status === "completed")) {
+      await store.saveAuditState(auditState(runs, new Date().toISOString()));
+      const failures = runs.map((run) => `${run.providerId}/${run.model}: ${run.error || "unknown provider error"}`);
+      throw new Error(`No provider responses completed.\n${failures.join("\n")}`);
+    }
+
+    progress.stage = "building_result";
+    progress.activeProviderId = undefined;
+    progress.activeModel = undefined;
+    await emitProgress(input.onProgress, progress);
     const discoveredCompetitors = await this.discoverCompetitorsFromAnswers({
       target: effectiveTarget,
       existingCompetitors: effectiveCompetitors,
       runs,
-      language: input.language,
+      language: input.confirmedPlan.language,
       provider: profileProvider,
-      model: profileTarget.model,
+      model: profileAnalysisModel,
       apiKey: profileApiKey,
+      callLedger,
+      callContext: {
+        projectId,
+        runId: auditId,
+      },
     });
     const mergedCompetitors = mergeDiscoveredCompetitors({
       target: effectiveTarget,
@@ -348,40 +343,20 @@ export class AuditRunner {
       runs = this.reanalyzeRuns(runs, effectiveTarget, effectiveCompetitors);
     }
 
-    const audit: AuditRun = {
-      id: auditId,
-      auditPlanId: input.confirmedPlan?.id,
-      promptSetId: input.confirmedPlan?.promptSetId,
-      promptSetHash: input.confirmedPlan?.promptSetHash,
-      promptSetVersion: input.confirmedPlan?.promptSetVersion || PROMPT_SET_VERSION,
-      analysisRulesVersion: input.confirmedPlan?.analysisRulesVersion || ANALYSIS_RULES_VERSION,
-      runCountPerPrompt: input.confirmedPlan?.runCountPerPrompt || 1,
-      submittedDomain: input.confirmedPlan?.submittedDomain || input.submittedDomain,
-      target: effectiveTarget,
-      competitors: effectiveCompetitors,
-      prompts: promptData.prompts,
-      providerTargets,
-      domainProfile,
-      discoveryEvidence,
-      siteEvidence,
-      keywords,
-      keywordClusters,
-      keywordRelevance,
-      promptGeneration: promptData.evidence,
-      runs,
-      startedAt,
-      finishedAt: new Date().toISOString(),
-    };
+    const audit = auditState(runs, new Date().toISOString());
+    await store.saveAuditState(audit);
 
     const metrics = this.metrics.compute(runs, { keywords, keywordRelevance });
     const gaps = this.gaps.analyze(audit, metrics);
     const reportModel = this.reportModelBuilder.build(audit, metrics, gaps);
     const markdown = this.reportBuilder.renderMarkdown(reportModel);
     const quality = validateReport(markdown, audit, metrics, gaps);
-    if (!quality.ok) {
-      throw new Error(`Report quality gate failed:\n${quality.errors.join("\n")}`);
-    }
+    if (!quality.ok) await store.saveAuditState({ ...audit, providerCalls: callLedger.snapshot() });
+    progress.stage = "saving_result";
+    await emitProgress(input.onProgress, progress);
     const paths = await store.saveAudit(audit, metrics, gaps, this.reportBuilder);
+    progress.stage = "completed";
+    await emitProgress(input.onProgress, progress);
     return { audit, metrics, gaps, paths };
   }
 
@@ -391,15 +366,22 @@ export class AuditRunner {
     competitors: Entity[];
     maxTokens: number;
     temperature: number;
+    auditId: string;
+    projectId: string;
+    callLedger: ProviderCallLedger;
+    onProviderAnswer: (run: PromptRun) => Promise<void>;
   }): Promise<PromptRun> {
     const { prompt, providerTarget } = input.task;
     const provider = this.catalog.get(providerTarget.providerId);
     const apiKey = resolveProviderKey(providerTarget.providerId);
-    const id = runId(prompt, providerTarget);
+    const analysisModel = analysisModelFor(provider, providerTarget.model);
+    const id = runId(prompt, providerTarget, input.task.sampleIndex, input.task.sampleCount);
     const runStartedAt = new Date().toISOString();
-    const executionPrompt = buildExecutionPrompt(prompt);
+    const executionPrompt = buildExecutionPrompt(prompt, providerTarget.webSearchEnabled ?? false);
     let run: PromptRun = {
       id,
+      sampleIndex: input.task.sampleIndex,
+      sampleCount: input.task.sampleCount,
       prompt,
       executionPrompt,
       target: input.target,
@@ -423,35 +405,69 @@ export class AuditRunner {
         maxTokens: input.maxTokens,
         temperature: input.temperature,
         webSearchEnabled: providerTarget.webSearchEnabled ?? false,
-        webSearchMode: providerTarget.webSearchMode || "auto",
+        webSearchMode: providerTarget.webSearchEnabled ? "provider_native" : providerTarget.webSearchMode || "auto",
+      }, {
+        callId: input.callLedger.createCallId(),
+        context: {
+          purpose: "audit_answer",
+          projectId: input.projectId,
+          runId: input.auditId,
+          observationId: id,
+        },
+        onAttempt: (event) => input.callLedger.record(event),
       });
       const citations = result.citations.map((citation) => ({ ...citation, promptId: prompt.id, runId: id }));
-      const analysis = this.analyzer.analyze({
-        text: result.text,
-        citations,
-        target: input.target,
-        competitors: input.competitors,
-      });
-      const intentAnalysis = await this.intentResultPipeline.analyze({
-        userQuestion: prompt.text,
-        target: input.target,
-        answerText: result.text,
-        citations: analysis.citations,
-        provider,
-        model: providerTarget.model,
-        apiKey,
-        language: prompt.language,
-      });
       run = {
         ...run,
         status: "completed",
         finishedAt: new Date().toISOString(),
         webSearchEnabled: result.search?.used ?? (providerTarget.webSearchEnabled ?? false),
         search: result.search,
-        result: { ...result, rawJson: null, citations: analysis.citations },
-        analysis,
-        intentAnalysis,
+        result: { ...result, citations },
+        analysisStatus: "pending",
       };
+      await input.onProviderAnswer(run);
+      try {
+        const analysis = this.analyzer.analyze({
+          text: result.text,
+          citations,
+          target: input.target,
+          competitors: input.competitors,
+        });
+        const intentAnalysis = await this.intentResultPipeline.analyze({
+          userQuestion: prompt.text,
+          target: input.target,
+          answerText: result.text,
+          citations: analysis.citations,
+          provider,
+          model: analysisModel,
+          apiKey,
+          language: prompt.language,
+          questionClassification: prompt.brandQuestion,
+          questionIntent: prompt.intentProfile,
+          callLedger: input.callLedger,
+          callContext: {
+            projectId: input.projectId,
+            runId: input.auditId,
+            observationId: id,
+          },
+        });
+        const semanticAnalysis = applyIntentSemantics(analysis, intentAnalysis);
+        run = {
+          ...run,
+          result: { ...result, citations: semanticAnalysis.citations },
+          analysis: semanticAnalysis,
+          intentAnalysis,
+          analysisStatus: intentAnalysis.status === "completed" ? "completed" : "partial",
+          analysisError: intentAnalysis.error,
+        };
+      } catch (analysisError) {
+        run = {
+          ...run,
+          analysisStatus: "failed",
+          analysisError: analysisError instanceof Error ? analysisError.message : String(analysisError),
+        };
+      }
     } catch (error) {
       run = {
         ...run,
@@ -471,6 +487,11 @@ export class AuditRunner {
     provider: ReturnType<ProviderCatalog["get"]>;
     model: string;
     apiKey: string;
+    callLedger: ProviderCallLedger;
+    callContext: {
+      projectId: string;
+      runId: string;
+    };
   }): Promise<DiscoveredCompetitor[]> {
     try {
       return await this.competitorDiscovery.discover(input);
@@ -494,10 +515,11 @@ export class AuditRunner {
         target,
         competitors,
       });
+      const semanticAnalysis = baseRun.intentAnalysis ? applyIntentSemantics(analysis, baseRun.intentAnalysis) : analysis;
       return {
         ...baseRun,
-        result: { ...baseRun.result, rawJson: null, citations: analysis.citations },
-        analysis,
+        result: { ...baseRun.result, citations: semanticAnalysis.citations },
+        analysis: semanticAnalysis,
       };
     });
   }

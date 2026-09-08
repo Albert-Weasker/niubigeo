@@ -1,0 +1,58 @@
+{
+  "schemaVersion": "case-evidence-index/v1",
+  "caseId": "R08",
+  "path": "./public-evidence.json",
+  "sha256": "fae3309168c20799c1f4c97de962f8634885f3532614d0c5aa77370c9a75d33f",
+  "redactions": [],
+  "screenshotCount": 2,
+  "rawAnswers": [
+    {
+      "scope": "initialD",
+      "modelRunId": "01676ed5-8c13-437d-94d5-103e051095bb",
+      "attemptId": "3c35cb4a-751a-4dd1-ab90-6627c65e1003",
+      "selected": true,
+      "sha256": "74f7f1a89f2f11ff058535752100786ad44c4e8cab546fdb18875c24ade89e02"
+    },
+    {
+      "scope": "initialD",
+      "modelRunId": "4ab667b8-db13-4ed6-9995-cad3fe4aacc1",
+      "attemptId": "f1293f91-2524-4227-a31e-15267148099d",
+      "selected": true,
+      "sha256": "7319df29e09348437d953c1f73dc86063118db854dda989289f96e33c9779878"
+    },
+    {
+      "scope": "initialD",
+      "modelRunId": "563c3adf-3a19-4533-b130-1c424a8f3f3e",
+      "attemptId": "1639e0b2-4ebe-4329-9991-2b75481fc0c1",
+      "selected": true,
+      "sha256": "40acc094650331eab8fd3e08d55dae3c4151481003cc052ea008aa58deb1af3d"
+    },
+    {
+      "scope": "measurementD",
+      "runId": "fbcc59bd-7150-4b44-968e-6410ebcd198f",
+      "modelRunId": "14a605e3-9c44-4f06-8998-207663833523",
+      "probeId": "f03689f7-7809-42b0-ba94-0f9e9aa0f3c6",
+      "attemptId": "706b1b9d-2633-4703-9744-084b6d6981d0",
+      "firstAttempt": true,
+      "sha256": "7319df29e09348437d953c1f73dc86063118db854dda989289f96e33c9779878"
+    },
+    {
+      "scope": "measurementD",
+      "runId": "fbcc59bd-7150-4b44-968e-6410ebcd198f",
+      "modelRunId": "78536b62-42a2-4603-b55e-e65548bb939a",
+      "probeId": "64356f48-bf8c-4786-8702-60fb1b6e3eda",
+      "attemptId": "a3a5fc66-910b-4685-93e9-60bb2991c02a",
+      "firstAttempt": true,
+      "sha256": "87d01584d8b4c483c5e2424a6d103d605112c516c8a36c282f2c34da05a43b8c"
+    },
+    {
+      "scope": "measurementD",
+      "runId": "fbcc59bd-7150-4b44-968e-6410ebcd198f",
+      "modelRunId": "da484e4b-9376-4168-949d-a60202cac7db",
+      "probeId": "5a180f50-7681-4461-ad8c-a8dfa84f9b6e",
+      "attemptId": "a99f7e42-2dca-4055-a54b-4dc60cf49be4",
+      "firstAttempt": true,
+      "sha256": "40acc094650331eab8fd3e08d55dae3c4151481003cc052ea008aa58deb1af3d"
+    }
+  ]
+}
