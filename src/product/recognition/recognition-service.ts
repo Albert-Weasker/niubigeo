@@ -43,6 +43,7 @@ export interface RecognitionAnswerExecutor {
     modelSnapshot: ProductModelSnapshot;
     prompt: string;
     requestParameters: RecognitionRequestParameters;
+    preserveEmptyStructuredTruncation?: boolean | undefined;
     executionContext?: RecognitionExecutionContext | undefined;
     structuredOutput?: {
       name: string;
@@ -68,6 +69,7 @@ export class OpenRouterRecognitionAnswerExecutor implements RecognitionAnswerExe
     modelSnapshot: ProductModelSnapshot;
     prompt: string;
     requestParameters: RecognitionRequestParameters;
+    preserveEmptyStructuredTruncation?: boolean | undefined;
     executionContext?: RecognitionExecutionContext | undefined;
     structuredOutput?: {
       name: string;
@@ -88,6 +90,7 @@ export class OpenRouterRecognitionAnswerExecutor implements RecognitionAnswerExe
       temperature: input.requestParameters.temperature,
       webSearchEnabled: input.requestParameters.webSearchEnabled,
       webSearchMode: input.requestParameters.webSearchMode === "provider_native" ? "provider_native" : undefined,
+      preserveEmptyStructuredTruncation: input.preserveEmptyStructuredTruncation,
       ...(input.requestParameters.structuredOutputTransport === "function_tool"
         ? {
             structuredOutputTool: {
@@ -726,6 +729,7 @@ export class ProductRecognitionRunService {
         modelSnapshot: modelRun.modelSnapshot,
         prompt,
         requestParameters: parameters,
+        preserveEmptyStructuredTruncation: true,
         executionContext: {
           projectId: run.projectId,
           runId: run.id,
@@ -804,6 +808,7 @@ export class ProductRecognitionRunService {
               modelSnapshot: modelRun.modelSnapshot,
               prompt,
               requestParameters: retryParams,
+              preserveEmptyStructuredTruncation: true,
               executionContext: {
                 projectId: run.projectId,
                 runId: run.id,

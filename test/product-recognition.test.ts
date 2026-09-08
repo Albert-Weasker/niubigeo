@@ -14,7 +14,7 @@ import { ProductProjectFileStore } from "../src/product/projects/project-store.j
 import { RecognitionRunNotFoundError } from "../src/product/recognition/recognition-errors.js";
 import { handleProductRecognitionApi, handleProductRecognitionRetryApi } from "../src/product/recognition/recognition-http.js";
 import type { RecognitionAnswerExecutor } from "../src/product/recognition/recognition-service.js";
-import { ProductRecognitionRunService } from "../src/product/recognition/recognition-service.js";
+import { OpenRouterRecognitionAnswerExecutor, ProductRecognitionRunService } from "../src/product/recognition/recognition-service.js";
 import { ProductRecognitionFileStore } from "../src/product/recognition/recognition-store.js";
 import { ProviderRequestError } from "../src/providers/provider-error.js";
 
@@ -877,4 +877,69 @@ test("re-analysis of truncated attempt preserves truncation evidence", async () 
     assert.equal(retryAttempt.status, "completed");
     assert.ok(retryAttempt.requestParameters.maxTokens > 900, "Retry attempt should have higher maxTokens");
   });
+});
+
+
+test("empty structured responses reach bounded truncation recovery through the provider adapter", async (t) => {
+  const previousKey = process.env.OPENROUTER_API_KEY;
+  process.env.OPENROUTER_API_KEY = "fixture-key";
+  t.after(() => {
+    if (previousKey === undefined) delete process.env.OPENROUTER_API_KEY;
+    else process.env.OPENROUTER_API_KEY = previousKey;
+  });
+  for (const scenario of ["recovers", "still-truncated", "not-truncated"] as const) {
+    await t.test(scenario, async (t) => {
+      const budgets: number[] = [];
+      t.mock.method(globalThis, "fetch", async (url: unknown, init: RequestInit) => {
+        const body = JSON.parse(String(init.body));
+        assert.equal(String(url), "https://openrouter.ai/api/v1/chat/completions");
+        assert.equal(new Headers(init.headers).get("Authorization"), "Bearer fixture-key");
+        assert.equal(body.response_format.type, "json_schema");
+        assert.deepEqual(body.provider, { require_parameters: true });
+        assert.equal(body.preserveEmptyStructuredTruncation, undefined);
+        budgets.push(body.max_tokens);
+        const recovered = scenario === "recovers" && budgets.length === 2;
+        return new Response(JSON.stringify({
+          choices: [{
+            finish_reason: recovered || scenario === "not-truncated" ? "stop" : "length",
+            message: { content: recovered ? structuredAnswer(false) : null },
+          }],
+          usage: { prompt_tokens: 100, completion_tokens: body.max_tokens, total_tokens: 100 + body.max_tokens, cost: 0.001 },
+        }), { status: 200, headers: { "Content-Type": "application/json" } });
+      });
+      const executor = new OpenRouterRecognitionAnswerExecutor();
+      await withFixture(async (fixture) => {
+        const project = await readyProject(fixture, "truncated.example", [{ modelId: "test/truncated", webSearchMode: "off" }]);
+        const service = new ProductRecognitionRunService(fixture.projects, fixture.baselines, fixture.recognitionStore, executor);
+        const started = await service.start(project.id);
+        const result = await settled(service, project.id, started.run.id);
+        const modelRun = result.modelRuns[0];
+        assert.ok(modelRun);
+        const detail = await service.getModelRun(project.id, started.run.id, modelRun.id);
+        if (scenario === "not-truncated") {
+          assert.deepEqual(budgets, [900]);
+          assert.equal(modelRun.status, "failed");
+          assert.equal(detail.attempts[0]?.errorCode, "empty_answer");
+        } else {
+          assert.deepEqual(budgets, [900, 2000]);
+          assert.equal(modelRun.status, "completed");
+          assert.equal(detail.attempts.find((attempt) => attempt.attemptNumber === 2)?.status, scenario === "recovers" ? "completed" : "analysis_failed");
+          assert.equal(detail.attempts.length, 2);
+          const initial = detail.attempts.find((attempt) => attempt.attemptNumber === 1);
+          assert.ok(initial);
+          assert.equal(initial.rawAnswer, "");
+          assert.equal(initial.tokenUsage?.output, 900);
+          assert.equal(initial.costUsd, 0.001);
+          assert.equal(initial.providerId, "openrouter");
+          assert.ok(initial.providerSearch && typeof initial.providerSearch === "object" && "requested" in initial.providerSearch);
+          assert.equal(initial.providerSearch.requested, false);
+          assert.equal(detail.archive?.result.analysisStatus, scenario === "recovers" ? "recognized" : "analysis_failed");
+          assert.deepEqual(initial.rawProviderResponse, {
+            choices: [{ finish_reason: "length", message: { content: null } }],
+            usage: { prompt_tokens: 100, completion_tokens: 900, total_tokens: 1000, cost: 0.001 },
+          });
+        }
+      });
+    });
+  }
 });

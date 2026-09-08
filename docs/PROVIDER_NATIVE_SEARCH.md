@@ -58,3 +58,9 @@ Each completed run can store:
 `requested` means the provider-native search option was sent. `used` is true only when the response contains search evidence, except for providers that are always web-grounded such as Perplexity. If a provider accepts the option but returns no search evidence, the report shows `Search unconfirmed`.
 
 This metadata is for source transparency. The user-facing report should explain the distinction in plain language such as `No web search`, `Search unconfirmed`, `Provider-native web search`, or `Provider web-grounded`.
+
+## Empty token-limited structured responses
+
+The Chat Completions adapter preserves an empty JSON-schema response with `finish_reason: length` only when the caller explicitly enables `preserveEmptyStructuredTruncation` and handles recovery. The recognition service enables this option for its own calls to retain the raw response, usage, cost, and search metadata and use its existing bounded recovery: one retry from 900 to 2000 output tokens. A second empty response remains an analysis failure. Other callers, including measurements that share the recognition executor, retain `empty_answer` errors and their existing failure or retry behavior; ordinary text, JSON-object, and function-tool empty responses still raise `empty_answer` even with the option enabled.
+
+This does not substitute reasoning text for an answer or fabricate citations. OpenRouter requests continue to use only the OpenRouter key and retain `Source: OpenRouter API` labeling.

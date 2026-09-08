@@ -86,6 +86,56 @@ async function settled(service: ProductMeasurementRunService, projectId: string,
   throw new Error("Measurement run did not settle.");
 }
 
+test("default measurement executor keeps empty token-limited responses as provider failures", async (t) => {
+  const previousKey = process.env.OPENROUTER_API_KEY;
+  process.env.OPENROUTER_API_KEY = "fixture-key";
+  t.after(() => {
+    if (previousKey === undefined) delete process.env.OPENROUTER_API_KEY;
+    else process.env.OPENROUTER_API_KEY = previousKey;
+  });
+  const requests: Array<{ maxTokens: number; schemaName: string }> = [];
+  t.mock.method(globalThis, "fetch", async (_url: unknown, init?: RequestInit) => {
+    const body = JSON.parse(String(init?.body));
+    assert.equal(new Headers(init?.headers).get("Authorization"), "Bearer fixture-key");
+    assert.equal(body.response_format?.type, "json_schema");
+    requests.push({ maxTokens: body.max_tokens, schemaName: body.response_format.json_schema.name });
+    return new Response(JSON.stringify({
+      choices: [{ finish_reason: "length", message: { content: null } }],
+      usage: { prompt_tokens: 100, completion_tokens: 900, total_tokens: 1000, cost: 0.001 },
+    }), { status: 200, headers: { "Content-Type": "application/json" } });
+  });
+
+  await withFixture(async (fixture) => {
+    const { project } = await ready(fixture, "target.example", [{ modelId: "phase5/off", webSearchMode: "off" }]);
+    const service = new ProductMeasurementRunService(fixture.projects, fixture.baselines, fixture.watchSets, fixture.store);
+    const run = await service.start(project.id);
+    const detail = await settled(service, project.id, run.id);
+    assert.equal(detail.run.status, "failed");
+    assert.equal(detail.run.plannedProbeCount, 3);
+    assert.equal(detail.run.completedProbeCount, 0);
+    assert.equal(detail.run.failedProbeCount, 3);
+    assert.deepEqual(requests.map((request) => request.maxTokens), [900, 900, 900]);
+    assert.deepEqual(requests.map((request) => request.schemaName), ["domain_recognition_result", "domain_recognition_result", "keyword_discovery_result"]);
+    const model = detail.modelRuns[0];
+    assert.ok(model);
+    assert.equal(model.status, "failed");
+    const probes = await fixture.store.listProbes(project.id, run.id, model.id);
+    assert.equal(probes.length, 3);
+    for (const probe of probes) {
+      const stored = await service.getProbe(project.id, run.id, model.id, probe.id);
+      assert.equal(stored.probe.status, "failed");
+      assert.equal(stored.probe.exclusionReason, "empty_answer");
+      assert.equal(stored.attempts.length, 1);
+      assert.equal(stored.attempts[0]?.status, "provider_failed");
+      assert.equal(stored.attempts[0]?.errorCode, "empty_answer");
+      assert.equal(stored.attempts[0]?.costState, "unknown");
+      assert.equal(stored.attempts[0]?.costUsd, null);
+      assert.equal(stored.domainResult, undefined);
+      assert.equal(stored.keywordResult, undefined);
+    }
+  });
+});
+
 test("T01/T02 keep keyword discovery neutral and domain probes independent", async () => {
   await withFixture(async (fixture) => {
     const { project } = await ready(fixture, "target.example", [{ modelId: "phase5/off", webSearchMode: "off" }]);

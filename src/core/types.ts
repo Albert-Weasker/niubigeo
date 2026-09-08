@@ -217,6 +217,8 @@ export interface ProviderRunInput {
     name: string;
     schema: Record<string, unknown>;
   } | undefined;
+  /** Preserve empty token-limited JSON-schema responses only when the caller handles recovery. */
+  preserveEmptyStructuredTruncation?: boolean | undefined;
   structuredOutputTool?: {
     name: string;
     description: string;
