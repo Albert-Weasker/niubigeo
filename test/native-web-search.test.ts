@@ -485,5 +485,55 @@ test("empty unstructured answers remain errors even when token-limited", async (
   mockFetch({ choices: [{ finish_reason: "length", message: { content: null } }] }, captured);
   const provider = new OpenAICompatibleProvider({ definition: definition("openrouter"), endpoint: "https://provider.example/chat/completions" });
   await assert.rejects(provider.run(input()), { code: "empty_answer" });
+  await assert.rejects(provider.run(input({ preserveEmptyStructuredTruncation: true })), { code: "empty_answer" });
+  assert.equal(captured.length, 2);
+});
+
+test("caller-managed truncation recovery is limited to JSON-schema responses", async () => {
+  const captured: CapturedRequest[] = [];
+  mockFetch({ choices: [{ finish_reason: "length", message: { content: null } }] }, captured);
+  const provider = new OpenAICompatibleProvider({ definition: definition("openrouter"), endpoint: "https://provider.example/chat/completions" });
+  const responseJsonSchema = { name: "result", schema: { type: "object" } };
+  for (const overrides of [
+    { responseJsonSchema },
+    { responseJsonSchema, preserveEmptyStructuredTruncation: false },
+    { responseFormat: "json_object" as const, preserveEmptyStructuredTruncation: true },
+    { responseJsonSchema, structuredOutputTool: { ...responseJsonSchema, description: "Return the result" }, preserveEmptyStructuredTruncation: true },
+  ]) {
+    await assert.rejects(provider.run(input(overrides)), { code: "empty_answer" });
+  }
+  assert.equal(captured.length, 4);
+});
+
+test("opted-in empty truncation preserves search evidence without using reasoning as the answer", async () => {
+  const captured: CapturedRequest[] = [];
+  const raw = {
+    choices: [{ finish_reason: "length", message: { content: null, reasoning: "Unfinished reasoning" } }],
+    usage: { prompt_tokens: 10, completion_tokens: 200, total_tokens: 210, cost: 0.001 },
+    openrouter_metadata: { pipeline: [{ type: "server_tools", data: { mode: "native" } }] },
+  };
+  mockFetch(raw, captured);
+  const provider = new OpenAICompatibleProvider({
+    definition: definition("openrouter", "OpenRouter"),
+    endpoint: "https://openrouter.ai/api/v1/chat/completions",
+    nativeWebSearch: openRouterSearch("server_tool"),
+  });
+  const result = await provider.run(input({
+    responseJsonSchema: { name: "result", schema: { type: "object" } },
+    preserveEmptyStructuredTruncation: true,
+    webSearchEnabled: true,
+    webSearchMode: "provider_native",
+  }));
+  assert.equal(result.text, "");
+  assert.deepEqual(result.structuredOutput, { transport: "response_json_schema", value: "" });
+  assert.deepEqual(result.rawProviderResponse, raw);
+  assert.deepEqual(result.tokenUsage, { input: 10, output: 200, total: 210 });
+  assert.equal(result.costUsd, 0.001);
+  assert.equal(result.sourceLabel, "Source: OpenRouter API");
+  assert.equal(result.search?.requested, true);
+  assert.equal(result.search?.used, true);
+  assert.equal(result.search?.executionMode, "native");
+  assert.deepEqual(result.citations, []);
   assert.equal(captured.length, 1);
+  assert.equal(captured[0]?.body.preserveEmptyStructuredTruncation, undefined);
 });
