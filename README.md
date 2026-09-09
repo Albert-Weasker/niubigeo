@@ -26,6 +26,8 @@ You have built a product, written the docs and worked to get the word out. When 
 
 **NiubiGEO is an open-source tool for tracking brand visibility and competitors in AI answers.** Start with a domain to see how different models describe your product and which competitors they name. Then test keywords to find out who appears in the answers. Open any result to inspect the original response and returned sources.
 
+**Paid services:** We also offer AI testing by real people and GEO optimization. [View pricing](https://niubigeo.ai/en/pricing).
+
 > **Open the GEO reporting black box. Put evidence in your hands.**
 
 ---
