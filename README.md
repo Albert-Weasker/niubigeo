@@ -17,7 +17,7 @@
 **Enter a domain. Compare how models describe your product, who they recommend, and which sources they cite.**
 
 <p align="center">
-  <strong><a href="https://github.com/Albert-Weasker/niubigeo">GitHub</a> · <a href="README.zh-CN.md">简体中文</a> · <a href="#quick-start">Quick start</a> · <a href="#cases">20 real cases</a> · <a href="https://github.com/Albert-Weasker/niubigeo/releases">Releases</a> · <a href="https://github.com/Albert-Weasker/niubigeo/pkgs/container/niubigeo">Packages</a> · <a href="#docs">Docs</a></strong>
+  <strong><a href="https://niubigeo.ai/">Website</a> · <a href="https://github.com/Albert-Weasker/niubigeo">GitHub</a> · <a href="README.zh-CN.md">简体中文</a> · <a href="#quick-start">Quick start</a> · <a href="#cases">20 real cases</a> · <a href="https://github.com/Albert-Weasker/niubigeo/releases">Releases</a> · <a href="https://github.com/Albert-Weasker/niubigeo/pkgs/container/niubigeo">Packages</a> · <a href="#docs">Docs</a></strong>
   <br>
   <a href="#features">Features</a> · <a href="#how-to">How to use it</a> · <a href="#monitoring">Monitoring</a> · <a href="#niubigeo-vs-commercial-ai-visibility-tools">Compare tools</a> · <a href="#why">Why NiubiGEO</a> · <a href="#sponsors">Sponsors</a>
 </p>
