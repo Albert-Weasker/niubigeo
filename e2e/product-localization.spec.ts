@@ -42,11 +42,25 @@ const coverageFixture = () => `<!doctype html><html><body><main>${[...new Set(pr
   .map((value) => `<p>${value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")}</p>`)
   .join("")}</main>${renderProductLocalizationScript()}</body></html>`;
 
+const recognitionRegressionFixture = () => `<!doctype html><html><body><main>${[
+  "域名认知测试",
+  "模型只接收域名、语言、监测协议和自己的联网方式。未联网与原生联网结果分开记录。",
+  "每个模型独立调用、独立归档；模型描述仅代表本次模型回答。",
+  "当前模型所选请求配置没有可用接口",
+  "本次请求没有找到可用端点。请检查模型联网配置后再决定是否重新请求。",
+  "缺失或格式不正确的字段会明确保留为空，不会推断。",
+  "模型本次识别的品牌",
+  "各竞争对象关键词",
+  "模型的描述只代表本次回答。离线认知与实际联网发现分开显示。",
+  "每一格只表示该模型本次是否返回对应记录，不代表市场事实。",
+  "Provider Citation 与回答正文中的 URL 分开保存和展示。",
+].map((value) => `<p>${value}</p>`).join("")}</main>${renderProductLocalizationScript()}</body></html>`;
+
 test.beforeAll(async () => {
   server = createServer((request, response) => {
     response.setHeader("Content-Type", "text/html; charset=utf-8");
     const url = new URL(request.url || "/", "http://localhost");
-    response.end(url.pathname === "/translator" ? focusedFixture() : url.pathname === "/translator-coverage" ? coverageFixture() : url.searchParams.get("view") === "measurements" ? renderProductPhase5AppHtml() : renderProductPhase4AppHtml());
+    response.end(url.pathname === "/translator" ? focusedFixture() : url.pathname === "/translator-coverage" ? coverageFixture() : url.pathname === "/recognition-regression" ? recognitionRegressionFixture() : url.searchParams.get("view") === "measurements" ? renderProductPhase5AppHtml() : renderProductPhase4AppHtml());
   });
   await new Promise<void>((resolve, reject) => {
     server.once("error", reject);
@@ -62,6 +76,12 @@ test("pt-BR: every product-owned dynamic UI literal has a Portuguese translation
   await page.goto(`${baseUrl}/translator-coverage`);
   const untranslated = (await page.locator("p").allTextContents()).filter(hasHan);
   expect(untranslated).toEqual([]);
+});
+
+test("pt-BR: recognition and report regression phrases contain no Chinese", async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem("niubigeo.product.locale", "pt-BR"));
+  await page.goto(`${baseUrl}/recognition-regression`);
+  expect((await page.locator("main").innerText()).match(/[\u3400-\u9fff]/gu)).toBeNull();
 });
 
 test.afterAll(async () => {
