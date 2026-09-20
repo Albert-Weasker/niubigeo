@@ -7,14 +7,19 @@ import { renderProductPhase5AppHtml } from "../src/ui/product-phase5-app.js";
 let server: Server;
 let baseUrl = "";
 
+const hasHan = (value: string) => [...value].some((character) => {
+  const point = character.codePointAt(0) || 0;
+  return point >= 0x3400 && point <= 0x9fff;
+});
+
 const focusedFixture = () => `<!doctype html><html><body>
   <main id="app">
     <h1 id="static-label" data-product-i18n>项目</h1>
     <button id="action-label" data-product-i18n>保存草稿</button>
-    <div id="mixed-label" data-product-i18n>项目<span id="nested-user">项目</span><span id="nested-label" data-product-i18n>来源</span></div>
+    <div id="mixed-label" data-product-i18n>项目<span id="nested-user" data-product-i18n-preserve>项目</span><span id="nested-label" data-product-i18n>来源</span></div>
     <input id="static-attributes" data-product-i18n-placeholder data-product-i18n-title data-product-i18n-aria-label placeholder="可选" title="项目" aria-label="来源">
-    <input id="user-attributes" placeholder="可选" title="项目" aria-label="来源" value="项目">
-    <pre id="raw-answer">品牌：项目</pre>
+    <input id="user-attributes" data-product-i18n-preserve placeholder="可选" title="项目" aria-label="来源" value="项目">
+    <pre id="raw-answer" data-product-i18n-preserve>品牌：项目</pre>
     <span class="prototype-key" data-product-i18n>constructor</span>
     <span class="prototype-key" data-product-i18n>toString</span>
     <span class="prototype-key" data-product-i18n>__proto__</span>
@@ -49,7 +54,7 @@ const locales = [
 ];
 
 for (const language of locales) {
-  test(`${language.locale}: only explicitly marked UI text and attributes are localized`, async ({ page }) => {
+  test(`${language.locale}: all product UI text is localized while preserved data stays verbatim`, async ({ page }) => {
     const errors: string[] = [];
     page.on("pageerror", (error) => errors.push(error.message));
     await page.addInitScript((locale) => localStorage.setItem("niubigeo.product.locale", locale), language.locale);
@@ -80,6 +85,7 @@ for (const language of locales) {
       document.getElementById("app")!.appendChild(root);
       const user = document.createElement("span");
       user.id = "inserted-user";
+      user.setAttribute("data-product-i18n-preserve", "");
       user.textContent = "品牌：项目";
       user.setAttribute("title", "来源");
       document.getElementById("app")!.appendChild(user);
@@ -106,7 +112,7 @@ for (const language of locales) {
     const errors: string[] = [];
     const unexpectedRequests: string[] = [];
     const rawAnswer = "品牌：项目\n来源\n无法确认\nconstructor\ntoString\n__proto__";
-    const project = { id: "project-fixture", name: "项目", primaryDomain: "fixture.example", normalizedDomain: "fixture.example", status: "draft", defaultLanguage: "zh-CN", createdAt: "2026-09-20T00:00:00.000Z", updatedAt: "2026-09-20T00:00:00.000Z" };
+    const project = { id: "project-fixture", name: "KOSMOS", primaryDomain: "fixture.example", normalizedDomain: "fixture.example", status: "draft", defaultLanguage: "zh-CN", createdAt: "2026-09-20T00:00:00.000Z", updatedAt: "2026-09-20T00:00:00.000Z" };
     page.on("pageerror", (error) => errors.push(error.message));
     await page.addInitScript((locale) => localStorage.setItem("niubigeo.product.locale", locale), language.locale);
     await page.route("**/api/**", async (route) => {
@@ -121,9 +127,9 @@ for (const language of locales) {
       await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(body) });
     });
     await page.goto(baseUrl);
-    await expect(page.getByTestId("project-title")).toHaveText("项目");
-    await expect(page.getByTestId("selected-project-title")).toHaveText("项目");
-    await expect(page.locator("#edit-name")).toHaveValue("项目");
+    await expect(page.getByTestId("project-title")).toHaveText("KOSMOS");
+    await expect(page.getByTestId("selected-project-title")).toHaveText("KOSMOS");
+    await expect(page.locator("#edit-name")).toHaveValue("KOSMOS");
     await expect(page.locator(".project-label")).toHaveText(language.project);
 
     await page.evaluate((answer) => {
@@ -139,7 +145,7 @@ for (const language of locales) {
         competitorGroups: [{ id: "competitor-group", name: "项目", sourceRecordIds: ["competitor"], cells }],
         brandKeywordGroups: [{ id: "keyword-group", keyword: "来源", cells }],
         models: [{
-          modelRunId: "model-run", modelId: "fixture/model", displayName: "来源", recognitionMode: "unaided_domain_recognition", state: "recognized", webSearch: { label: "不联网" },
+          modelRunId: "model-run", modelId: "fixture/model", displayName: "Modelo de teste", recognitionMode: "unaided_domain_recognition", state: "recognized", webSearch: { label: "不联网" },
           rawAnswer: answer, rawProviderResponse: { text: answer },
           recognizedBrand: { value: "项目", evidence }, businessDescription: { value: "无法确认", evidence }, productCategory: null,
           competitors: [{ id: "competitor", name: "项目", domain: "competitor.example", evidence }],
@@ -155,8 +161,8 @@ for (const language of locales) {
 
     const card = page.getByTestId("report-model-card");
     await expect(page.getByTestId("refresh-report")).toHaveText(language.refresh);
-    await expect(page.locator('[data-phase4-model="model-run"]')).toHaveText("来源");
-    await expect(card.locator("h3")).toHaveText("来源");
+    await expect(page.locator('[data-phase4-model="model-run"]')).toHaveText("Modelo de teste");
+    await expect(card.locator("h3")).toHaveText("Modelo de teste");
     await expect(card.locator(".detail-cell strong")).toHaveText(["项目", "无法确认", language.unknown]);
     await expect(card.locator(".evidence-group li strong")).toHaveText("项目");
     await expect(card.locator(".evidence-group .tag")).toHaveText("来源");
@@ -182,13 +188,13 @@ for (const language of locales) {
   test(`${language.locale}: measurement mode labels translate while model names stay verbatim`, async ({ page }) => {
     const errors: string[] = [];
     const unexpectedRequests: string[] = [];
-    const project = { id: "measurement-project", name: "项目", normalizedDomain: "fixture.example", activeBaselineId: "baseline-fixture" };
+    const project = { id: "measurement-project", name: "KOSMOS", normalizedDomain: "fixture.example", activeBaselineId: "baseline-fixture" };
     const selections = [
-      { modelId: "fixture/off", displayName: "不联网", webSearchMode: "off" },
-      { modelId: "fixture/native", displayName: "Provider 原生联网", webSearchMode: "provider_native" },
+      { modelId: "fixture/off", displayName: "Modelo Alfa", webSearchMode: "off" },
+      { modelId: "fixture/native", displayName: "Modelo Beta", webSearchMode: "provider_native" },
     ];
     const run = { id: "measurement-run", source: "manual", modelRuns: selections.map((modelSnapshot) => ({ modelSnapshot, status: "completed", probeRunIds: ["probe-fixture"] })) };
-    const watchSet = { id: "watchset-fixture", status: "active", baselineId: project.activeBaselineId, targetObjectId: "target", version: 1, repetitions: 1, objects: [{ id: "target", role: "target", name: "项目", domain: "fixture.example" }], keywords: [] };
+    const watchSet = { id: "watchset-fixture", status: "active", baselineId: project.activeBaselineId, targetObjectId: "target", version: 1, repetitions: 1, objects: [{ id: "target", role: "target", name: "KOSMOS", domain: "fixture.example" }], keywords: [] };
     const points = selections.map((model, index) => ({
       id: `point-${index}`, runId: run.id, modelId: model.modelId, modelDisplayName: model.displayName, webSearchMode: model.webSearchMode,
       metric: "domain_recognition", objectId: "target", fingerprint: "fixture", observedAt: "2026-09-20T00:00:00.000Z",
@@ -213,13 +219,17 @@ for (const language of locales) {
     });
     await page.goto(`${baseUrl}/?view=measurements`);
     await expect(page.getByTestId("phase5-ready")).toBeVisible();
-    await expect(page.locator("#p5-recognition tbody tr td:first-child")).toHaveText(["不联网", "Provider 原生联网"]);
+    await expect(page.locator("#p5-recognition tbody tr td:first-child")).toHaveText(["Modelo Alfa", "Modelo Beta"]);
     await expect(page.locator("#p5-recognition tbody tr td:nth-child(2)")).toHaveText([language.offline, language.native]);
 
     const chart = page.locator(".p5-chart").first();
     await chart.locator("summary").click();
-    await expect(chart.locator("tbody tr td:nth-child(2)")).toHaveText(["不联网", "Provider 原生联网"]);
+    await expect(chart.locator("tbody tr td:nth-child(2)")).toHaveText(["Modelo Alfa", "Modelo Beta"]);
     await expect(chart.locator("tbody tr td:nth-child(3)")).toHaveText([language.offline, language.native]);
+    if (language.locale === "pt-BR") {
+      const interfaceText = await page.locator("body").innerText();
+      expect(hasHan(interfaceText)).toBe(false);
+    }
     expect(unexpectedRequests).toEqual([]);
     expect(errors).toEqual([]);
   });

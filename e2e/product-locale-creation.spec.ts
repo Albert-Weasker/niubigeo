@@ -10,6 +10,11 @@ let baseUrl = "";
 let server: Server;
 let previousDataDir: string | undefined;
 
+const hasHan = (value: string) => [...value].some((character) => {
+  const point = character.codePointAt(0) || 0;
+  return point >= 0x3400 && point <= 0x9fff;
+});
+
 test.beforeAll(async () => {
   previousDataDir = process.env.PRODUCT_DATA_DIR;
   root = await mkdtemp(join(tmpdir(), "niubigeo-locale-creation-"));
@@ -55,6 +60,10 @@ for (const view of ["overview", "measurements"]) {
         await page.locator(`[data-product-locale="${preference.locale}"]`).click();
       }
       await expect(page.locator("html")).toHaveAttribute("lang", preference.language);
+      if (preference.locale === "pt-BR") {
+        const interfaceText = await page.locator("body").innerText();
+        expect(hasHan(interfaceText), interfaceText).toBe(false);
+      }
 
       const suffix = `${view}-${preference.locale || "missing"}`.toLowerCase();
       const domain = `${suffix}.example`;
@@ -85,6 +94,10 @@ for (const view of ["overview", "measurements"]) {
       expect(stored).toMatchObject({ id: project.id, name, defaultLanguage: preference.language });
       await page.reload();
       await expect(page.locator("html")).toHaveAttribute("lang", preference.language);
+      if (preference.locale === "pt-BR") {
+        const interfaceText = await page.locator("body").innerText();
+        expect(hasHan(interfaceText), interfaceText).toBe(false);
+      }
       const fetched = await page.request.get(`${baseUrl}/api/projects/${project.id}`);
       expect(fetched.status()).toBe(200);
       expect(await fetched.json()).toMatchObject({ project: { id: project.id, defaultLanguage: preference.language } });
