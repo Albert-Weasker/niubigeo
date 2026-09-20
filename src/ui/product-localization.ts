@@ -258,6 +258,8 @@ export function renderProductLocalizationScript(): string {
     "操作失败 · 重试": "Falha na operação · Tentar novamente",
     "无法读取这个数据点的证据。": "Não foi possível carregar as evidências deste ponto de dados.",
     "NiubiGEO AI 顾问": "Consultor de IA do NiubiGEO",
+    "AI 顾问": "Consultor de IA",
+    "与 NiubiGEO 对话": "Fale com o NiubiGEO",
     "聊聊你的 GEO 问题": "Converse sobre suas questões de GEO",
     "NiubiGEO AI 顾问：前往官网咨询（新标签页）": "Consultor de IA do NiubiGEO: consultar no site oficial (nova aba)"
     ,"项目输入无效，请检查域名和名称。": "Os dados do projeto são inválidos. Verifique o domínio e o nome."
