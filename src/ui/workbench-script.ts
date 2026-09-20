@@ -393,6 +393,367 @@ export function renderWorkbenchScript(): string {
         deleting: "Deleting...",
         deleted: "Deleted"
       },
+      "pt-BR": {
+        project: "Projeto",
+        noProjects: "Nenhum projeto de monitoramento ainda",
+        newProject: "Novo projeto",
+        importRuns: "Importar execuções salvas",
+        overview: "Visão geral",
+        prompts: "Perguntas",
+        visibility: "Visibilidade",
+        competitorsNav: "Concorrentes",
+        citations: "Citações",
+        monitoring: "Monitoramento",
+        runRecords: "Histórico de execuções",
+        providersNav: "Provedores",
+        settings: "Configurações",
+        languageSwitch: "Idioma",
+        serverOnline: "Online",
+        serverError: "Erro no servidor",
+        workspaceSubtitle: "Evidências de observações reais dos provedores",
+        allModels: "Todos os modelos",
+        allSearch: "Todos os modos de pesquisa",
+        apiRegion: "Região indisponível para os dados da API",
+        last24Hours: "24 horas",
+        last7Days: "7 dias",
+        last30Days: "30 dias",
+        allTime: "Todo o período",
+        whatChanged: "O que aconteceu",
+        whatChangedHelp: "As mudanças só aparecem após duas execuções totalmente comparáveis.",
+        noComparableChanges: "É necessária uma segunda execução comparável para calcular as mudanças.",
+        brandAppearedNew: "A marca começou a aparecer em {count} novas perguntas.",
+        brandDisappeared: "A marca deixou de aparecer em {count} perguntas.",
+        newCitations: "A IA citou {count} novas fontes.",
+        newCompetitors: "Surgiram {count} novos concorrentes ou entidades relacionadas.",
+        brandDiscovery: "Encontrada em perguntas sem a marca",
+        brandDiscoveryBasis: "Inclui somente observações de descoberta sem mencionar a marca.",
+        candidateEntry: "Lista de opções",
+        candidateEntryBasis: "Inclui somente perguntas classificadas antes da execução como decisões entre opções.",
+        explicitRecommendation: "Recomendada explicitamente",
+        explicitRecommendationBasis: "Inclui somente perguntas classificadas antes da execução como decisões de recomendação.",
+        officialCitation: "Fonte oficial citada",
+        officialCitationBasis: "Inclui somente observações bem-sucedidas em que a pesquisa nativa foi solicitada.",
+        validObservations: "observações válidas",
+        latestRun: "Execução mais recente",
+        openEvidence: "Ver evidências",
+        visibilityTrend: "Visibilidade ao longo do tempo",
+        visibilityTrendHelp: "Somente observações completas da mesma linha de base são conectadas.",
+        brandAppearsLegend: "A marca aparece",
+        recommendationLegend: "Recomendada",
+        citationLegend: "Citação oficial",
+        competitorRanking: "Concorrentes observados",
+        competitorRankingHelp: "Somente entidades confirmadas; as contagens representam cobertura de respostas, não participação de mercado.",
+        noTrend: "Ainda não há uma tendência comparável.",
+        noConfirmedCompetitors: "Nenhum concorrente possui evidências suficientes para ser confirmado.",
+        pendingEntities: "Entidades aguardando confirmação",
+        whyCompetitor: "Por que concorre",
+        observations: "Observações",
+        recommendations: "Recomendações",
+        sourcesCount: "Fontes",
+        promptAsset: "Perguntas de monitoramento",
+        promptAssetHelp: "As perguntas pertencem a uma linha de base e só são comparadas em condições idênticas.",
+        question: "Pergunta",
+        result: "Resultado da marca",
+        modelCoverage: "Cobertura dos modelos",
+        change: "Mudança",
+        mentioned: "Apareceu",
+        candidate: "Opção",
+        recommended: "Recomendada",
+        absent: "Não apareceu",
+        sourceLandscape: "Fontes das citações",
+        sourceLandscapeHelp: "Somente links retornados pelo provedor ou presentes na resposta são contabilizados.",
+        officialDomainCoverageTitle: "Cobertura do domínio oficial",
+        citedPageBreakdown: "Detalhamento das páginas citadas",
+        source: "Fonte",
+        type: "Tipo",
+        questionCoverage: "Cobertura das perguntas",
+        providerModels: "Modelos do provedor",
+        targetSource: "Site próprio",
+        competitorSource: "Site do concorrente",
+        thirdPartySource: "Terceiros",
+        unknownSource: "Não classificada",
+        baselines: "Linhas de base",
+        schedule: "Agendamento",
+        nextRun: "Próxima execução",
+        runNow: "Executar agora",
+        createSchedule: "Criar agendamento",
+        manual: "Executar uma vez",
+        daily: "Diariamente",
+        weekly: "Semanalmente",
+        cron: "Cron personalizado",
+        timezone: "Fuso horário",
+        scheduleSaved: "Agendamento de monitoramento criado.",
+        time: "Horário",
+        baseline: "Linha de base",
+        planned: "Planejadas",
+        successful: "Bem-sucedidas",
+        failed: "Falharam",
+        search: "Pesquisa",
+        status: "Status",
+        openSnapshot: "Abrir registro",
+        completed: "Concluída",
+        partial: "Parcial",
+        running: "Em execução",
+        providerCatalog: "Catálogo de provedores",
+        providerCatalogHelp: "As chaves são específicas de cada provedor. O OpenRouter pode rotear modelos compatíveis usando uma única chave configurada.",
+        configured: "Configurado",
+        missing: "Chave ausente",
+        nativeSearch: "Pesquisa nativa na web",
+        noNativeSearch: "Sem pesquisa nativa na web",
+        searchModels: "Pesquisar modelos",
+        searchModelsPlaceholder: "Digite o nome ou ID do modelo",
+        modelCount: "{count} modelos",
+        nativeSearchModelCount: "{count} aceitam pesquisa nativa na web",
+        showAllModels: "Mostrar todos os modelos e seus recursos de pesquisa",
+        modelCatalogUnavailable: "O catálogo de recursos dos modelos está indisponível",
+        selectedModelSearchUnsupported: "Pelo menos um modelo selecionado não aceita pesquisa nativa na web.",
+        projectSettings: "Configurações do projeto",
+        projectSettingsHelp: "Identidade e escopo de comparação armazenados no projeto atual.",
+        aliases: "Apelidos",
+        language: "Idioma",
+        projectStatus: "Status do projeto",
+        dataBoundary: "Fonte dos dados",
+        dataBoundaryBody: "Este espaço mostra observações das APIs dos provedores. Elas não representam resultados regionais nem dos produtos web para consumidores.",
+        wizardTitle: "Criar projeto de monitoramento",
+        wizardSubtitle: "Revise todas as perguntas antes de qualquer solicitação real ao provedor.",
+        close: "Fechar",
+        back: "Voltar",
+        next: "Avançar",
+        identifyAndReview: "Identificar e revisar perguntas",
+        stepDomain: "Domínio",
+        stepIdentity: "Marca",
+        stepQuestions: "Perguntas",
+        stepModels: "Modelos",
+        stepSchedule: "Agendamento",
+        domainUrl: "Domínio ou URL",
+        domainHelp: "O site é usado para identificar a marca e gerar perguntas. Ele não é contabilizado como evidência de visibilidade em IA.",
+        githubRepo: "Repositório no GitHub",
+        githubRepoHelp: "Opcional. O README e os tópicos podem orientar o conjunto de perguntas.",
+        competitorsInput: "Domínios dos concorrentes",
+        competitorsHelp: "Opcional. Um por linha. A descoberta automática pode sugerir outros para revisão.",
+        keywords: "Palavras-chave",
+        keywordsHelp: "Opcional. Suas palavras-chave têm prioridade na geração das perguntas de monitoramento.",
+        promptCount: "Quantidade de perguntas",
+        promptCountHelp: "As perguntas geradas podem ser editadas antes da execução.",
+        keywordMode: "Modo das palavras-chave",
+        sitePlusUser: "Site + palavras-chave do usuário",
+        userOnlyKeywords: "Somente palavras-chave do usuário",
+        siteOnlyKeywords: "Somente palavras-chave do site",
+        keywordLimit: "Limite de palavras-chave",
+        promptsPerKeyword: "Perguntas por palavra-chave",
+        discovery: "Descoberta",
+        autoDiscover: "Descobrir marca, entidades e perguntas",
+        domainOnly: "Usar somente os dados informados",
+        provider: "Provedor",
+        models: "Modelos",
+        maxTokens: "Máximo de tokens da resposta",
+        repeatCount: "Execuções por pergunta",
+        repeatCountHelp: "Cada repetição é armazenada como observação independente para reduzir a dependência de uma única resposta aleatória.",
+        webSearch: "Pesquisa na web",
+        webSearchOff: "Desativada",
+        webSearchOn: "Ativada",
+        searchMode: "Modo de pesquisa",
+        searchModeAuto: "Recurso nativo automático",
+        searchModeNative: "Somente nativo do provedor",
+        requestEstimate: "Solicitações estimadas",
+        perRun: "por execução",
+        perMonth: "cerca de {count} por mês",
+        auditLanguage: "Idioma da interface e das respostas",
+        confirmQuestions: "Confirmar perguntas",
+        auditTarget: "Alvo da auditoria",
+        brand: "Marca",
+        officialSite: "Site oficial",
+        identifiedCompetitors: "Concorrentes identificados",
+        addCompetitor: "Adicionar concorrente",
+        competitorDomain: "Domínio do concorrente",
+        brandAwarenessQuestions: "Perguntas de reconhecimento da marca",
+        brandAwarenessHelp: "Verificam se a IA reconhece a marca pelo nome.",
+        organicDiscoveryQuestions: "Perguntas de descoberta sem a marca",
+        organicDiscoveryHelp: "Verificam se a IA encontra a marca sem receber seu nome.",
+        comparisonQuestions: "Perguntas de comparação",
+        comparisonHelp: "Testam comparações explícitas e alternativas.",
+        otherQuestions: "Outras perguntas",
+        enabled: "Ativa",
+        delete: "Excluir",
+        addPrompt: "Adicionar pergunta",
+        newPromptPlaceholder: "Digite uma pergunta de monitoramento",
+        plannedRunSummary: "Resumo da execução",
+        enabledPrompts: "Perguntas ativas",
+        disabledPrompts: "Perguntas inativas",
+        providerRuns: "Solicitações ao provedor",
+        promptSet: "Conjunto de perguntas",
+        analysisRules: "Regras de análise",
+        confirmAndRun: "Confirmar e executar auditoria real",
+        noCompetitors: "Nenhum concorrente configurado.",
+        yes: "Sim",
+        no: "Não",
+        brandAwareness: "Reconhecimento da marca",
+        organicDiscovery: "Descoberta orgânica",
+        comparison: "Comparação",
+        other: "Outro",
+        identifyingQuestions: "Identificando a marca e gerando perguntas...",
+        planReady: "Perguntas prontas para revisão",
+        analyzeQuestionChanges: "Analisar alterações nas perguntas",
+        analyzingQuestionChanges: "Analisando as perguntas editadas com o provedor selecionado...",
+        questionChangesReady: "As perguntas editadas foram classificadas pelo provedor. Revise-as antes da execução.",
+        pendingQuestionAnalysis: "O texto editado da pergunta deve ser analisado pelo provedor selecionado antes da execução.",
+        runningProviderCalls: "Executando solicitações reais aos provedores",
+        runFinished: "Execução concluída e adicionada ao projeto.",
+        auditFailed: "Falha na auditoria",
+        loading: "Carregando",
+        noAnswer: "Nenhuma resposta utilizável foi retornada.",
+        actualAnswer: "Resposta real da IA",
+        citedLinks: "Links citados",
+        noCitations: "Nenhuma citação retornada.",
+        searchNotUsed: "Sem conexão",
+        searchNative: "Nativa do provedor",
+        sourceLabel: "Fonte",
+        model: "Modelo",
+        runConditions: "Condições da execução",
+        attentionEmpty: "Ainda não há mudanças comparáveis. Conclua outra execução completa na mesma linha de base.",
+        runIncomplete: "A execução mais recente não foi concluída.",
+        runIncompleteDetail: "{completed} / {planned} observações concluídas · {failed} falharam · excluída das métricas e tendências",
+        currentDataFrom: "As métricas atuais usam a última execução completa de {date}",
+        noCompleteRun: "Ainda não há uma execução completa.",
+        currentValidData: "Dados válidos atuais",
+        viewFailures: "Ver falhas",
+        rerunBaseline: "Executar novamente toda a linha de base",
+        compareUnavailable: "A execução atual não pode ser comparada à anterior.",
+        firstObservation: "A primeira observação da linha de base foi concluída. É necessário outro ciclo para formar uma tendência.",
+        sameDayOnly: "Há várias execuções no mesmo dia. Use a visão de 24 horas para resultados intradiários; eles não formam uma tendência de longo prazo.",
+        partialRunTrend: "Uma execução incompleta foi excluída da tendência.",
+        metricTrend: "Tendência da métrica",
+        brandComparison: "Comparação da marca",
+        comparisonMetricHelp: "Escolha uma métrica para comparar o alvo aos concorrentes confirmados pela IA.",
+        latestCompleteRunOnly: "Última execução completa da linha de base selecionada",
+        setMonitoring: "Configurar monitoramento",
+        monitoringTasks: "Tarefas de monitoramento",
+        noMonitoringTasks: "Nenhum monitoramento agendado",
+        noMonitoringTasksBody: "Crie uma tarefa para verificar perguntas, concorrentes e citações em uma linha de base repetível.",
+        createMonitoring: "Criar monitoramento",
+        taskName: "Nome da tarefa",
+        monitoringContent: "Conteúdo do monitoramento",
+        selectQuestions: "Perguntas incluídas nesta tarefa",
+        selectModels: "Modelos incluídos nesta tarefa",
+        taskSearchHelp: "As configurações de pesquisa fazem parte da linha de base; alterá-las inicia uma nova série comparável.",
+        monthly: "Mensalmente",
+        customSchedule: "Personalizado",
+        dayOfWeek: "Dia da semana",
+        dayOfMonth: "Dia do mês",
+        pause: "Pausar",
+        resume: "Retomar",
+        duplicate: "Duplicar",
+        edit: "Editar",
+        requestsPerRun: "solicitações por execução",
+        estimatedMonthly: "estimativa mensal",
+        nextOccurrences: "Próximas três execuções",
+        notificationConditions: "Notificar quando",
+        notificationChannels: "Canais de notificação",
+        brandMissingCondition: "A marca desaparecer de uma resposta",
+        competitorCondition: "Um novo concorrente aparecer",
+        citationCondition: "O site oficial receber uma nova citação",
+        recommendationCondition: "A recomendação mudar",
+        completeCondition: "Toda execução for concluída",
+        failureCondition: "Uma execução falhar",
+        noDeliveryConfigured: "Nenhum canal de entrega configurado. Os eventos continuarão visíveis neste espaço.",
+        recentAlerts: "Eventos recentes de monitoramento",
+        noRecentAlerts: "Nenhum evento de monitoramento foi registrado neste período.",
+        notificationTarget: "Destino",
+        baselineEditRule: "Alterar perguntas, modelos, pesquisa, idioma ou concorrentes exige uma nova linha de base. Nesta tarefa, edite apenas o agendamento e as notificações.",
+        viewResults: "Ver resultados",
+        monitoringPeriods: "períodos de monitoramento",
+        active: "Ativa",
+        saveTask: "Salvar tarefa",
+        deleteTask: "Excluir tarefa",
+        confirmDeleteTask: "Excluir esta tarefa de monitoramento? As execuções históricas serão mantidas.",
+        confirmedCompetitors: "Concorrentes confirmados",
+        suspectedBrands: "Marcas suspeitas",
+        alternativeMethods: "Métodos alternativos",
+        promotionChannels: "Canais de promoção",
+        unresolvedEntities: "Entidades não resolvidas",
+        comparisonScope: "Escopo",
+        scopedRuns: "execuções",
+        scopedAnswers: "respostas válidas",
+        targetAbsentAnswers: "alvo ausente",
+        replacementFocus: "Quem está substituindo você",
+        evidenceCount: "Evidências",
+        currentResult: "Resultado atual",
+        baselineChanged: "A linha de base mudou. Os resultados de cada lado não são conectados.",
+        metricNoSample: "Nenhuma observação elegível",
+        analysisIncomplete: "A execução do provedor terminou, mas a análise atual está incompleta",
+        analysisIncompleteDetail: "{completed} / {answered} observações respondidas atenderam ao contrato de análise atual.",
+        analysisHistorical: "Esta execução usa um esquema de análise antigo e foi excluída das métricas e tendências atuais.",
+        reanalyzeAnswers: "Reanalisar respostas salvas",
+        analysisRunning: "Reanalisando respostas salvas...",
+        classifyBaselineIntents: "Corrigir intenção das perguntas e criar uma nova linha de base",
+        classifyingBaselineIntents: "Classificando intenção das perguntas...",
+        pendingEntitySummary: "Nenhum concorrente confirmado · {count} entidades relacionadas aguardam confirmação",
+        officialDomainCoverage: "respostas citaram este domínio oficial",
+        sourcePageBreakdown: "Páginas mais citadas; uma resposta pode citar mais de uma página.",
+        showMetric: "Mostrar métrica",
+        dataSourceShort: "API do provedor",
+        trendTitle: "Mudanças nas respostas da IA sobre sua marca",
+        trendPurpose: "Cada ponto representa uma execução completa. As linhas conectam resultados da mesma linha de base para mostrar se a IA encontra, considera, recomenda e cita sua marca com perguntas, modelos e pesquisa idênticos. Selecione um ponto para inspecionar as respostas de origem.",
+        sameBaseline: "Mesma linha de base",
+        nativeSearchConfigured: "Pesquisa nativa configurada",
+        mixedSearchConfigured: "Configuração de pesquisa mista",
+        searchDisabled: "Pesquisa desativada",
+        metricMeaning: "O que esta linha comprova",
+        discoveryProof: "Se a IA lembra da sua marca quando o usuário não a menciona.",
+        discoveryFormula: "Respostas sem a marca que a mencionam / todas as respostas de descoberta sem a marca",
+        discoveryDirection: "Uma alta significa que mais respostas encontraram a marca; uma queda significa que ela desapareceu de mais respostas.",
+        discoveryLegend: "A IA lembrou da sua marca",
+        discoverySubject: "Respostas em que a IA lembrou de {brand}",
+        candidateProof: "Se a IA inclui sua marca entre as opções que o usuário pode considerar.",
+        candidateFormula: "Respostas que listam a marca como opção / respostas de decisão entre opções",
+        candidateDirection: "Uma alta significa que mais respostas incluíram a marca como opção; uma queda significa que menos respostas a incluíram.",
+        candidateLegend: "Listada como opção",
+        candidateSubject: "Respostas que listam {brand} como opção",
+        recommendationProof: "Se a IA sugere explicitamente considerar ou escolher sua marca.",
+        recommendationFormula: "Respostas que recomendam explicitamente a marca / respostas de decisão de recomendação",
+        recommendationDirection: "Uma alta significa mais recomendações explícitas; uma queda significa menos.",
+        recommendationLegend: "Recomendada explicitamente",
+        recommendationSubject: "Respostas que recomendam explicitamente {brand}",
+        citationProof: "Se uma resposta com pesquisa na web usa seu site oficial como fonte.",
+        citationFormula: "Respostas que citam o domínio oficial / respostas bem-sucedidas com pesquisa nativa solicitada",
+        citationDirection: "Uma alta significa que mais respostas citaram o domínio oficial; uma queda significa que menos citaram.",
+        citationLegend: "O site oficial virou fonte",
+        citationSubject: "Respostas que citam {domain}",
+        changesProve: "O que estas execuções comprovam",
+        cannotProve: "O que este gráfico não comprova",
+        cannotProveLongTerm: "Uma tendência de longo prazo baseada em poucos períodos de monitoramento",
+        cannotProveShare: "Uma mudança na participação de mercado",
+        cannotProveConsumer: "O mesmo resultado nos produtos web de IA para consumidores",
+        cannotProveCause: "Que uma otimização causou a mudança observada",
+        proofIncreased: "{subject} aumentou de {from} para {to} respostas.",
+        proofDecreased: "{subject} diminuiu de {from} para {to} respostas.",
+        proofUnchanged: "{subject} permaneceu em {to} respostas.",
+        trendPointReason: "Por que este resultado mudou de {from} para {to}?",
+        newlyMatched: "Novas nesta execução",
+        persistentlyMatched: "Presentes nas duas execuções",
+        removedMatched: "Ausentes nesta execução",
+        previousAnswer: "Resposta anterior",
+        currentAnswer: "Resposta atual",
+        netChangePositive: "Variação líquida: {added} adicionadas - {removed} removidas = {net} a mais",
+        netChangeNegative: "Variação líquida: {added} adicionadas - {removed} removidas = {net} a menos",
+        netChangeZero: "Variação líquida: {added} adicionadas - {removed} removidas = sem alteração",
+        noEvidenceRows: "Nenhuma resposta neste grupo.",
+        firstPointEvidence: "Este é o primeiro ponto comparável. Abra as respostas correspondentes que formam o resultado.",
+        matchingAnswers: "Respostas correspondentes a esta métrica",
+        preparingAudit: "Preparando perguntas",
+        callingProviders: "Consultando provedores de IA",
+        buildingResult: "Construindo evidências",
+        savingResult: "Salvando resultados",
+        creatingRun: "Criando execução...",
+        runStarted: "Execução concluída",
+        retryAction: "Falhou · Tentar novamente",
+        observationsCompleted: "observações concluídas",
+        failedCount: "{count} falharam",
+        saving: "Salvando...",
+        saved: "Salvo",
+        deleting: "Excluindo...",
+        deleted: "Excluído"
+      },
       zh: {
         project: "项目",
         noProjects: "还没有监测项目",
@@ -756,7 +1117,7 @@ export function renderWorkbenchScript(): string {
       }
     };
 
-    function locale() { return state.locale === "en" ? "en" : "zh"; }
+    function locale() { return state.locale === "en" || state.locale === "pt-BR" ? state.locale : "zh"; }
     function t(key, values) {
       let value = translations[locale()][key] || translations.en[key] || key;
       if (!values) return value;
@@ -791,7 +1152,7 @@ export function renderWorkbenchScript(): string {
       if (!value) return "—";
       const date = new Date(value);
       if (Number.isNaN(date.getTime())) return String(value);
-      return new Intl.DateTimeFormat(locale() === "zh" ? "zh-CN" : "en", { dateStyle: "medium", timeStyle: "short" }).format(date);
+      return new Intl.DateTimeFormat(locale() === "zh" ? "zh-CN" : locale(), { dateStyle: "medium", timeStyle: "short" }).format(date);
     }
     function formatFraction(metric) {
       if (!metric) return { numerator: 0, denominator: 0 };
@@ -853,17 +1214,17 @@ export function renderWorkbenchScript(): string {
       let saved = "zh";
       try {
         const value = window.localStorage.getItem("niubigeo.locale");
-        if (value === "zh" || value === "en") saved = value;
+        if (value === "zh" || value === "en" || value === "pt-BR") saved = value;
       } catch {}
       state.locale = saved;
     }
     function setLocale(nextLocale) {
-      state.locale = nextLocale === "en" ? "en" : "zh";
+      state.locale = nextLocale === "en" || nextLocale === "pt-BR" ? nextLocale : "zh";
       try { window.localStorage.setItem("niubigeo.locale", state.locale); } catch {}
       applyLocale();
     }
     function applyLocale() {
-      document.documentElement.lang = locale() === "zh" ? "zh-CN" : "en";
+      document.documentElement.lang = locale() === "zh" ? "zh-CN" : locale();
       document.querySelectorAll("[data-i18n]").forEach((node) => {
         const key = node.getAttribute("data-i18n");
         if (key) node.textContent = t(key);
@@ -1084,7 +1445,7 @@ export function renderWorkbenchScript(): string {
       if (state.period === "1d") return t("last24Hours");
       if (state.period === "7d") return t("last7Days");
       if (state.period === "30d") return t("last30Days");
-      if (state.period === "90d") return "90 " + (locale() === "zh" ? "天" : "days");
+      if (state.period === "90d") return "90 " + (locale() === "zh" ? "天" : locale() === "pt-BR" ? "dias" : "days");
       return t("allTime");
     }
     function scopeLabel() {
@@ -1177,7 +1538,7 @@ export function renderWorkbenchScript(): string {
         const evidenceIds = item.observationIds.concat(item.previousObservationIds);
         const delivery = item.deliveries.length
           ? item.deliveries.filter((row) => row.status === "delivered").length + ' / ' + item.deliveries.length
-          : locale() === "zh" ? "已记录" : "Recorded";
+          : locale() === "zh" ? "已记录" : locale() === "pt-BR" ? "Registrado" : "Recorded";
         const content = '<span class="event-marker ' + (item.condition === "run_failed" || item.condition === "brand_disappeared" ? "negative" : item.condition === "official_citation_added" ? "citation" : "positive") + '"></span><span><strong>' + html(monitoringEventLabel(item.condition)) + '</strong><small>' + html(formatDate(item.createdAt) + ' · ' + item.occurrenceCount + ' · ' + delivery) + '</small></span>';
         return evidenceIds.length
           ? '<button class="event-item event-button" type="button" data-evidence-ids="' + html(evidenceIds.join(",")) + '">' + content + '</button>'
@@ -1318,7 +1679,7 @@ export function renderWorkbenchScript(): string {
         if (points.length > 8 && index % Math.ceil(points.length / 6) !== 0 && index !== points.length - 1) return "";
         const x = 34 + (index / Math.max(points.length - 1, 1)) * 756;
         const options = state.period === "1d" ? { hour: "2-digit", minute: "2-digit" } : { month: "short", day: "numeric" };
-        return '<text class="chart-axis-label" x="' + x.toFixed(1) + '" y="235" text-anchor="middle" fill="#666" font-size="10">' + html(new Intl.DateTimeFormat(locale() === "zh" ? "zh-CN" : "en", options).format(new Date(point.observedAt))) + '</text>';
+        return '<text class="chart-axis-label" x="' + x.toFixed(1) + '" y="235" text-anchor="middle" fill="#666" font-size="10">' + html(new Intl.DateTimeFormat(locale() === "zh" ? "zh-CN" : locale(), options).format(new Date(point.observedAt))) + '</text>';
       }).join("");
       return '<div class="chart-panel' + (compact ? ' compact' : '') + '">' + chartHeader +
         definitions +
@@ -1350,7 +1711,7 @@ export function renderWorkbenchScript(): string {
         if (points.length > 8 && index % Math.ceil(points.length / 6) !== 0 && index !== points.length - 1) return "";
         const x = 34 + (index / Math.max(points.length - 1, 1)) * 756;
         const options = state.period === "1d" ? { hour: "2-digit", minute: "2-digit" } : { month: "short", day: "numeric" };
-        return '<text class="chart-axis-label" x="' + x.toFixed(1) + '" y="235" text-anchor="middle" fill="#666" font-size="10">' + html(new Intl.DateTimeFormat(locale() === "zh" ? "zh-CN" : "en", options).format(new Date(point.observedAt))) + '</text>';
+        return '<text class="chart-axis-label" x="' + x.toFixed(1) + '" y="235" text-anchor="middle" fill="#666" font-size="10">' + html(new Intl.DateTimeFormat(locale() === "zh" ? "zh-CN" : locale(), options).format(new Date(point.observedAt))) + '</text>';
       }).join("");
       const classes = ["", "secondary", "tertiary", "quaternary", "quinary"];
       const legend = lines.map((brand, index) => '<span class="brand-legend brand-legend-' + index + '">' + html(brand.name) + '</span>').join("");
@@ -1393,6 +1754,8 @@ export function renderWorkbenchScript(): string {
     function relationshipLabel(value) {
       const labels = locale() === "zh"
         ? { competitor: "竞争产品", direct_alternative: "直接替代", indirect_alternative: "间接替代", compared_option: "比较对象", recommended_option: "推荐选项", channel: "渠道", source: "来源", integration: "集成", example: "示例", customer: "客户", partner: "合作方", unrelated: "无关", unclear: "待确认", target: "目标品牌", evaluated_candidate: "被评价对象" }
+        : locale() === "pt-BR"
+          ? { competitor: "Concorrente", direct_alternative: "Alternativa direta", indirect_alternative: "Alternativa indireta", compared_option: "Opção comparada", recommended_option: "Opção recomendada", channel: "Canal", source: "Fonte", integration: "Integração", example: "Exemplo", customer: "Cliente", partner: "Parceiro", unrelated: "Sem relação", unclear: "Precisa de confirmação", target: "Marca-alvo", evaluated_candidate: "Opção avaliada" }
         : { competitor: "Competitor", direct_alternative: "Direct alternative", indirect_alternative: "Indirect alternative", compared_option: "Compared option", recommended_option: "Recommended option", channel: "Channel", source: "Source", integration: "Integration", example: "Example", customer: "Customer", partner: "Partner", unrelated: "Unrelated", unclear: "Needs confirmation", target: "Target brand", evaluated_candidate: "Evaluated candidate" };
       return labels[value] || value;
     }
@@ -1448,7 +1811,7 @@ export function renderWorkbenchScript(): string {
       if (schedule.kind === "weekly") {
         const day = Number.isInteger(schedule.dayOfWeek) ? schedule.dayOfWeek : 1;
         const date = new Date(Date.UTC(2026, 0, 4 + day));
-        const weekday = new Intl.DateTimeFormat(locale() === "zh" ? "zh-CN" : "en", { weekday: "long", timeZone: "UTC" }).format(date);
+        const weekday = new Intl.DateTimeFormat(locale() === "zh" ? "zh-CN" : locale(), { weekday: "long", timeZone: "UTC" }).format(date);
         return t("weekly") + " · " + weekday + " " + time;
       }
       if (schedule.kind === "monthly") return t("monthly") + " · " + (schedule.dayOfMonth || 1) + " · " + time;
@@ -1707,7 +2070,7 @@ export function renderWorkbenchScript(): string {
         [...weekday.options].forEach((option) => {
           const day = Number(option.value);
           const date = new Date(Date.UTC(2026, 0, 4 + day));
-          option.textContent = new Intl.DateTimeFormat(locale() === "zh" ? "zh-CN" : "en", { weekday: "long", timeZone: "UTC" }).format(date);
+          option.textContent = new Intl.DateTimeFormat(locale() === "zh" ? "zh-CN" : locale(), { weekday: "long", timeZone: "UTC" }).format(date);
         });
         weekday.setAttribute("data-localized", locale());
       } else if (weekday && weekday.getAttribute("data-localized") !== locale()) {

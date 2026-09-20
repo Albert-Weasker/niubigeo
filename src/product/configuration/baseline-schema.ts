@@ -18,7 +18,7 @@ export interface ProductBaseline {
   normalizedDomain: string;
   recognitionProtocol: RecognitionProtocolSnapshot;
   modelSnapshots: ProductModelSnapshot[];
-  language: "zh" | "en";
+  language: "zh" | "en" | "pt-BR";
   analysisVersion: string;
   configHash: string;
   createdAt: string;

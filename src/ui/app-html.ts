@@ -58,6 +58,7 @@ export function renderAppHtml(): string {
           <div class="language-switch" role="group" aria-label="Language">
             <button class="language-button" type="button" data-language-choice="zh" aria-pressed="true">中文</button>
             <button class="language-button" type="button" data-language-choice="en" aria-pressed="false">EN</button>
+            <button class="language-button" type="button" data-language-choice="pt-BR" aria-pressed="false">PT-BR</button>
           </div>
           <button class="button primary" type="button" data-open-wizard="true" data-i18n="newProject">新建项目</button>
         </div>
@@ -147,7 +148,7 @@ export function renderAppHtml(): string {
             <div class="field"><label for="maxTokens" data-i18n="maxTokens">回答最大 Token</label><input id="maxTokens" name="maxTokens" type="number" min="200" max="4000" value="700"></div>
             <div class="field"><label for="repeatCount" data-i18n="repeatCount">每个问题重复次数</label><input id="repeatCount" name="repeatCount" type="number" min="1" max="10" value="1"><p class="field-help" data-i18n="repeatCountHelp">重复请求会形成独立观察，用于降低单次随机性的影响。</p></div>
             <div class="field"><label for="webSearchEnabled" data-i18n="webSearch">联网搜索</label><select id="webSearchEnabled" name="webSearchEnabled"><option value="false" data-i18n="webSearchOff">关闭</option><option value="true" data-i18n="webSearchOn">开启</option></select></div>
-            <div class="field"><label id="language-label" data-i18n="auditLanguage">页面与回答语言</label><div class="language-switch"><button class="language-button" type="button" data-language-choice="zh">中文</button><button class="language-button" type="button" data-language-choice="en">EN</button></div></div>
+            <div class="field"><label id="language-label" data-i18n="auditLanguage">页面与回答语言</label><div class="language-switch"><button class="language-button" type="button" data-language-choice="zh">中文</button><button class="language-button" type="button" data-language-choice="en">EN</button><button class="language-button" type="button" data-language-choice="pt-BR">PT-BR</button></div></div>
           </div>
         </section>
 

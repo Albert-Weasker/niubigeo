@@ -286,4 +286,8 @@ test("Phase 2 UI exposes the domain-only configuration flow without prompt or ex
   assert.equal(html.includes("阶段 2 · 配置与 Baseline"), false);
   assert.equal(html.includes("--motion-fast:120ms"), true);
   assert.equal(html.includes("prefers-reduced-motion"), true);
+  assert.equal(html.includes('["zh", "en", "pt-BR"]'), true);
+  assert.equal(html.includes('"Novo projeto"'), true);
+  assert.equal(html.includes('localStorage.getItem("niubigeo.product.locale")'), true);
+  assert.equal(html.includes('defaultLanguage = uiLocale === "pt-BR" ? "pt-BR"'), true);
 });

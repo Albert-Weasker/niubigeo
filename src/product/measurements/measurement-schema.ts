@@ -43,7 +43,7 @@ export interface WatchKeyword {
 export interface MeasurementProtocolSnapshot {
   id: MeasurementProtocolId;
   version: string;
-  language: "zh" | "en";
+  language: "zh" | "en" | "pt-BR";
   scenario?: string | undefined;
   responseSchemaHash: string;
   promptTemplateHash: string;
@@ -114,7 +114,7 @@ export interface ProbeFingerprint {
   webSearchMode: "off" | "provider_native";
   protocolId: MeasurementProtocolId;
   protocolVersion: string;
-  language: "zh" | "en";
+  language: "zh" | "en" | "pt-BR";
   subject: string;
   scenario: string | null;
   repetitions: number;

@@ -49,11 +49,11 @@ const PROMPT_TEMPLATE = [
 
 export const KEYWORD_DISCOVERY_PROMPT_HASH = sha256(PROMPT_TEMPLATE);
 
-function languageInstruction(language: "zh" | "en"): string {
-  return language === "zh" ? "所有字符串值使用简体中文。" : "Use English for all string values.";
+function languageInstruction(language: "zh" | "en" | "pt-BR"): string {
+  return language === "zh" ? "所有字符串值使用简体中文。" : language === "pt-BR" ? "Use Brazilian Portuguese for all string values." : "Use English for all string values.";
 }
 
-export function keywordDiscoveryPrompt(input: { keyword: string; language: "zh" | "en" }): string {
+export function keywordDiscoveryPrompt(input: { keyword: string; language: "zh" | "en" | "pt-BR" }): string {
   return [
     PROMPT_TEMPLATE,
     `Keyword: ${input.keyword}`,

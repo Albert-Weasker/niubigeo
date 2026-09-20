@@ -30,13 +30,24 @@ function eventTitle(project: MonitoringProject, condition: MonitoringNotificatio
     run_completed: "Monitoring run completed",
     run_failed: "Monitoring run failed",
   };
-  return `${project.name}: ${(language === "zh" ? zh : en)[condition]}`;
+  const ptBR: Record<MonitoringNotificationCondition, string> = {
+    brand_disappeared: "A marca desapareceu das respostas monitoradas",
+    competitor_appeared: "Um concorrente começou a aparecer sem a marca",
+    official_citation_added: "A IA adicionou uma citação do site oficial",
+    recommendation_changed: "A recomendação da marca mudou",
+    run_completed: "Execução de monitoramento concluída",
+    run_failed: "Falha na execução de monitoramento",
+  };
+  return `${project.name}: ${(language === "zh" ? zh : language === "pt" ? ptBR : en)[condition]}`;
 }
 
 function eventMessage(event: MonitoringEvent, task: MonitoringTask, project: MonitoringProject): string {
   const language = project.defaultLanguage.toLocaleLowerCase().split("-")[0];
   if (language === "zh") {
     return `任务：${task.name}\n事件数量：${event.occurrenceCount}\n问题：${event.promptIds.length}\n模型：${event.models.join(", ") || "无"}\n请在 NiubiGEO 工作台查看对应问题和原始回答。`;
+  }
+  if (language === "pt") {
+    return `Tarefa: ${task.name}\nOcorrências: ${event.occurrenceCount}\nPerguntas: ${event.promptIds.length}\nModelos: ${event.models.join(", ") || "nenhum"}\nAbra o espaço de trabalho do NiubiGEO para inspecionar as perguntas e respostas originais.`;
   }
   return `Task: ${task.name}\nOccurrences: ${event.occurrenceCount}\nQuestions: ${event.promptIds.length}\nModels: ${event.models.join(", ") || "none"}\nOpen the NiubiGEO workspace to inspect the questions and original answers.`;
 }

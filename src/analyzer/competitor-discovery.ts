@@ -95,7 +95,9 @@ function discoveryPrompt(input: CompetitorDiscoveryInput): string {
   const languageInstruction =
     input.language.toLowerCase().startsWith("zh")
       ? "请用简体中文填写 reason。"
-      : "Write reason in English.";
+      : input.language.toLowerCase().startsWith("pt")
+        ? "Write reason in Brazilian Portuguese."
+        : "Write reason in English.";
   const existing = input.existingCompetitors.length
     ? input.existingCompetitors.map((competitor) => `${competitor.name} (${competitor.domain})`).join(", ")
     : "none";

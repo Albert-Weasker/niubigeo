@@ -269,3 +269,32 @@ test("report distinguishes requested web search from confirmed execution", () =>
 
   assert.equal(report.sections.answers[0]?.webSearch, "Web search requested but not confirmed by the provider");
 });
+
+test("report renders Brazilian Portuguese copy for pt-BR audits", () => {
+  const run = makeRun({
+    prompt: {
+      id: "p-pt-br",
+      type: "category",
+      topic: "category",
+      language: "pt-BR",
+      text: "melhores plataformas para deploy de frontend",
+      enabled: true,
+      auditCategory: "organic_discovery",
+      targetIncluded: false,
+    },
+  });
+  const audit = buildAudit(run);
+  const report = buildHumanReport(audit);
+  const metrics = new MetricsEngine().compute(audit.runs);
+  const model = new ReportModelBuilder().build(audit, metrics, new GeoGapAnalyzer().analyze(audit, metrics));
+  const builder = new ReportBuilder();
+  const markdown = builder.renderMarkdown(model);
+  const html = builder.renderHtml(model, markdown);
+
+  assert.equal(report.locale, "pt-BR");
+  assert.equal(report.title, "Relatório de visibilidade em IA de Vercel");
+  assert.ok(markdown.includes("## Como a IA vê sua marca"));
+  assert.ok(markdown.includes("Ver respostas reais da IA"));
+  assert.ok(html.includes('lang="pt-BR"'));
+  assert.ok(html.includes("Quem concorre com você"));
+});

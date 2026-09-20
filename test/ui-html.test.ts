@@ -2,11 +2,16 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { renderAppHtml } from "../src/ui/app-html.js";
 
-test("app shell exposes bilingual controls and submits the selected locale", () => {
+test("app shell exposes Chinese, English, and Brazilian Portuguese controls and submits the selected locale", () => {
   const html = renderAppHtml();
 
   assert.ok(html.includes('data-language-choice="zh"'));
   assert.ok(html.includes('data-language-choice="en"'));
+  assert.ok(html.includes('data-language-choice="pt-BR"'));
+  assert.ok(html.includes('"pt-BR": {'));
+  assert.ok(html.includes('newProject: "Novo projeto"'));
+  assert.ok(html.includes('auditLanguage: "Idioma da interface e das respostas"'));
+  assert.ok(html.includes('nextLocale === "en" || nextLocale === "pt-BR"'));
   assert.ok(html.includes('id="confirm-plan"'));
   assert.ok(html.includes('id="confirm-run-button"'));
   assert.ok(html.includes('/audit-plan'));

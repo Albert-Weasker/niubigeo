@@ -41,9 +41,10 @@ const REQUESTED_FIELDS: RecognitionProtocolSnapshot["requestedFields"] = [
 export const DOMAIN_RECOGNITION_PROTOCOL_VERSION = "v1";
 export const DOMAIN_RECOGNITION_ANALYSIS_VERSION = "recognition-analysis/v1";
 
-export function recognitionProtocolLanguage(value: string): "zh" | "en" {
+export function recognitionProtocolLanguage(value: string): "zh" | "en" | "pt-BR" {
   const language = value.trim().toLocaleLowerCase().split("-")[0];
-  return language === "zh" ? "zh" : "en";
+  if (language === "zh") return "zh";
+  return language === "pt" ? "pt-BR" : "en";
 }
 
 export function recognitionProtocolSnapshot(): RecognitionProtocolSnapshot {

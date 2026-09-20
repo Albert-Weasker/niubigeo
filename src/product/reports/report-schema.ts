@@ -135,7 +135,7 @@ export interface RecognitionReport {
   contentStatus: ReportContentStatus;
   runStatus: RecognitionRunStatus;
   domain: string;
-  language: "zh" | "en";
+  language: "zh" | "en" | "pt-BR";
   monitoringConfigurationVersion: number;
   protocol: {
     id: string;

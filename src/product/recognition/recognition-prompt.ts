@@ -79,15 +79,17 @@ export const domainRecognitionResponseSchema: Schema = {
 
 export const DOMAIN_RECOGNITION_SCHEMA_HASH = sha256(JSON.stringify(domainRecognitionResponseSchema));
 
-function languageInstruction(language: "zh" | "en"): string {
+function languageInstruction(language: "zh" | "en" | "pt-BR"): string {
   return language === "zh"
     ? "所有字符串值使用简体中文。"
-    : "Use English for all string values.";
+    : language === "pt-BR"
+      ? "Use Brazilian Portuguese for all string values."
+      : "Use English for all string values.";
 }
 
 export function domainRecognitionPrompt(input: {
   normalizedDomain: string;
-  language: "zh" | "en";
+  language: "zh" | "en" | "pt-BR";
   protocol: RecognitionProtocolSnapshot;
 }): string {
   return [

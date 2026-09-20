@@ -175,7 +175,67 @@ const COPY: Record<HumanReport["locale"], Copy> = {
       mentionedCompetitors: "Competitors mentioned",
     },
   },
+  "pt-BR": {
+    lang: "pt-BR",
+    nav: ["Resumo", "Como a IA vê sua marca", "Concorrentes", "Competição", "Fontes"],
+    sections: {
+      summary: "Resumo",
+      brand: "Como a IA vê sua marca",
+      competitors: "Quem concorre com você",
+      competition: "Diferenças competitivas",
+      sources: "Fontes",
+    },
+    labels: {
+      ai: "IA",
+      judgment: "Avaliação",
+      why: "Por que concorre com você",
+      threat: "Nível de ameaça",
+      otherCompetitors: "Marcas possivelmente relacionadas",
+      betterQuestion: "Cenários em que concorrentes aparecem com mais facilidade",
+      targetBetterQuestion: "Cenários em que sua marca aparece com mais facilidade",
+      occupiedQuestion: "Perguntas importantes em que sua marca não aparece",
+      evidenceAnswers: "Respostas de IA relacionadas",
+      evidenceSources: "Fontes de sustentação",
+      viewEvidence: "Ver a resposta de IA que sustenta esta conclusão",
+      viewSourceEvidence: "Ver a resposta de IA associada a esta fonte",
+      openSource: "Abrir fonte",
+      targetSources: "Principais fontes da sua marca",
+      competitorSources: "Fontes dos concorrentes",
+      thirdPartySources: "Fontes de terceiros",
+      allSources: "Ver todas as fontes",
+      relatedSources: "Fontes relacionadas",
+      possibleSources: "Fontes possivelmente relacionadas",
+      excludedSources: "Fontes excluídas",
+      sourceStatus: "Status",
+      allAnswers: "Ver respostas reais da IA",
+      noSources: "Esta execução não retornou fontes utilizáveis.",
+      question: "Pergunta do usuário",
+      aiSource: "Fonte de IA",
+      model: "Modelo",
+      webSearch: "Acesso à web",
+      mentionsBrand: "Menciona sua marca",
+      competitorsMentioned: "Concorrentes mencionados",
+      citedSources: "Fontes citadas",
+      actualAnswer: "Resposta real da IA",
+      questionResult: "Resultado da pergunta",
+      userAskedFor: "O usuário pediu",
+      aiAnswered: "O que a IA respondeu",
+      aiMissed: "O que a IA não respondeu",
+      uncertain: "Incerto",
+      taskCompletion: "Conclusão das tarefas",
+      entityRelationships: "Relações entre entidades",
+      evidenceQuote: "Trecho da evidência",
+      yes: "Sim",
+      no: "Não",
+      none: "Nenhum",
+      mentionedCompetitors: "Concorrentes mencionados",
+    },
+  },
 };
+
+function localized(report: HumanReport, zh: string, en: string, ptBR: string): string {
+  return report.locale === "zh" ? zh : report.locale === "pt-BR" ? ptBR : en;
+}
 
 function answerHref(index: number): string {
   return `#answer-${index}`;
@@ -220,7 +280,7 @@ function renderTextList(items: string[]): string {
 
 function renderCompetitors(report: HumanReport, copy: Copy): string {
   const main = report.sections.competitors.length === 0
-    ? `<p class="empty">${htmlEscape(report.locale === "zh" ? "当前回答不足以确定主要竞争对手。" : "Current answers are not enough to identify main competitors.")}</p>`
+    ? `<p class="empty">${htmlEscape(localized(report, "当前回答不足以确定主要竞争对手。", "Current answers are not enough to identify main competitors.", "As respostas atuais não são suficientes para identificar os principais concorrentes."))}</p>`
     : `<div class="competitor-grid">${report.sections.competitors
     .map(
       (competitor) => `<article class="competitor-card">
@@ -239,7 +299,7 @@ function renderCompetitors(report: HumanReport, copy: Copy): string {
   const other = report.sections.otherCompetitors.length
     ? `<details class="compact-details">
         <summary>${htmlEscape(copy.labels.otherCompetitors)}</summary>
-        <p>${htmlEscape(report.locale === "zh" ? "这些对象在回答中出现过，但证据不足以确认它们是同一个明确产品实体或主要竞争对手。" : "These appeared in answers, but current evidence is not enough to confirm each as a clear product entity or main competitor.")}</p>
+        <p>${htmlEscape(localized(report, "这些对象在回答中出现过，但证据不足以确认它们是同一个明确产品实体或主要竞争对手。", "These appeared in answers, but current evidence is not enough to confirm each as a clear product entity or main competitor.", "Essas marcas apareceram nas respostas, mas as evidências atuais não são suficientes para confirmar cada uma como uma entidade de produto clara ou concorrente principal."))}</p>
         <p>${htmlEscape(report.sections.otherCompetitors.join(", "))}</p>
       </details>`
     : "";
@@ -248,7 +308,7 @@ function renderCompetitors(report: HumanReport, copy: Copy): string {
 
 function renderModelTable(report: HumanReport, copy: Copy): string {
   if (report.sections.modelComparisons.length === 0) {
-    return `<p class="empty">${htmlEscape(report.locale === "zh" ? "当前没有足够回答用于比较不同 AI。" : "Current answers are not enough to compare different AIs.")}</p>`;
+    return `<p class="empty">${htmlEscape(localized(report, "当前没有足够回答用于比较不同 AI。", "Current answers are not enough to compare different AIs.", "As respostas atuais não são suficientes para comparar diferentes IAs."))}</p>`;
   }
   return `<div class="model-table-wrap"><table class="model-table">
     <thead><tr><th>${htmlEscape(copy.labels.ai)}</th><th>${htmlEscape(copy.labels.judgment)}</th><th></th></tr></thead>
@@ -355,10 +415,10 @@ function renderMiniList(title: string, items: string[], copy: Copy): string {
 }
 
 function taskStatusLabel(status: string, copy: Copy): string {
-  if (status === "completed") return copy.lang === "zh-CN" ? "已完成" : "Completed";
-  if (status === "partial") return copy.lang === "zh-CN" ? "部分完成" : "Partial";
-  if (status === "missing") return copy.lang === "zh-CN" ? "未完成" : "Missing";
-  return copy.lang === "zh-CN" ? "无法判断" : "Unknown";
+  if (status === "completed") return copy.lang === "zh-CN" ? "已完成" : copy.lang === "pt-BR" ? "Concluída" : "Completed";
+  if (status === "partial") return copy.lang === "zh-CN" ? "部分完成" : copy.lang === "pt-BR" ? "Parcial" : "Partial";
+  if (status === "missing") return copy.lang === "zh-CN" ? "未完成" : copy.lang === "pt-BR" ? "Não concluída" : "Missing";
+  return copy.lang === "zh-CN" ? "无法判断" : copy.lang === "pt-BR" ? "Desconhecido" : "Unknown";
 }
 
 function renderIntentDetails(answer: AnswerStory, copy: Copy): string {
@@ -408,7 +468,7 @@ function renderIntentDetails(answer: AnswerStory, copy: Copy): string {
 
 function renderAnswers(report: HumanReport, copy: Copy): string {
   if (report.sections.answers.length === 0) {
-    return `<p class="empty">${htmlEscape(report.locale === "zh" ? "本次没有可展示的 AI 回答。" : "No AI answers are available for this run.")}</p>`;
+    return `<p class="empty">${htmlEscape(localized(report, "本次没有可展示的 AI 回答。", "No AI answers are available for this run.", "Nenhuma resposta de IA está disponível nesta execução."))}</p>`;
   }
   return `<div class="answer-list">${report.sections.answers
     .map(
@@ -461,7 +521,7 @@ function renderSection(id: string, title: string, body: string): string {
 
 function renderBrandSection(report: HumanReport, copy: Copy): string {
   const fallbackItem = {
-    text: report.locale === "zh" ? "当前回答不足以判断 AI 怎样理解你的品牌。" : "Current answers are not enough to judge how AI understands your brand.",
+    text: localized(report, "当前回答不足以判断 AI 怎样理解你的品牌。", "Current answers are not enough to judge how AI understands your brand.", "As respostas atuais não são suficientes para avaliar como a IA entende sua marca."),
     answerIndexes: [],
     sourceUrls: [],
   };

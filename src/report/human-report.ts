@@ -1,7 +1,7 @@
 import type { AuditRun, Citation, Mention, PromptRun } from "../core/types.js";
 import type { EntityRelationship, EntityRelationshipType, IntentRunAnalysis } from "../intent/intent-schema.js";
 
-export type HumanReportLocale = "en" | "zh";
+export type HumanReportLocale = "en" | "zh" | "pt-BR";
 
 export interface EvidenceStatement {
   text: string;
@@ -97,11 +97,12 @@ const COMPETITIVE_RELATIONSHIPS = new Set<EntityRelationshipType>(["competitor",
 
 function localeFor(audit: AuditRun): HumanReportLocale {
   const language = audit.prompts.find((prompt) => prompt.language.trim())?.language.trim().toLocaleLowerCase() || "en";
-  return language.startsWith("zh") ? "zh" : "en";
+  if (language.startsWith("zh")) return "zh";
+  return language.startsWith("pt") ? "pt-BR" : "en";
 }
 
-function tr(locale: HumanReportLocale, zh: string, en: string): string {
-  return locale === "zh" ? zh : en;
+function tr(locale: HumanReportLocale, zh: string, en: string, ptBR = en): string {
+  return locale === "zh" ? zh : locale === "pt-BR" ? ptBR : en;
 }
 
 function unique(values: string[]): string[] {
@@ -152,10 +153,10 @@ function searchSummary(run: PromptRun, locale: HumanReportLocale): string {
   const search = run.search || run.result?.search;
   if (!search?.used) {
     return search?.requested
-      ? tr(locale, "已请求联网，但 Provider 未确认执行", "Web search requested but not confirmed by the provider")
-      : tr(locale, "未联网", "No web search");
+      ? tr(locale, "已请求联网，但 Provider 未确认执行", "Web search requested but not confirmed by the provider", "Pesquisa na web solicitada, mas não confirmada pelo provedor")
+      : tr(locale, "未联网", "No web search", "Sem pesquisa na web");
   }
-  return tr(locale, "Provider 原生联网", "Provider-native web search");
+  return tr(locale, "Provider 原生联网", "Provider-native web search", "Pesquisa nativa do provedor");
 }
 
 function entities(runs: IndexedRun[]): EntityEvidence[] {
@@ -216,7 +217,7 @@ function competitorStories(runs: IndexedRun[], locale: HumanReportLocale): Compe
         name: first.entity.canonicalName || first.entity.name,
         description: first.entity.explanation,
         why: first.entity.explanation,
-        threat: tr(locale, "已确认竞争对手", "Confirmed competitor"),
+        threat: tr(locale, "已确认竞争对手", "Confirmed competitor", "Concorrente confirmado"),
         answerIndexes: [...new Set(items.map((item) => item.index))],
         sourceUrls: unique(items.flatMap((item) => item.entity.sourceUrls)),
       };
@@ -239,18 +240,18 @@ function modelComparisons(audit: AuditRun, runs: IndexedRun[], locale: HumanRepo
     const natural = usable.some((item) => item.run.prompt.auditCategory === "organic_discovery" && Boolean(targetMention(item.run)));
     const competitorRows = entities(usable).filter((item) => competitive(item.entity));
     const summary = usable.length === 0
-      ? tr(locale, "没有返回可用回答", "No usable answer returned")
+      ? tr(locale, "没有返回可用回答", "No usable answer returned", "Nenhuma resposta utilizável foi retornada")
       : recognizes && natural
-        ? tr(locale, `能识别 ${audit.target.name}，并在自然问题中提到它。`, `Recognizes ${audit.target.name} and surfaces it in unbranded questions.`)
+        ? tr(locale, `能识别 ${audit.target.name}，并在自然问题中提到它。`, `Recognizes ${audit.target.name} and surfaces it in unbranded questions.`, `Reconhece ${audit.target.name} e menciona a marca em perguntas que não citam seu nome.`)
         : recognizes
-          ? tr(locale, `能识别 ${audit.target.name}，但自然问题中没有稳定提到它。`, `Recognizes ${audit.target.name}, but does not surface it reliably in unbranded questions.`)
-          : tr(locale, `本次没有形成对 ${audit.target.name} 的清晰识别。`, `This run did not show clear recognition of ${audit.target.name}.`);
+          ? tr(locale, `能识别 ${audit.target.name}，但自然问题中没有稳定提到它。`, `Recognizes ${audit.target.name}, but does not surface it reliably in unbranded questions.`, `Reconhece ${audit.target.name}, mas não menciona a marca de forma consistente em perguntas sem seu nome.`)
+          : tr(locale, `本次没有形成对 ${audit.target.name} 的清晰识别。`, `This run did not show clear recognition of ${audit.target.name}.`, `Esta execução não mostrou reconhecimento claro de ${audit.target.name}.`);
     return {
       sourceName: sourceName(first.run),
       displayName: modelName(first.run),
       summary,
-      recognition: recognizes ? tr(locale, "能够识别品牌", "Recognizes the brand") : tr(locale, "未形成清晰识别", "No clear recognition"),
-      naturalDiscovery: natural ? tr(locale, "自然问题中出现", "Appears in unbranded questions") : tr(locale, "自然问题中未稳定出现", "Not reliably present in unbranded questions"),
+      recognition: recognizes ? tr(locale, "能够识别品牌", "Recognizes the brand", "Reconhece a marca") : tr(locale, "未形成清晰识别", "No clear recognition", "Sem reconhecimento claro"),
+      naturalDiscovery: natural ? tr(locale, "自然问题中出现", "Appears in unbranded questions", "Aparece em perguntas sem a marca") : tr(locale, "自然问题中未稳定出现", "Not reliably present in unbranded questions", "Não aparece de forma consistente em perguntas sem a marca"),
       competitors: unique(competitorRows.map((item) => item.entity.canonicalName || item.entity.name)),
       sourceUrls: unique(competitorRows.flatMap((item) => item.entity.sourceUrls)),
       answerIndexes: competitorRows.length ? [...new Set(competitorRows.map((item) => item.index))] : usable.slice(0, 1).map((item) => item.index),
@@ -262,11 +263,11 @@ function headline(audit: AuditRun, runs: IndexedRun[], competitors: CompetitorSt
   const recognized = runs.some((item) => Boolean(targetMention(item.run)));
   const natural = runs.some((item) => item.run.prompt.auditCategory === "organic_discovery" && Boolean(targetMention(item.run)));
   const competitor = competitors[0]?.name;
-  if (recognized && natural && competitor) return tr(locale, `AI 能识别 ${audit.target.name}，自然问题中也会想到它；${competitor} 是本次证据最清晰的竞争对象。`, `AI recognizes ${audit.target.name} and surfaces it in unbranded questions; ${competitor} is the clearest competitor in this evidence.`);
-  if (recognized && natural) return tr(locale, `AI 能识别 ${audit.target.name}，并会在部分自然问题中想到它；当前证据不足以确认主要竞争对手。`, `AI recognizes ${audit.target.name} and surfaces it in some unbranded questions; the evidence does not confirm a main competitor.`);
-  if (recognized && competitor) return tr(locale, `AI 能识别 ${audit.target.name}，但自然问题中没有稳定想到它；${competitor} 有更明确的竞争证据。`, `AI recognizes ${audit.target.name}, but does not surface it reliably in unbranded questions; ${competitor} has clearer competitive evidence.`);
-  if (recognized) return tr(locale, `AI 能识别 ${audit.target.name}，但在自然问题中没有稳定想到它；主要竞争对手尚无法确认。`, `AI recognizes ${audit.target.name}, but does not surface it reliably in unbranded questions; no main competitor is confirmed.`);
-  return tr(locale, `本次回答不足以确认 AI 是否准确认识 ${audit.target.name}。`, `This run does not provide enough evidence that AI accurately recognizes ${audit.target.name}.`);
+  if (recognized && natural && competitor) return tr(locale, `AI 能识别 ${audit.target.name}，自然问题中也会想到它；${competitor} 是本次证据最清晰的竞争对象。`, `AI recognizes ${audit.target.name} and surfaces it in unbranded questions; ${competitor} is the clearest competitor in this evidence.`, `A IA reconhece ${audit.target.name} e menciona a marca em perguntas sem seu nome; ${competitor} é o concorrente com evidências mais claras nesta análise.`);
+  if (recognized && natural) return tr(locale, `AI 能识别 ${audit.target.name}，并会在部分自然问题中想到它；当前证据不足以确认主要竞争对手。`, `AI recognizes ${audit.target.name} and surfaces it in some unbranded questions; the evidence does not confirm a main competitor.`, `A IA reconhece ${audit.target.name} e menciona a marca em algumas perguntas sem seu nome; as evidências não confirmam um concorrente principal.`);
+  if (recognized && competitor) return tr(locale, `AI 能识别 ${audit.target.name}，但自然问题中没有稳定想到它；${competitor} 有更明确的竞争证据。`, `AI recognizes ${audit.target.name}, but does not surface it reliably in unbranded questions; ${competitor} has clearer competitive evidence.`, `A IA reconhece ${audit.target.name}, mas não menciona a marca de forma consistente em perguntas sem seu nome; ${competitor} possui evidências competitivas mais claras.`);
+  if (recognized) return tr(locale, `AI 能识别 ${audit.target.name}，但在自然问题中没有稳定想到它；主要竞争对手尚无法确认。`, `AI recognizes ${audit.target.name}, but does not surface it reliably in unbranded questions; no main competitor is confirmed.`, `A IA reconhece ${audit.target.name}, mas não menciona a marca de forma consistente em perguntas sem seu nome; nenhum concorrente principal foi confirmado.`);
+  return tr(locale, `本次回答不足以确认 AI 是否准确认识 ${audit.target.name}。`, `This run does not provide enough evidence that AI accurately recognizes ${audit.target.name}.`, `As respostas desta execução não fornecem evidências suficientes para confirmar que a IA reconhece ${audit.target.name} corretamente.`);
 }
 
 function differenceStatements(runs: IndexedRun[], locale: HumanReportLocale): EvidenceStatement[] {
@@ -277,7 +278,7 @@ function differenceStatements(runs: IndexedRun[], locale: HumanReportLocale): Ev
     if (rows.length === 0) continue;
     const names = unique(rows.map((entry) => entry.entity.canonicalName || entry.entity.name));
     output.push(statement(
-      tr(locale, `在“${item.run.prompt.text}”这条问题中，AI 提到了 ${names.join("、")}，但没有提到目标品牌。`, `For “${item.run.prompt.text}”, AI mentioned ${names.join(", ")} but not the target brand.`),
+      tr(locale, `在“${item.run.prompt.text}”这条问题中，AI 提到了 ${names.join("、")}，但没有提到目标品牌。`, `For “${item.run.prompt.text}”, AI mentioned ${names.join(", ")} but not the target brand.`, `Na pergunta “${item.run.prompt.text}”, a IA mencionou ${names.join(", ")}, mas não mencionou a marca-alvo.`),
       [item.index],
       rows.flatMap((entry) => entry.entity.sourceUrls),
     ));
@@ -301,12 +302,12 @@ function sourceStory(citation: Citation, index: number, locale: HumanReportLocal
   const thirdParty = citation.citationType === "third_party";
   const relevance: SourceRelevance = target || competitor ? "related" : thirdParty ? "possible" : "excluded";
   const supports = target
-    ? tr(locale, "支持目标品牌相关回答", "Supports an answer about the target brand")
+    ? tr(locale, "支持目标品牌相关回答", "Supports an answer about the target brand", "Sustenta uma resposta sobre a marca-alvo")
     : competitor
-      ? tr(locale, "支持竞争对象相关回答", "Supports an answer about a competitor")
+      ? tr(locale, "支持竞争对象相关回答", "Supports an answer about a competitor", "Sustenta uma resposta sobre um concorrente")
       : thirdParty
-        ? tr(locale, "为回答提供第三方背景", "Provides third-party context for the answer")
-        : tr(locale, "当前结构化证据无法确认用途", "The structured evidence does not confirm how this source was used");
+        ? tr(locale, "为回答提供第三方背景", "Provides third-party context for the answer", "Fornece contexto de terceiros para a resposta")
+        : tr(locale, "当前结构化证据无法确认用途", "The structured evidence does not confirm how this source was used", "As evidências estruturadas não confirmam como esta fonte foi utilizada");
   return {
     title: citationTitle(citation),
     domain: citation.domain,
@@ -338,9 +339,9 @@ function answerStories(audit: AuditRun, locale: HumanReportLocale): AnswerStory[
       ? analysis.adaptedResult.oneSentence
       : returnedAnswer
         ? targetMention(item.run)
-          ? tr(locale, `AI 提到了 ${audit.target.name}。`, `AI mentioned ${audit.target.name}.`)
-          : tr(locale, `AI 没有提到 ${audit.target.name}。`, `AI did not mention ${audit.target.name}.`)
-        : tr(locale, "这条问题没有返回可用回答。", "This question did not return a usable answer.");
+          ? tr(locale, `AI 提到了 ${audit.target.name}。`, `AI mentioned ${audit.target.name}.`, `A IA mencionou ${audit.target.name}.`)
+          : tr(locale, `AI 没有提到 ${audit.target.name}。`, `AI did not mention ${audit.target.name}.`, `A IA não mencionou ${audit.target.name}.`)
+        : tr(locale, "这条问题没有返回可用回答。", "This question did not return a usable answer.", "Esta pergunta não retornou uma resposta utilizável.");
     const story: AnswerStory = {
       index: item.index,
       prompt: item.run.prompt.text,
@@ -367,19 +368,19 @@ export function buildHumanReport(audit: AuditRun): HumanReport {
   const descriptions = intentStatements(runs.filter((item) => Boolean(targetMention(item.run))), (analysis) => [analysis.adaptedResult.oneSentence]).slice(0, 3);
   const differences = differenceStatements(runs, locale);
   const other = unique(entities(runs).filter((item) => competitive(item.entity) && !confirmed(item.entity)).map((item) => item.entity.canonicalName || item.entity.name));
-  const insufficientCompetitor = statement(tr(locale, "本次证据不足，无法确认竞争对象在哪些场景更容易出现。", "This run does not contain enough evidence to confirm where competitors appear more easily."));
-  const insufficientTarget = statement(tr(locale, "本次证据不足，无法确认目标品牌在哪些方面明显领先。", "This run does not contain enough evidence to confirm a clear target-brand advantage."));
-  const insufficientMissing = statement(tr(locale, "当前回答不足以确定哪些重要问题只出现了竞争对象。", "Current answers are not enough to identify important questions occupied only by competitors."));
+  const insufficientCompetitor = statement(tr(locale, "本次证据不足，无法确认竞争对象在哪些场景更容易出现。", "This run does not contain enough evidence to confirm where competitors appear more easily.", "Esta execução não contém evidências suficientes para confirmar em quais cenários os concorrentes aparecem com mais facilidade."));
+  const insufficientTarget = statement(tr(locale, "本次证据不足，无法确认目标品牌在哪些方面明显领先。", "This run does not contain enough evidence to confirm a clear target-brand advantage.", "Esta execução não contém evidências suficientes para confirmar uma vantagem clara da marca-alvo."));
+  const insufficientMissing = statement(tr(locale, "当前回答不足以确定哪些重要问题只出现了竞争对象。", "Current answers are not enough to identify important questions occupied only by competitors.", "As respostas atuais não são suficientes para identificar perguntas importantes ocupadas somente por concorrentes."));
   return {
     locale,
-    title: tr(locale, `${audit.target.name} 的 AI 可见度报告`, `${audit.target.name} AI Visibility Report`),
-    subtitle: tr(locale, "这份报告只展示本次 AI 回答中有证据支持的结论。", "This report includes only conclusions supported by this run's AI answers."),
-    caveat: tr(locale, "数据来源：你选择的 AI Provider API。", "Data source: the AI provider APIs selected for this run."),
+    title: tr(locale, `${audit.target.name} 的 AI 可见度报告`, `${audit.target.name} AI Visibility Report`, `Relatório de visibilidade em IA de ${audit.target.name}`),
+    subtitle: tr(locale, "这份报告只展示本次 AI 回答中有证据支持的结论。", "This report includes only conclusions supported by this run's AI answers.", "Este relatório inclui somente conclusões sustentadas pelas respostas de IA desta execução."),
+    caveat: tr(locale, "数据来源：你选择的 AI Provider API。", "Data source: the AI provider APIs selected for this run.", "Fonte dos dados: APIs dos provedores de IA selecionados nesta execução."),
     sections: {
       headline: headline(audit, runs, competitors, locale),
       modelComparisons: modelComparisons(audit, indexed(audit), locale),
-      brandRecognition: runs.some((item) => Boolean(targetMention(item.run))) ? tr(locale, "AI 在本次回答中识别了目标品牌。", "AI recognized the target brand in this run.") : tr(locale, "本次没有形成清晰的品牌识别。", "This run did not show clear brand recognition."),
-      brandDescriptions: descriptions.length ? descriptions : [statement(tr(locale, "当前回答不足以总结 AI 怎样描述这个品牌。", "Current answers are not enough to summarize how AI describes the brand."))],
+      brandRecognition: runs.some((item) => Boolean(targetMention(item.run))) ? tr(locale, "AI 在本次回答中识别了目标品牌。", "AI recognized the target brand in this run.", "A IA reconheceu a marca-alvo nesta execução.") : tr(locale, "本次没有形成清晰的品牌识别。", "This run did not show clear brand recognition.", "Esta execução não mostrou um reconhecimento claro da marca."),
+      brandDescriptions: descriptions.length ? descriptions : [statement(tr(locale, "当前回答不足以总结 AI 怎样描述这个品牌。", "Current answers are not enough to summarize how AI describes the brand.", "As respostas atuais não são suficientes para resumir como a IA descreve esta marca."))],
       brandEmphasis: descriptions,
       brandMissing: intentStatements(runs, (analysis) => analysis.adaptedResult.missing).map((item) => item.text).slice(0, 3),
       brandUncertainty: intentStatements(runs, (analysis) => analysis.adaptedResult.uncertain).map((item) => item.text).slice(0, 3),

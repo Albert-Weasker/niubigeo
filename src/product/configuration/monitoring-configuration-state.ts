@@ -21,7 +21,7 @@ export interface MonitoringConfigurationDiff {
   webSearchModeChanges: WebSearchModeChange[];
   protocolVersionChange: { previous: string; current: string } | null;
   domainChange: { previous: string; current: string } | null;
-  languageChange: { previous: "zh" | "en"; current: "zh" | "en" } | null;
+  languageChange: { previous: "zh" | "en" | "pt-BR"; current: "zh" | "en" | "pt-BR" } | null;
 }
 
 export interface MonitoringConfigurationState {
@@ -31,7 +31,7 @@ export interface MonitoringConfigurationState {
   currentBaseline: ProductBaseline | null;
   currentProtocol: RecognitionProtocolSnapshot;
   currentDomain: string;
-  currentLanguage: "zh" | "en";
+  currentLanguage: "zh" | "en" | "pt-BR";
   currentModelSnapshots: ProductModelSnapshot[];
   diff: MonitoringConfigurationDiff;
 }
