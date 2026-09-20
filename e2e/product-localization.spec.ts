@@ -1,4 +1,5 @@
 import { createServer, type Server } from "node:http";
+import { readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 import { renderProductLocalizationScript } from "../src/ui/product-localization.js";
 import { renderProductPhase4AppHtml } from "../src/ui/product-phase4-app.js";
@@ -28,11 +29,24 @@ const focusedFixture = () => `<!doctype html><html><body>
   ${renderProductLocalizationScript()}
 </body></html>`;
 
+const productOwnedChineseLiterals = () => [
+  "src/ui/product-phase2-app.ts",
+  "src/ui/product-phase4-app.ts",
+  "src/ui/product-phase5-app.ts",
+  "src/ui/product-project-app.ts",
+].flatMap((path) => [...readFileSync(path, "utf8").matchAll(/(["'])([^"'\n]*[\u3400-\u9fff][^"'\n]*)\1/gu)])
+  .map((match) => match[2] || "")
+  .filter((value) => value && !value.includes("<") && !value.includes(">"));
+
+const coverageFixture = () => `<!doctype html><html><body><main>${[...new Set(productOwnedChineseLiterals())]
+  .map((value) => `<p>${value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")}</p>`)
+  .join("")}</main>${renderProductLocalizationScript()}</body></html>`;
+
 test.beforeAll(async () => {
   server = createServer((request, response) => {
     response.setHeader("Content-Type", "text/html; charset=utf-8");
     const url = new URL(request.url || "/", "http://localhost");
-    response.end(url.pathname === "/translator" ? focusedFixture() : url.searchParams.get("view") === "measurements" ? renderProductPhase5AppHtml() : renderProductPhase4AppHtml());
+    response.end(url.pathname === "/translator" ? focusedFixture() : url.pathname === "/translator-coverage" ? coverageFixture() : url.searchParams.get("view") === "measurements" ? renderProductPhase5AppHtml() : renderProductPhase4AppHtml());
   });
   await new Promise<void>((resolve, reject) => {
     server.once("error", reject);
@@ -41,6 +55,13 @@ test.beforeAll(async () => {
   const address = server.address();
   if (!address || typeof address === "string") throw new Error("Missing test server address.");
   baseUrl = `http://127.0.0.1:${address.port}`;
+});
+
+test("pt-BR: every product-owned dynamic UI literal has a Portuguese translation", async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem("niubigeo.product.locale", "pt-BR"));
+  await page.goto(`${baseUrl}/translator-coverage`);
+  const untranslated = (await page.locator("p").allTextContents()).filter(hasHan);
+  expect(untranslated).toEqual([]);
 });
 
 test.afterAll(async () => {
