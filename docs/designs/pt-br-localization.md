@@ -26,6 +26,10 @@ User-facing product copy and generated human-report copy receive Brazilian Portu
 
 Focused tests cover locale selection, submitted language, representative interface strings, report language metadata, and representative report copy. Existing build and test suites provide regression coverage for Chinese and English.
 
+In the active product UI, only application-owned copy marked with `data-product-i18n` is translated, and only its direct text nodes are considered. Attribute translations opt in separately with `data-product-i18n-aria-label`, `data-product-i18n-placeholder`, or `data-product-i18n-title`. Keep user names, provider responses, keywords, source titles, and evidence highlights unmarked; mark a missing-value fallback separately from real data. Dynamic updates use the same boundary.
+
+Run `npm run test:localization-browser` for the browser regressions. They check verbatim evidence and user data, dynamic interface translations, and persisted project language through both the overview and continuous-measurement creation forms. The tests use local fixtures and temporary storage without calling model providers. Set `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` only when using an existing Chromium installation instead of Playwright's managed browser.
+
 ## Decision log
 
 1. **Add a third locale instead of replacing Chinese.** The community keeps all current audiences while adding Brazilian Portuguese.
@@ -33,4 +37,3 @@ Focused tests cover locale selection, submitted language, representative interfa
 3. **Use `pt-BR` as the locale identifier.** This distinguishes Brazilian Portuguese and matches the requested language variant.
 4. **Keep English as fallback.** It prevents missing strings from breaking the interface while preserving the current default behavior.
 5. **Exclude historical content and infrastructure.** The contribution remains focused on the product experience and generated reports.
-

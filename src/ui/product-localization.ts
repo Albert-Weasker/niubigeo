@@ -91,32 +91,34 @@ export function renderProductLocalizationScript(): string {
   const index = () => locale === "pt-BR" ? 1 : 0;
   const translate = (value) => {
     if (locale === "zh") return value;
-    const exact = entries[value];
+    const exact = Object.hasOwn(entries, value) ? entries[value] : null;
     if (exact) return exact[index()];
     for (const [prefix, translations] of Object.entries(prefixEntries)) {
       if (value.startsWith(prefix)) return translations[index()] + value.slice(prefix.length);
     }
     return value;
   };
+  // Only application-owned copy opts in. User values and provider evidence stay verbatim.
+  const selector = "[data-product-i18n],[data-product-i18n-aria-label],[data-product-i18n-placeholder],[data-product-i18n-title]";
   const apply = (root) => {
-    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-    const nodes = [];
-    while (walker.nextNode()) nodes.push(walker.currentNode);
-    for (const node of nodes) {
-      const raw = node.nodeValue || "";
-      const trimmed = raw.trim();
-      if (!trimmed) continue;
-      const translated = translate(trimmed);
-      if (translated !== trimmed) node.nodeValue = raw.slice(0, raw.indexOf(trimmed)) + translated + raw.slice(raw.indexOf(trimmed) + trimmed.length);
-    }
-    for (const element of root.querySelectorAll ? root.querySelectorAll("[aria-label],[placeholder],[title]") : []) {
+    const elements = [...(root.matches(selector) ? [root] : []), ...root.querySelectorAll(selector)];
+    for (const element of elements) {
+      if (element.hasAttribute("data-product-i18n")) for (const node of element.childNodes) {
+        if (node.nodeType !== Node.TEXT_NODE) continue;
+        const raw = node.nodeValue || "";
+        const trimmed = raw.trim();
+        if (!trimmed) continue;
+        const translated = translate(trimmed);
+        if (translated !== trimmed) node.nodeValue = raw.slice(0, raw.indexOf(trimmed)) + translated + raw.slice(raw.indexOf(trimmed) + trimmed.length);
+      }
       for (const attribute of ["aria-label", "placeholder", "title"]) {
+        if (!element.hasAttribute("data-product-i18n-" + attribute)) continue;
         const value = element.getAttribute(attribute);
-        if (value) element.setAttribute(attribute, translate(value));
+        if (value && translate(value) !== value) element.setAttribute(attribute, translate(value));
       }
     }
-    document.documentElement.lang = locale === "zh" ? "zh-CN" : locale;
   };
+  document.documentElement.lang = locale === "zh" ? "zh-CN" : locale;
   const switcher = document.createElement("div");
   switcher.className = "product-language-switch";
   switcher.setAttribute("aria-label", "Language");
@@ -131,8 +133,9 @@ export function renderProductLocalizationScript(): string {
     window.location.reload();
   });
   new MutationObserver((records) => {
-    for (const record of records) for (const node of record.addedNodes) if (node.nodeType === Node.ELEMENT_NODE) apply(node);
-  }).observe(document.getElementById("app") || document.body, { childList:true, subtree:true });
+    const roots = new Set(records.map((record) => record.target instanceof Element ? record.target : record.target.parentElement));
+    for (const root of roots) if (root && root.isConnected) apply(root);
+  }).observe(document.body, { childList:true, subtree:true, characterData:true, attributes:true, attributeFilter:["aria-label", "placeholder", "title"] });
   apply(document.body);
 })();
 </script>`;

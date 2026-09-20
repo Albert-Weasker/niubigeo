@@ -27,6 +27,7 @@
     "test:phase3-browser": "playwright test --config playwright.phase3.config.ts",
     "test:phase4-browser": "playwright test --config playwright.phase4.config.ts",
     "test:phase5-browser": "playwright test --config playwright.phase5.config.ts",
+    "test:localization-browser": "playwright test --config playwright.localization.config.ts",
     "validate:real-provider-10": "tsx scripts/validate-real-provider-10.ts",
     "schedule:real-provider-10": "tsx scripts/real-provider-10-schedule-worker.ts",
     "finalize:real-provider-10": "tsx scripts/finalize-real-provider-10.ts",
