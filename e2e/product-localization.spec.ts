@@ -222,12 +222,22 @@ for (const language of locales) {
     await expect(page.locator("#p5-recognition tbody tr td:first-child")).toHaveText(["Modelo Alfa", "Modelo Beta"]);
     await expect(page.locator("#p5-recognition tbody tr td:nth-child(2)")).toHaveText([language.offline, language.native]);
 
+    if (language.locale === "pt-BR") {
+      await page.getByRole("button", { name: "Domínio no corpo da resposta", exact: true }).click();
+      await expect(page.getByRole("heading", { name: "Menções ao domínio sem citar previamente a marca", exact: true })).toBeVisible();
+      await expect(page.getByText("Evidência: Se o domínio do objeto realmente aparece no corpo da resposta à palavra-chave neutra", { exact: true })).toBeVisible();
+      await expect(page.getByText("Cálculo: Domínio mencionado no corpo / respostas de palavra-chave avaliáveis", { exact: true })).toBeVisible();
+    }
+
     const chart = page.locator(".p5-chart").first();
     await chart.locator("summary").click();
     await expect(chart.locator("tbody tr td:nth-child(2)")).toHaveText(["Modelo Alfa", "Modelo Beta"]);
     await expect(chart.locator("tbody tr td:nth-child(3)")).toHaveText([language.offline, language.native]);
     if (language.locale === "pt-BR") {
-      const interfaceText = await page.locator("body").innerText();
+      const interfaceText = await page.locator("body").evaluate((body) => [
+        body.innerText,
+        ...[...body.querySelectorAll("*")].flatMap((element) => ["aria-label", "placeholder", "title"].map((attribute) => element.getAttribute(attribute) || "")),
+      ].join("\n"));
       expect(hasHan(interfaceText)).toBe(false);
     }
     expect(unexpectedRequests).toEqual([]);
