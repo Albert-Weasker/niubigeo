@@ -17,10 +17,11 @@ const focusedFixture = () => `<!doctype html><html><body>
   <main id="app">
     <h1 id="static-label" data-product-i18n>项目</h1>
     <button id="action-label" data-product-i18n>保存草稿</button>
-    <div id="mixed-label" data-product-i18n>项目<span id="nested-user" data-product-i18n-preserve>项目</span><span id="nested-label" data-product-i18n>来源</span></div>
+    <div id="mixed-label" data-product-i18n>项目<span id="nested-user">项目</span><span id="nested-label" data-product-i18n>来源</span></div>
     <input id="static-attributes" data-product-i18n-placeholder data-product-i18n-title data-product-i18n-aria-label placeholder="可选" title="项目" aria-label="来源">
-    <input id="user-attributes" data-product-i18n-preserve placeholder="可选" title="项目" aria-label="来源" value="项目">
-    <pre id="raw-answer" data-product-i18n-preserve>品牌：项目</pre>
+    <input id="user-attributes" placeholder="可选" title="项目" aria-label="来源" value="项目">
+    <pre id="raw-answer">品牌：项目</pre>
+    <div data-product-i18n-preserve><span id="preserved-label" data-product-i18n>项目</span></div>
     <span class="prototype-key" data-product-i18n>constructor</span>
     <span class="prototype-key" data-product-i18n>toString</span>
     <span class="prototype-key" data-product-i18n>__proto__</span>
@@ -29,17 +30,37 @@ const focusedFixture = () => `<!doctype html><html><body>
   ${renderProductLocalizationScript()}
 </body></html>`;
 
+// The UI embeds browser JavaScript in template strings. Scan its quoted literals
+// without introducing regular expressions, which the repository forbids.
+const quotedLiterals = (source: string): string[] => {
+  const values: string[] = [];
+  for (let index = 0; index < source.length; index += 1) {
+    const quote = source[index];
+    if (quote !== '"' && quote !== "'") continue;
+    let value = "";
+    for (index += 1; index < source.length; index += 1) {
+      const character = source[index];
+      if (character === quote) { values.push(value); break; }
+      if (character === "\n" || character === "\r") break;
+      if (character === "\\" && index + 1 < source.length) {
+        value += character + source[index + 1];
+        index += 1;
+      } else value += character;
+    }
+  }
+  return values;
+};
+
 const productOwnedChineseLiterals = () => [
   "src/ui/product-phase2-app.ts",
   "src/ui/product-phase4-app.ts",
   "src/ui/product-phase5-app.ts",
   "src/ui/product-project-app.ts",
-].flatMap((path) => [...readFileSync(path, "utf8").matchAll(/(["'])([^"'\n]*[\u3400-\u9fff][^"'\n]*)\1/gu)])
-  .map((match) => match[2] || "")
-  .filter((value) => value && !value.includes("<") && !value.includes(">"));
+].flatMap((path) => quotedLiterals(readFileSync(path, "utf8")))
+  .filter((value) => hasHan(value) && !value.includes("<") && !value.includes(">") && !value.includes('="') && !value.includes("='"));
 
 const coverageFixture = () => `<!doctype html><html><body><main>${[...new Set(productOwnedChineseLiterals())]
-  .map((value) => `<p>${value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")}</p>`)
+  .map((value) => `<p data-product-i18n>${value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")}</p>`)
   .join("")}</main>${renderProductLocalizationScript()}</body></html>`;
 
 const recognitionRegressionFixture = () => `<!doctype html><html><body><main>${[
@@ -54,7 +75,7 @@ const recognitionRegressionFixture = () => `<!doctype html><html><body><main>${[
   "模型的描述只代表本次回答。离线认知与实际联网发现分开显示。",
   "每一格只表示该模型本次是否返回对应记录，不代表市场事实。",
   "Provider Citation 与回答正文中的 URL 分开保存和展示。",
-].map((value) => `<p>${value}</p>`).join("")}</main>${renderProductLocalizationScript()}</body></html>`;
+].map((value) => `<p data-product-i18n>${value}</p>`).join("")}</main>${renderProductLocalizationScript()}</body></html>`;
 
 test.beforeAll(async () => {
   server = createServer((request, response) => {
@@ -81,7 +102,7 @@ test("pt-BR: every product-owned dynamic UI literal has a Portuguese translation
 test("pt-BR: recognition and report regression phrases contain no Chinese", async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem("niubigeo.product.locale", "pt-BR"));
   await page.goto(`${baseUrl}/recognition-regression`);
-  expect((await page.locator("main").innerText()).match(/[\u3400-\u9fff]/gu)).toBeNull();
+  expect(hasHan(await page.locator("main").innerText())).toBe(false);
 });
 
 test.afterAll(async () => {
@@ -95,7 +116,7 @@ const locales = [
 ];
 
 for (const language of locales) {
-  test(`${language.locale}: all product UI text is localized while preserved data stays verbatim`, async ({ page }) => {
+  test(`${language.locale}: only opted-in UI text and attributes translate while arbitrary data stays verbatim`, async ({ page }) => {
     const errors: string[] = [];
     page.on("pageerror", (error) => errors.push(error.message));
     await page.addInitScript((locale) => localStorage.setItem("niubigeo.product.locale", locale), language.locale);
@@ -114,6 +135,7 @@ for (const language of locales) {
     await expect(page.locator("#user-attributes")).toHaveAttribute("aria-label", "来源");
     await expect(page.locator("#user-attributes")).toHaveValue("项目");
     await expect(page.locator("#raw-answer")).toHaveText("品牌：项目");
+    await expect(page.locator("#preserved-label")).toHaveText("项目");
     await expect(page.locator(".prototype-key")).toHaveText(["constructor", "toString", "__proto__"]);
 
     await page.evaluate(() => {
@@ -126,7 +148,6 @@ for (const language of locales) {
       document.getElementById("app")!.appendChild(root);
       const user = document.createElement("span");
       user.id = "inserted-user";
-      user.setAttribute("data-product-i18n-preserve", "");
       user.textContent = "品牌：项目";
       user.setAttribute("title", "来源");
       document.getElementById("app")!.appendChild(user);
@@ -153,7 +174,7 @@ for (const language of locales) {
     const errors: string[] = [];
     const unexpectedRequests: string[] = [];
     const rawAnswer = "品牌：项目\n来源\n无法确认\nconstructor\ntoString\n__proto__";
-    const project = { id: "project-fixture", name: "KOSMOS", primaryDomain: "fixture.example", normalizedDomain: "fixture.example", status: "draft", defaultLanguage: "zh-CN", createdAt: "2026-09-20T00:00:00.000Z", updatedAt: "2026-09-20T00:00:00.000Z" };
+    const project = { id: "project-fixture", name: "项目", primaryDomain: "fixture.example", normalizedDomain: "fixture.example", status: "draft", defaultLanguage: "zh-CN", createdAt: "2026-09-20T00:00:00.000Z", updatedAt: "2026-09-20T00:00:00.000Z" };
     page.on("pageerror", (error) => errors.push(error.message));
     await page.addInitScript((locale) => localStorage.setItem("niubigeo.product.locale", locale), language.locale);
     await page.route("**/api/**", async (route) => {
@@ -168,9 +189,9 @@ for (const language of locales) {
       await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(body) });
     });
     await page.goto(baseUrl);
-    await expect(page.getByTestId("project-title")).toHaveText("KOSMOS");
-    await expect(page.getByTestId("selected-project-title")).toHaveText("KOSMOS");
-    await expect(page.locator("#edit-name")).toHaveValue("KOSMOS");
+    await expect(page.getByTestId("project-title")).toHaveText("项目");
+    await expect(page.getByTestId("selected-project-title")).toHaveText("项目");
+    await expect(page.locator("#edit-name")).toHaveValue("项目");
     await expect(page.locator(".project-label")).toHaveText(language.project);
 
     await page.evaluate((answer) => {
@@ -186,7 +207,7 @@ for (const language of locales) {
         competitorGroups: [{ id: "competitor-group", name: "项目", sourceRecordIds: ["competitor"], cells }],
         brandKeywordGroups: [{ id: "keyword-group", keyword: "来源", cells }],
         models: [{
-          modelRunId: "model-run", modelId: "fixture/model", displayName: "Modelo de teste", recognitionMode: "unaided_domain_recognition", state: "recognized", webSearch: { label: "不联网" },
+          modelRunId: "model-run", modelId: "fixture/model", displayName: "来源", recognitionMode: "unaided_domain_recognition", state: "recognized", webSearch: { label: "不联网" },
           rawAnswer: answer, rawProviderResponse: { text: answer },
           recognizedBrand: { value: "项目", evidence }, businessDescription: { value: "无法确认", evidence }, productCategory: null,
           competitors: [{ id: "competitor", name: "项目", domain: "competitor.example", evidence }],
@@ -202,11 +223,14 @@ for (const language of locales) {
 
     const card = page.getByTestId("report-model-card");
     await expect(page.getByTestId("refresh-report")).toHaveText(language.refresh);
-    await expect(page.locator('[data-phase4-model="model-run"]')).toHaveText("Modelo de teste");
-    await expect(card.locator("h3")).toHaveText("Modelo de teste");
+    await expect(page.locator('[data-phase4-model="model-run"]')).toHaveText("来源");
+    await expect(card.locator("h3")).toHaveText("来源");
     await expect(card.locator(".detail-cell strong")).toHaveText(["项目", "无法确认", language.unknown]);
     await expect(card.locator(".evidence-group li strong")).toHaveText("项目");
     await expect(card.locator(".evidence-group .tag")).toHaveText("来源");
+    await expect(page.getByTestId("report-competitor-matrix").locator("tbody th")).toHaveText("项目");
+    await expect(page.getByTestId("report-keyword-matrix").locator("tbody th")).toHaveText("来源");
+    expect((await page.getByTestId("report-competitor-select").locator("option").textContent())?.split(" · ")[0]).toBe("项目");
     await expect(page.locator('a[href="https://source.example/"]')).toHaveText("项目");
     await expect(page.locator('a[href="https://source.example/answer"]')).toHaveText("来源");
     await expect(page.locator(".heading .inline-actions > .subtle")).toHaveText(language.version);
@@ -229,13 +253,14 @@ for (const language of locales) {
   test(`${language.locale}: measurement mode labels translate while model names stay verbatim`, async ({ page }) => {
     const errors: string[] = [];
     const unexpectedRequests: string[] = [];
-    const project = { id: "measurement-project", name: "KOSMOS", normalizedDomain: "fixture.example", activeBaselineId: "baseline-fixture" };
+    const rawAnswer = "品牌：Acme\n项目与模型是原始证据。\n来源\n无法确认";
+    const project = { id: "measurement-project", name: "项目", normalizedDomain: "fixture.example", activeBaselineId: "baseline-fixture" };
     const selections = [
-      { modelId: "fixture/off", displayName: "Modelo Alfa", webSearchMode: "off" },
-      { modelId: "fixture/native", displayName: "Modelo Beta", webSearchMode: "provider_native" },
+      { modelId: "fixture/off", displayName: "不联网", webSearchMode: "off" },
+      { modelId: "fixture/native", displayName: "Provider 原生联网", webSearchMode: "provider_native" },
     ];
     const run = { id: "measurement-run", source: "manual", modelRuns: selections.map((modelSnapshot) => ({ modelSnapshot, status: "completed", probeRunIds: ["probe-fixture"] })) };
-    const watchSet = { id: "watchset-fixture", status: "active", baselineId: project.activeBaselineId, targetObjectId: "target", version: 1, repetitions: 1, objects: [{ id: "target", role: "target", name: "KOSMOS", domain: "fixture.example" }], keywords: [] };
+    const watchSet = { id: "watchset-fixture", status: "active", baselineId: project.activeBaselineId, targetObjectId: "target", version: 1, repetitions: 1, objects: [{ id: "target", role: "target", name: "项目", domain: "fixture.example" }], keywords: [] };
     const points = selections.map((model, index) => ({
       id: `point-${index}`, runId: run.id, modelId: model.modelId, modelDisplayName: model.displayName, webSearchMode: model.webSearchMode,
       metric: "domain_recognition", objectId: "target", fingerprint: "fixture", observedAt: "2026-09-20T00:00:00.000Z",
@@ -254,13 +279,17 @@ for (const language of locales) {
       else if (path.endsWith("/watch-sets")) body = { watchSets: [watchSet] };
       else if (path.endsWith("/measurement-runs")) body = { runs: [run] };
       else if (path.endsWith("/monitoring-tasks")) body = { tasks: [] };
-      else if (path.endsWith("/measurement-stats")) body = { snapshot: { points } };
+      else if (path.endsWith("/measurement-stats")) body = { snapshot: { id: "snapshot-fixture", points } };
+      else if (path.endsWith("/samples")) body = {
+        point: points.find((point) => path.includes("/points/" + point.id + "/")),
+        samples: [{ sample: { attemptId: "attempt-fixture", probeRunId: "probe-fixture", included: true, numerator: 1 }, detail: { attempts: [{ id: "attempt-fixture", rawAnswer }] } }],
+      };
       else { unexpectedRequests.push(path); body = {}; }
       await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(body) });
     });
     await page.goto(`${baseUrl}/?view=measurements`);
     await expect(page.getByTestId("phase5-ready")).toBeVisible();
-    await expect(page.locator("#p5-recognition tbody tr td:first-child")).toHaveText(["Modelo Alfa", "Modelo Beta"]);
+    await expect(page.locator("#p5-recognition tbody tr td:first-child")).toHaveText(["不联网", "Provider 原生联网"]);
     await expect(page.locator("#p5-recognition tbody tr td:nth-child(2)")).toHaveText([language.offline, language.native]);
 
     if (language.locale === "pt-BR") {
@@ -272,14 +301,31 @@ for (const language of locales) {
 
     const chart = page.locator(".p5-chart").first();
     await chart.locator("summary").click();
-    await expect(chart.locator("tbody tr td:nth-child(2)")).toHaveText(["Modelo Alfa", "Modelo Beta"]);
+    await expect(chart.locator("tbody tr td:nth-child(2)")).toHaveText(["不联网", "Provider 原生联网"]);
     await expect(chart.locator("tbody tr td:nth-child(3)")).toHaveText([language.offline, language.native]);
+    await expect(page.locator('[data-role="projects"] option')).toHaveText("项目 · fixture.example");
+    await chart.locator("[data-point]").click();
+    const drawer = page.getByTestId("measurement-evidence-drawer");
+    await expect(drawer).toBeVisible();
+    await expect(drawer.locator("pre")).toHaveCount(points.length);
+    expect(await drawer.locator("pre").allTextContents()).toEqual(points.map(() => rawAnswer));
+    await expect(drawer).toContainText("不联网");
+    await expect(drawer).toContainText("Provider 原生联网");
     if (language.locale === "pt-BR") {
+      // Keep the collision-data assertions above, then use a separate Latin-data
+      // scene to detect any untranslated UI text, including missing opt-in marks.
+      project.name = "KOSMOS";
+      watchSet.objects[0]!.name = "KOSMOS";
+      selections.forEach((model, index) => { model.displayName = "Fixture Model " + index; });
+      points.forEach((point, index) => { point.modelDisplayName = "Fixture Model " + index; });
+      await page.reload();
+      await expect(page.getByTestId("phase5-ready")).toBeVisible();
+      await page.locator(".p5-chart").first().locator("summary").click();
       const interfaceText = await page.locator("body").evaluate((body) => [
         body.innerText,
         ...[...body.querySelectorAll("*")].flatMap((element) => ["aria-label", "placeholder", "title"].map((attribute) => element.getAttribute(attribute) || "")),
       ].join("\n"));
-      expect(hasHan(interfaceText)).toBe(false);
+      expect(hasHan(interfaceText), interfaceText).toBe(false);
     }
     expect(unexpectedRequests).toEqual([]);
     expect(errors).toEqual([]);

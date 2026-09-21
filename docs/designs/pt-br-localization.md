@@ -26,9 +26,9 @@ User-facing product copy and generated human-report copy receive Brazilian Portu
 
 Focused tests cover locale selection, submitted language, representative interface strings, report language metadata, and representative report copy. Existing build and test suites provide regression coverage for Chinese and English.
 
-In the active product UI, the localization layer translates every known application-owned string after each render, including descendant text nodes and accessible attributes. User names, domains, provider responses, keywords, source titles, model names, and evidence are explicitly preserved as data. Dynamic updates use the same catalog and preservation boundary.
+In the active product UI, translation is opt-in: `data-product-i18n` marks direct application-owned text nodes, and separate attribute markers identify accessible labels, placeholders, and titles. Nested unmarked text and all raw-answer containers remain verbatim. For mixed labels and data, renderers translate only the application-owned fragment before interpolating escaped names, domains, model identifiers, or evidence. Dynamic updates use the same catalog and boundary.
 
-The Brazilian Portuguese browser suite visits every product section and fails if any application-owned Han character or known English interface label remains visible. This is an acceptance criterion, not a best-effort fallback.
+The Brazilian Portuguese browser suite checks actual product sections with Latin fixture data and fails if interface Han characters remain visible. Separate collision fixtures verify that Chinese names and provider evidence remain exactly unchanged in all three locales. Representative translated labels are asserted explicitly.
 
 Run `npm run test:localization-browser` for the browser regressions. They check verbatim evidence and user data, dynamic interface translations, and persisted project language through both the overview and continuous-measurement creation forms. The tests use local fixtures and temporary storage without calling model providers. Set `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` only when using an existing Chromium installation instead of Playwright's managed browser.
 
@@ -39,5 +39,7 @@ Run `npm run test:localization-browser` for the browser regressions. They check 
 3. **Use `pt-BR` as the locale identifier.** This distinguishes Brazilian Portuguese and matches the requested language variant.
 4. **Keep English as fallback.** It prevents missing strings from breaking the interface while preserving the current default behavior.
 5. **Exclude historical content and infrastructure.** The contribution remains focused on the product experience and generated reports.
-6. **Translate the complete active interface.** Partial opt-in markers proved fragile when dynamically rendered screens added unmarked copy.
+6. **Make ownership explicit across the active interface.** Extend opt-in markers to dynamic screens and use full-page coverage tests to catch missing UI copy without applying translation to arbitrary data.
 7. **Preserve data, not interface fallbacks.** Proper names and provider content remain verbatim; every product-owned label must have an explicit `pt-BR` entry.
+
+Model-manager regressions cover all three locales, live selection counts, filters, preserved model identities, and saved selections. Desktop and mobile hit tests verify that dialogs remain within the viewport and their action buttons are not covered by the language selector or advisor.

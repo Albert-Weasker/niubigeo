@@ -2,6 +2,39 @@ export function renderProductLocalizationScript(): string {
   return `<script>
 (() => {
   const entries = {
+    "模型能力检查时间": ["Model capability check time", "Horário da verificação de capacidade do modelo"],
+    "回答中的普通 URL": ["Ordinary URLs in the answer", "URLs comuns na resposta"],
+    "尝试记录": ["Attempt history", "Histórico de tentativas"],
+    "尝试": ["Attempt", "Tentativa"],
+    "尝试 ": ["Attempt ", "Tentativa "],
+    "本地整理版本": ["Local analysis revision", "Versão da análise local"],
+    "未调用模型": ["No model call made", "Sem chamada ao modelo"],
+    "没有匹配模型。": ["No matching models.", "Nenhum modelo correspondente."],
+    "选择": ["Select", "Selecionar"],
+    "选择 ": ["Select ", "Selecionar "],
+    "个模型": ["models", "modelos"],
+    " 个模型": [" models", " modelos"],
+    "不安全链接已隐藏": ["Unsafe link hidden", "Link inseguro ocultado"],
+    "这个模型没有可展示的原始回答。": ["This model has no raw answer to display.", "Este modelo não tem resposta original para exibir."],
+    "竞品字段无法整理，不能解释为空。": ["The competitor field could not be processed; it cannot be treated as empty.", "Não foi possível organizar o campo de concorrentes; isso não significa que esteja vazio."],
+    "原始回答": ["Original answer", "Resposta original"],
+    "Provider 原始响应": ["Original provider response", "Resposta original do provedor"],
+    "关键词只属于对应的原始竞争对象记录，不会跨对象共享。": ["Keywords belong only to their original competitor record and are not shared across competitors.", "As palavras-chave pertencem apenas ao registro original do concorrente e não são compartilhadas entre concorrentes."],
+    "该对象本次没有可展示的关键词。": ["This competitor has no keywords to display for this run.", "Este concorrente não tem palavras-chave para exibir nesta execução."],
+    "先选择项目": ["Select a project first", "Selecione um projeto primeiro"],
+    "无法准备报告": ["Unable to prepare the report", "Não foi possível preparar o relatório"],
+    "重新读取": ["Reload", "Recarregar"],
+    "还没有可展示的认知报告": ["No recognition report to display yet", "Ainda não há relatório de reconhecimento para exibir"],
+    "完成一次认知测试后，系统会基于固定的本次证据生成报告。": ["Complete a recognition test to generate a report from its saved evidence.", "Conclua um teste de reconhecimento para gerar um relatório com as evidências salvas dessa execução."],
+    "当前筛选没有不联网模型。": ["No offline models match the current filter.", "Nenhum modelo sem acesso à web corresponde ao filtro atual."],
+    "当前筛选没有联网模型。": ["No web-enabled models match the current filter.", "Nenhum modelo com acesso à web corresponde ao filtro atual."],
+    "分子": ["Numerator", "Numerador"],
+    "管理模型": ["Manage models", "Gerenciar modelos"],
+    "选择后续运行的模型，并设置每个模型的联网方式。": ["Choose models for future runs and set each model's web access mode.", "Escolha os modelos das próximas execuções e defina como cada um acessa a web."],
+    "模型名称或标识符": ["Model name or identifier", "Nome ou identificador do modelo"],
+    "仅显示已选模型": ["Show selected models only", "Exibir somente selecionados"],
+    "没有符合筛选条件的模型。": ["No models match the filters.", "Nenhum modelo corresponde aos filtros."],
+    "联网方式": ["Web access mode", "Modo de acesso à web"],
     "项目": ["Project", "Projeto"],
     "项目总览": ["Project overview", "Visão geral do projeto"],
     "项目只绑定一个域名。可以保存模型和联网方式，作为后续监测的固定配置。": ["A project is linked to one domain. Save the models and web access mode as the fixed monitoring configuration.", "Um projeto está vinculado a um único domínio. Salve os modelos e o modo de acesso à web como configuração fixa do monitoramento."],
@@ -545,16 +578,16 @@ export function renderProductLocalizationScript(): string {
   let locale = localStorage.getItem("niubigeo.product.locale") || "zh";
   if (!supported.has(locale)) locale = "zh";
   const index = () => locale === "pt-BR" ? 1 : 0;
+  const replacements = locale === "pt-BR" ? [
+    ...Object.entries(ptEntries),
+    ...Object.entries(entries).map(([source, translations]) => [source, translations[1]])
+  ].sort((left, right) => right[0].length - left[0].length) : [];
   const translate = (value) => {
     if (locale === "zh") return value;
     if (locale === "pt-BR" && Object.hasOwn(ptExactEnglish, value)) return ptExactEnglish[value];
     if (locale === "pt-BR" && Object.hasOwn(ptEntries, value)) return ptEntries[value];
     if (locale === "pt-BR") {
       let composite = value;
-      const replacements = [
-        ...Object.entries(ptEntries),
-        ...Object.entries(entries).map(([source, translations]) => [source, translations[1]])
-      ].sort((left, right) => right[0].length - left[0].length);
       for (const [source, translation] of replacements) composite = composite.split(source).join(translation);
       if (composite !== value) return composite;
     }
@@ -568,12 +601,15 @@ export function renderProductLocalizationScript(): string {
     }
     return value;
   };
-  // Application data can opt out; every known product-owned string is localized.
+  // Only pass application-owned copy to this helper; interpolate data afterwards.
+  window.__niubigeoProductText = translate;
+  const selector = "[data-product-i18n],[data-product-i18n-aria-label],[data-product-i18n-placeholder],[data-product-i18n-title]";
+  // Translation is opt-in. New user/provider fields remain verbatim by default.
   const apply = (root) => {
-    const elements = [...(root.matches("*") ? [root] : []), ...root.querySelectorAll("*")];
+    const elements = [...(root.matches(selector) ? [root] : []), ...root.querySelectorAll(selector)];
     for (const element of elements) {
-      if (element.closest("[data-product-i18n-preserve],pre.raw-answer")) continue;
-      for (const node of element.childNodes) {
+      if (element.closest("[data-product-i18n-preserve],pre,script,style")) continue;
+      if (element.hasAttribute("data-product-i18n")) for (const node of element.childNodes) {
         if (node.nodeType !== Node.TEXT_NODE) continue;
         const raw = node.nodeValue || "";
         const trimmed = raw.trim();
@@ -582,6 +618,7 @@ export function renderProductLocalizationScript(): string {
         if (translated !== trimmed) node.nodeValue = raw.slice(0, raw.indexOf(trimmed)) + translated + raw.slice(raw.indexOf(trimmed) + trimmed.length);
       }
       for (const attribute of ["aria-label", "placeholder", "title"]) {
+        if (!element.hasAttribute("data-product-i18n-" + attribute)) continue;
         const value = element.getAttribute(attribute);
         if (value && translate(value) !== value) element.setAttribute(attribute, translate(value));
       }

@@ -2,7 +2,7 @@ import { defineConfig } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./e2e",
-  testMatch: ["product-localization.spec.ts", "product-locale-creation.spec.ts"],
+  testMatch: ["product-localization.spec.ts", "product-locale-creation.spec.ts", "product-model-manager.spec.ts", "product-overlay.spec.ts", "product-phase2-localization.spec.ts"],
   outputDir: "test-results/localization",
   reporter: "list",
   workers: 1,
