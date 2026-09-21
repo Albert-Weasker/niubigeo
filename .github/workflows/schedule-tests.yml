@@ -11,13 +11,6 @@ on:
       - 'tsconfig.json'
       - '.github/workflows/schedule-tests.yml'
   pull_request:
-    paths:
-      - 'src/product/scheduling/**'
-      - 'src/product/projects/**'
-      - 'test/product-scheduling.test.ts'
-      - 'package*.json'
-      - 'tsconfig.json'
-      - '.github/workflows/schedule-tests.yml'
 
 permissions:
   contents: read
