@@ -14,6 +14,7 @@
 
 <p align="center">
   <a href="https://trendshift.io/repositories/212064?utm_source=trendshift-badge&amp;utm_medium=badge&amp;utm_campaign=badge-trendshift-212064" target="_blank" rel="noopener noreferrer"><img src="https://trendshift.io/api/badge/trendshift/repositories/212064/daily?language=TypeScript" alt="Albert-Weasker/niubigeo | Trendshift" width="250" height="55"></a>
+  <a href="https://www.producthunt.com/products/niubigeo?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-niubigeo" target="_blank" rel="noopener noreferrer"><img alt="NiubiGEO - Open-source AI visibility. Human-powered growth. | Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1256676&amp;theme=light&amp;t=1789989066112"></a>
 </p>
 
 # Does AI recommend your product? Who shows up instead?
@@ -33,6 +34,19 @@
 You have built a product, written the docs and worked to get the word out. When people ask AI for tools, does your product make it into the answer?
 
 **NiubiGEO is an open-source tool for tracking brand visibility and competitors in AI answers.** Start with a domain to see how different models describe your product and which competitors they name. Then test keywords to find out who appears in the answers. Open any result to inspect the original response and returned sources.
+
+<table>
+  <tr>
+    <td align="center" valign="middle">
+      <a href="https://www.producthunt.com/products/niubigeo?embed=true&amp;utm_source=embed&amp;utm_medium=post_embed" target="_blank" rel="noopener noreferrer"><img alt="NiubiGEO" src="https://ph-files.imgix.net/288908d5-d98b-4bd1-bc0d-aabeaed87fe2.png?auto=compress,format&amp;codec=mozjpeg&amp;cs=strip&amp;fit=crop&amp;h=80&amp;w=80" width="64" height="64"></a>
+    </td>
+    <td valign="middle">
+      <strong>NiubiGEO</strong><br>
+      Open-source AI visibility. Human-powered growth.<br><br>
+      <a href="https://www.producthunt.com/products/niubigeo?embed=true&amp;utm_source=embed&amp;utm_medium=post_embed" target="_blank" rel="noopener noreferrer">Check it out on Product Hunt →</a>
+    </td>
+  </tr>
+</table>
 
 ---
 

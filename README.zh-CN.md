@@ -14,6 +14,7 @@
 
 <p align="center">
   <a href="https://trendshift.io/repositories/212064?utm_source=trendshift-badge&amp;utm_medium=badge&amp;utm_campaign=badge-trendshift-212064" target="_blank" rel="noopener noreferrer"><img src="https://trendshift.io/api/badge/trendshift/repositories/212064/daily?language=TypeScript" alt="Albert-Weasker/niubigeo | Trendshift" width="250" height="55"></a>
+  <a href="https://www.producthunt.com/products/niubigeo?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-niubigeo" target="_blank" rel="noopener noreferrer"><img alt="NiubiGEO - Open-source AI visibility. Human-powered growth. | Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1256676&amp;theme=light&amp;t=1789989066112"></a>
 </p>
 
 # AI 会推荐你的产品吗？谁出现在答案里？
@@ -33,6 +34,19 @@
 你做了产品、写了文档，也投入了推广。你想知道：当用户向 AI 寻找工具时，你的产品有没有机会出现在答案里？
 
 **NiubiGEO 是一个开源的 AI 品牌可见度与竞争观察工具。** 从一个域名开始，查看不同模型如何描述你、提到哪些竞争对象，再通过关键词测试观察回答里出现了谁。点开结果，就能查看原始回答和返回的来源。
+
+<table>
+  <tr>
+    <td align="center" valign="middle">
+      <a href="https://www.producthunt.com/products/niubigeo?embed=true&amp;utm_source=embed&amp;utm_medium=post_embed" target="_blank" rel="noopener noreferrer"><img alt="NiubiGEO" src="https://ph-files.imgix.net/288908d5-d98b-4bd1-bc0d-aabeaed87fe2.png?auto=compress,format&amp;codec=mozjpeg&amp;cs=strip&amp;fit=crop&amp;h=80&amp;w=80" width="64" height="64"></a>
+    </td>
+    <td valign="middle">
+      <strong>NiubiGEO</strong><br>
+      Open-source AI visibility. Human-powered growth.<br><br>
+      <a href="https://www.producthunt.com/products/niubigeo?embed=true&amp;utm_source=embed&amp;utm_medium=post_embed" target="_blank" rel="noopener noreferrer">在 Product Hunt 查看 →</a>
+    </td>
+  </tr>
+</table>
 
 ---
 
