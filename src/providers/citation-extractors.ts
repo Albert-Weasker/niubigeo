@@ -38,7 +38,7 @@ export function dedupeCitations(citations: Citation[]): Citation[] {
   const seen = new Set<string>();
   const out: Citation[] = [];
   for (const citation of citations) {
-    const key = `${citation.source}:${citation.url}`;
+    const key = citation.url;
     if (seen.has(key)) continue;
     seen.add(key);
     out.push({ ...citation, citationIndex: out.length });
