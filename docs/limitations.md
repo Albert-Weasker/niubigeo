@@ -55,7 +55,7 @@ Phase 6 案例路径另有 [StudyBudgetExecutor](../examples/lib/budget.mjs)，�
 
 **L12：任务绑定范围可能漂移。** [schedule-service.ts](../src/product/scheduling/schedule-service.ts) 创建任务保存 watchSetId；到期检查 activeBaselineId，但派发时调用测量服务的 current WatchSet。若同 Baseline 下更换范围，可能执行与任务保存范围不同的 Probe，plannedRequestCount/预约费用也可能过时。
 
-**L13：skip/错过时间策略未完整兑现。** overlap、预算阻塞或归档等提前返回分支不 advanceTask，重复扫描发现旧 Occurrence 已存在后可卡在原 nextRunAt。正常派发从原 scheduledFor 推算下一次，长时间停机后可能逐次追赶旧时间，而不是完整跳过 missed occurrences。不能宣称现在完全实现“不补跑、不重叠、自动恢复”。
+**L13：错过时间策略未完整兑现。** overlap、预算阻塞或归档导致本次跳过后，会推进 nextRunAt；旧任务若仍指向已有结果的 Occurrence，后续扫描会推进时间且不重复派发该次。仍从原 scheduledFor 推算下一次，长时间停机后可能逐次追赶旧时间，而不是完整跳过 missed occurrences。尚无派发结果的 planned Occurrence 不会盲目重试，不能宣称现在完全实现“不补跑、不重叠、自动恢复”。
 
 **L14：运行不是持久队列，防重不是全局事务。** server 为每个请求创建服务实例，手工运行的内存锁不能跨请求/进程统一串行；调度文件锁按任务隔离，不能消除不同任务之间项目级并发竞争。crash 可留下 running Attempt、planned/started Occurrence 或无租约的 lock。没有可保证恰好一次调用与自动回收的恢复器。
 

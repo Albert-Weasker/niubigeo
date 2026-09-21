@@ -116,11 +116,22 @@ export class ProductScheduleService {
         await this.reconcileOccurrences(project.id, task.id);
         if (task.status !== "active" || !task.nextRunAt || Date.parse(task.nextRunAt) > at.getTime()) continue;
         const guarded = await this.store.withTaskLock(project.id, task.id, async () => {
-          const current = await this.store.readTask(project.id, task.id);
-          if (!current || current.status !== "active" || !current.nextRunAt || Date.parse(current.nextRunAt) > at.getTime()) return null;
-          const occurrenceResult = await this.store.getOrCreateOccurrence({ projectId: project.id, taskId: current.id, taskVersion: current.version, scheduledFor: current.nextRunAt, status: "planned" });
-          if (!occurrenceResult.created) return null;
-          return this.executeOccurrence(project, current, occurrenceResult.occurrence, at);
+          let current = await this.store.readTask(project.id, task.id);
+          while (current && current.status === "active" && current.nextRunAt && Date.parse(current.nextRunAt) <= at.getTime()) {
+            const occurrenceResult = await this.store.getOrCreateOccurrence({ projectId: project.id, taskId: current.id, taskVersion: current.version, scheduledFor: current.nextRunAt, status: "planned" });
+            if (occurrenceResult.created) {
+              const occurrence = await this.executeOccurrence(project, current, occurrenceResult.occurrence, at);
+              await this.advanceTask(current, occurrence.scheduledFor);
+              return occurrence;
+            }
+            // A planned occurrence has no durable dispatch outcome; never replay it.
+            if (occurrenceResult.occurrence.status === "planned") return null;
+            // Recover a saved outcome whose task cursor was not advanced, without
+            // dispatching the old occurrence again or changing its budget/history.
+            await this.advanceTask(current, occurrenceResult.occurrence.scheduledFor);
+            current = await this.store.readTask(project.id, task.id);
+          }
+          return null;
         });
         if (guarded.acquired && guarded.value) created.push(guarded.value);
       }
@@ -147,17 +158,17 @@ export class ProductScheduleService {
       const run = await this.measurements.start(project.id, { modelIds: task.modelScope, source: "scheduled", occurrenceId: occurrence.id, idempotencyKey: `${task.id}:${occurrence.scheduledFor}`, budget: task.budget });
       const started = { ...occurrence, status: "started" as const, runId: run.id, startedAt: now() };
       await this.store.saveOccurrence(started);
-      await this.advanceTask(task, occurrence.scheduledFor);
       return started;
     } catch (error) {
-      await this.advanceTask(task, occurrence.scheduledFor);
       return this.finish(occurrence, "unknown", error instanceof Error ? error.message : String(error));
     }
   }
 
   private async advanceTask(task: MonitoringTask, scheduledFor: string): Promise<void> {
-    const nextRunAt = nextDates(task.rule, new Date(scheduledFor), 1)[0]?.toISOString() || null;
-    await this.store.saveTask({ ...task, nextRunAt, updatedAt: now() });
+    const current = await this.store.readTask(task.projectId, task.id);
+    if (!current || current.status !== "active" || current.version !== task.version || current.nextRunAt !== scheduledFor) return;
+    const nextRunAt = nextDates(current.rule, new Date(scheduledFor), 1)[0]?.toISOString() || null;
+    await this.store.saveTask({ ...current, nextRunAt, updatedAt: now() });
   }
 
   private async reconcileOccurrences(projectId: string, taskId: string): Promise<void> {

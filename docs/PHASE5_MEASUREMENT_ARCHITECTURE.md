@@ -53,7 +53,12 @@ Offline samples have no applicable citation denominator.
 
 Manual and scheduled starts use the same MeasurementRun service. A scheduler
 creates a durable occurrence keyed by task id and scheduled UTC time before it
-creates a run. It skips missed occurrences, does not overlap a running task,
-and records an unknown request state instead of blindly retrying after a
-crash. Budget reservations are durable and remain reserved when Provider cost
-is unknown.
+creates a run. Skipped and budget-blocked occurrences advance the task just as
+started or unknown outcomes do, provided the task remains active and unchanged.
+Polling also repairs a stale task cursor pointing at an existing outcome without
+replaying that occurrence or reserving its budget again. A planned occurrence
+without a durable dispatch outcome is not retried automatically. Next dates are
+computed from the original scheduled time, so missed occurrences can still be
+caught up after downtime. The overlap check skips work when a scheduled run is
+queued or running; task locks do not provide a project-wide concurrency guarantee.
+Budget reservations are durable and remain reserved when Provider cost is unknown.
