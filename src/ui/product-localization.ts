@@ -2,6 +2,9 @@ export function renderProductLocalizationScript(): string {
   return `<script>
 (() => {
   const entries = {
+    "点击平台 Logo，输入 API Key": ["Choose a platform logo to enter your API key", "Escolha o logo para inserir sua chave de API"],
+    "厂商 API Key": ["Provider API key", "Chave de API do provedor"],
+    "请使用卡片标注的接口 Key。标注 OpenRouter 的平台通过 OpenRouter 连接。": ["Use the API key indicated on the card. Platforms labeled OpenRouter connect through OpenRouter.", "Use a chave indicada no cartão. Plataformas marcadas OpenRouter se conectam pelo OpenRouter."],
     "模型目录 · OpenRouter / 已连接接口": ["Model catalog · OpenRouter / connected APIs", "Catálogo de modelos · OpenRouter / APIs conectadas"],
     "从主流模型目录或已连接接口中混选。每个模型独立保存来源、联网方式和结果。": ["Mix models from the catalog and connected APIs. Each model keeps its own source, search mode and results.", "Combine modelos do catálogo e APIs conectadas. Cada modelo mantém sua origem, modo de busca e resultados."],
     "可跨来源混选；联网标记仅适用于当前 API 路由。消费端产品没有对应 API 型号时不会用其他模型替代。": ["Mix API sources. Search labels apply to the current API route. Consumer products without corresponding API models have no substitutes here.", "Combine origens de API. A busca se refere à rota atual. Produtos sem modelos de API correspondentes não têm substitutos aqui."],

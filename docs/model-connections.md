@@ -1,6 +1,6 @@
 # Mixed model sources
 
-In the open-source workbench, use **Connect model APIs** to add OpenRouter and one or more OpenAI-compatible APIs. Enter the Base URL and your key. Leave model IDs blank to read `/models`, or enter comma-separated deployment/model IDs when discovery is unavailable. Manual entries are checked on their first inference request, not when saved.
+In the open-source workbench, use **Connect model APIs** to add OpenRouter and one or more OpenAI-compatible APIs. Click a platform logo on the model page or connection dialog to prefill its endpoint and focus the key field. Cards identify whether a provider key or an OpenRouter key is required. You can also enter the Base URL and your key manually. Leave model IDs blank to read `/models`, or enter comma-separated deployment/model IDs when discovery is unavailable. Manual entries are checked on their first inference request, not when saved.
 
 Select models across sources in the project's model page. Save each model's search setting, then save the monitoring configuration. Domain recognition and keyword measurements preserve each endpoint/model pair as a separate record, including answers, citations and failures. Same-name models on different endpoints never share an identity.
 

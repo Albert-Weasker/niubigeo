@@ -4,7 +4,7 @@
 
 ## 使用步骤
 
-1. 启动 `npm run server`，打开工作台，点击顶部的“连接模型接口”。
+1. 启动 `npm run server`，在项目“AI 模型”页点击平台 Logo，即可打开 Key 输入框并预填接口。顶部“连接模型接口”的弹窗也提供相同入口。卡片标注“厂商 API Key”或“OpenRouter API Key”，请使用对应 Key。
 2. 连接 OpenRouter，或选择 OpenAI 兼容接口，填写 Base URL 和自己的 API Key。快捷配置提供 OpenAI、Gemini、DeepSeek、Kimi、Qwen、Grok 和 Mistral 的接口地址，地区不同的地址可以手动修改。
 3. 模型 ID 留空时读取服务商的 `/models`；服务商没有目录或使用自定义部署 ID 时，可以手动填写，用英文逗号分隔。手动连接不会验证 Key 或调用模型，首次运行时验证。
 4. 可以继续添加多个接口。在项目的“AI 模型”页面跨来源多选，对每个模型分别设置联网方式，再保存模型配置和监测配置。

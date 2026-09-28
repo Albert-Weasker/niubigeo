@@ -20,6 +20,28 @@ test("connect multiple sources, choose same-name models and retain separate moni
   await page.goto(base+"/?projectId="+project.id);
   await page.locator('.nav-item[data-page="models"]').click();
   await expect(page.getByTestId("catalog-model")).toHaveCount(1);
+  const logos = page.locator('.view [data-provider-logo]');
+  await expect(logos).toHaveCount(16);
+  await mkdir('validation/multi-model-2026-09-28',{recursive:true});
+  for (const logo of await logos.locator('img').all()) {
+    await expect(logo).toHaveJSProperty('complete', true);
+    expect(await logo.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0);
+  }
+  await page.locator('.view [data-provider-logo="deepseek-color"]').click();
+  await expect(page.locator('#provider-kind')).toHaveValue('custom');
+  await expect(page.locator('#provider-base-url')).toHaveValue('https://api.deepseek.com/v1');
+  await expect(page.locator('#openrouter-key-input')).toBeFocused();
+  await expect(page.locator('#provider-key-label')).toHaveText('DeepSeek API Key');
+  await expect(page.locator('#provider-key-link')).toBeHidden();
+  await page.locator('#openrouter-key-dialog').screenshot({path:'validation/multi-model-2026-09-28/logo-key-dialog.png'});
+  await page.locator('#openrouter-key-input').fill('discard-this-key');
+  await page.locator('#close-openrouter-key').click();
+  await page.locator('.view [data-provider-logo="claude-color"]').click();
+  await expect(page.locator('#provider-kind')).toHaveValue('openrouter');
+  await expect(page.locator('#provider-key-label')).toHaveText('OpenRouter API Key');
+  await expect(page.locator('#openrouter-key-input')).toHaveValue('');
+  await page.locator('#close-openrouter-key').click();
+
   await page.locator('[data-connect-key]').click();
   await page.locator('#openrouter-key-input').fill('test-browser-router-key');await page.locator('#save-openrouter-key').click();await expect(page.locator('#openrouter-key-dialog')).not.toBeVisible();
   for(const baseUrl of ["https://one.example/v1","https://two.example/v1"]){
@@ -39,6 +61,7 @@ test("connect multiple sources, choose same-name models and retain separate moni
   await page.locator('#model-platform-filter').selectOption({label:'Poe'});await expect(page.getByTestId('catalog-model')).toHaveCount(0);
   await page.locator('#model-platform-filter').selectOption('');await expect(page.getByTestId('catalog-model')).toHaveCount(2);
   await mkdir('validation/multi-model-2026-09-28',{recursive:true});await page.screenshot({path:'validation/multi-model-2026-09-28/mixed-models.png',fullPage:true});
+  await page.locator('.view .provider-logo-picker').screenshot({path:'validation/multi-model-2026-09-28/platform-logos.png'});
   expect(errors).toEqual([]);
   const storage=await page.evaluate(()=>JSON.stringify({local:{...localStorage},session:{...sessionStorage}}));expect(storage).not.toContain('test-browser');
   await page.reload();await page.locator('[data-connect-key]').click();await expect(page.locator('#provider-connections')).toBeEmpty();
