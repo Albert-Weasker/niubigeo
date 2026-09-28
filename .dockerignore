@@ -8,6 +8,8 @@
 !src/
 !src/**
 !assets/
+!assets/providers/
+!assets/providers/**
 !assets/brand/
 !assets/brand/niubigeo-emblem.svg
 !assets/brand/niubigeo-lockup.svg

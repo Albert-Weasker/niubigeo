@@ -1,0 +1,21 @@
+/** Platform families shown on niubigeo.ai/human-testing. Model IDs come from live catalogs. */
+export const MODEL_PLATFORMS = [
+  { name: "ChatGPT / OpenAI", vendors: ["openai"], baseUrl: "https://api.openai.com/v1" },
+  { name: "Claude / Anthropic", vendors: ["anthropic"], baseUrl: "" },
+  { name: "Gemini / Google", vendors: ["google"], baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai" },
+  { name: "DeepSeek", vendors: ["deepseek"], baseUrl: "https://api.deepseek.com/v1" },
+  { name: "Kimi / Moonshot", vendors: ["moonshotai"], baseUrl: "https://api.moonshot.ai/v1" },
+  { name: "千问 / Qwen", vendors: ["qwen"], baseUrl: "https://dashscope.aliyuncs.com/compatible-mode/v1" },
+  { name: "豆包 / Doubao", vendors: ["bytedance-seed", "bytedance"], baseUrl: "" },
+  { name: "腾讯元宝 / Hunyuan", vendors: ["tencent"], baseUrl: "" },
+  { name: "文心 / ERNIE", vendors: ["baidu"], baseUrl: "" },
+  { name: "智谱清言 / GLM", vendors: ["z-ai", "zhipu"], baseUrl: "" },
+  { name: "讯飞星火 / Spark", vendors: ["iflytek"], baseUrl: "" },
+  { name: "纳米 AI / Nano AI", vendors: [], baseUrl: "" },
+  { name: "Perplexity", vendors: ["perplexity"], baseUrl: "" },
+  { name: "Microsoft Copilot", vendors: [], baseUrl: "" },
+  { name: "Grok", vendors: ["x-ai", "xai", "spacexai"], baseUrl: "https://api.x.ai/v1" },
+  { name: "Meta AI / Llama", vendors: ["meta-llama", "meta"], baseUrl: "" },
+  { name: "Mistral Vibe", vendors: ["mistralai"], baseUrl: "https://api.mistral.ai/v1" },
+  { name: "Poe", vendors: [], baseUrl: "" },
+] as const;

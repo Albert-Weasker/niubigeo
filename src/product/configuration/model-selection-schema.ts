@@ -3,7 +3,9 @@ export type ProductWebSearchMode = "off" | "provider_native";
 export interface ProductModelSelection {
   id: string;
   projectId: string;
-  providerId: "openrouter";
+  providerId: "openrouter" | "openai-compatible";
+  baseUrl?: string | undefined;
+  upstreamModelId?: string | undefined;
   modelId: string;
   displayName: string;
   webSearchMode: ProductWebSearchMode;
@@ -20,7 +22,9 @@ export interface ProductModelSelectionInput {
 }
 
 export interface ProviderModelCatalogItem {
-  providerId: "openrouter";
+  providerId: "openrouter" | "openai-compatible";
+  baseUrl?: string | undefined;
+  upstreamModelId?: string | undefined;
   modelId: string;
   displayName: string;
   vendor?: string | undefined;
@@ -29,7 +33,7 @@ export interface ProviderModelCatalogItem {
   unavailableReason: string | null;
   nativeWebSearchSupported: boolean;
   checkedAt: string;
-  source: "openrouter_catalog" | "local_capability_registry";
+  source: "openrouter_catalog" | "local_capability_registry" | "custom_endpoint";
 }
 
 export interface ProductModelCatalog {

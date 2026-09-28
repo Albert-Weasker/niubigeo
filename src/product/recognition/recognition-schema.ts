@@ -135,7 +135,8 @@ export interface RecognitionModelRunAttempt {
   requestParameters: RecognitionRequestParameters;
   rawProviderResponse?: unknown;
   rawAnswer?: string | undefined;
-  providerId: "openrouter";
+  providerId: "openrouter" | "openai-compatible";
+  baseUrl?: string | undefined;
   providerModel?: string | undefined;
   providerModelVersion?: string | undefined;
   providerSearch?: unknown;

@@ -1,6 +1,6 @@
 {
   "name": "niubigeo",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": true,
   "license": "Apache-2.0",
   "repository": {
@@ -22,6 +22,7 @@
     "monitor:worker": "tsx src/cli.ts monitor-worker",
     "self-check": "npm run build && node --test dist/**/*.test.js",
     "docs:check-links": "node scripts/check-doc-links.mjs",
+    "test:models-browser": "playwright test --config playwright.custom-models.config.ts",
     "test:phase1-browser": "playwright test --config playwright.config.ts",
     "test:phase2-browser": "playwright test --config playwright.phase2.config.ts",
     "test:phase3-browser": "playwright test --config playwright.phase3.config.ts",

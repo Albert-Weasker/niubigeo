@@ -1,16 +1,16 @@
 # Docker 部署
 
-## NiubiGEO v0.2.0
+## NiubiGEO v0.2.1
 
-正式镜像为 `ghcr.io/albert-weasker/niubigeo:v0.2.0`，支持 Linux amd64 和 arm64。先在宿主环境中设置 `OPENROUTER_API_KEY`，再执行：
+正式镜像为 `ghcr.io/albert-weasker/niubigeo:v0.2.1`，支持 Linux amd64 和 arm64。可在宿主环境中设置 `OPENROUTER_API_KEY`，也可启动后点击平台 Logo 输入当前会话的 Key：
 
 ```bash
-docker pull ghcr.io/albert-weasker/niubigeo:v0.2.0
+docker pull ghcr.io/albert-weasker/niubigeo:v0.2.1
 docker run -d --name niubigeo \
   -p 127.0.0.1:8787:8787 \
   -e OPENROUTER_API_KEY \
   -v niubigeo-data:/app/data/product-v2 \
-  ghcr.io/albert-weasker/niubigeo:v0.2.0
+  ghcr.io/albert-weasker/niubigeo:v0.2.1
 ```
 
 打开 <http://localhost:8787>。命名卷 `niubigeo-data` 会在重新创建容器后保留；升级前请先[备份](../upgrade.md)。不要直接对公网开放工作台，远程访问需要另外配置认证和 TLS。
@@ -21,18 +21,18 @@ docker run -d --name niubigeo \
 docker run -d --name niubigeo-worker --no-healthcheck \
   -e OPENROUTER_API_KEY \
   -v niubigeo-data:/app/data/product-v2 \
-  ghcr.io/albert-weasker/niubigeo:v0.2.0 \
+  ghcr.io/albert-weasker/niubigeo:v0.2.1 \
   node dist/src/product/scheduling/schedule-worker.js 60
 ```
 
-公开镜像从 `v0.2.0` Tag 对应的 commit 构建。版本、源码标记、SVG、项目创建和重新创建容器后的持久化检查通过后，工作流才写入 `:v0.2.0` 与 `:latest`；候选版本不能更新 `latest`。实际 Digest 和来源记录见[正式发布附件](https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.2.0)。本版的统计及验收缺口仍见[发布说明](../releases/v0.2.0.md)，不将历史 blocked 记录改成 passed。
+公开镜像从 `v0.2.1` Tag 对应的 commit 构建。版本、源码标记、SVG、项目创建和重新创建容器后的持久化检查通过后，工作流才写入 `:v0.2.1` 与 `:latest`；候选版本不能更新 `latest`。实际 Digest 和来源记录见[正式发布附件](https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.2.1)。本版的统计及验收缺口仍见[发布说明](../releases/v0.2.1.md)，不将历史 blocked 记录改成 passed。
 
 <details>
 <summary>历史候选构建记录与部署参数说明（非正式镜像身份）</summary>
 
 阅读 [20 个 Markdown 案例](../../examples/README.zh-CN.md) 不需要启动容器或案例站。以下命令只用于正常产品工作台，历史静态预览不是部署依赖。
 
-以下是正式发布前的 **v0.2.0-rc.1 历史候选记录**，保留当时的状态、命令与验收边界，不用于标识 v0.2.0 镜像。安装当前版本请使用上面的命令。
+以下是正式发布前的 **v0.2.0-rc.1 历史候选记录**，保留当时的状态、命令与验收边界，不用于标识 v0.2.1 镜像。安装当前版本请使用上面的命令。
 
 最终 OCI、index/各架构 Digest、构建输入、源码对应及 registry 状态记录在本地 `release-manifest.json`（本地私有记录，未公开：`../../validation/release-v0.2.0-rc.1/release-manifest.json`）。清单已经生成，但该 validation 路径不是永久公开下载入口。当前构建和运行映射见 `rc4-image-provenance.json`（本地私有记录，未公开：`../../validation/release-v0.2.0-rc.1/rc4-image-provenance.json`），仍有未通过门禁，见[版本说明](../releases/v0.2.0-rc.1.md)。
 

@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.2.0"><img src="assets/readme/version.svg" alt="NiubiGEO v0.2.0" width="172" height="28"></a>
+  <a href="https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.2.1"><img src="assets/readme/version.svg" alt="NiubiGEO v0.2.1" width="172" height="28"></a>
   <a href="LICENSE"><img src="assets/readme/license.svg" alt="Apache-2.0" width="172" height="28"></a>
   <a href="docs/deployment/docker.md"><img src="assets/readme/self-hosted.svg" alt="Self-hosted" width="132" height="28"></a>
 </p>
@@ -50,6 +50,21 @@ You have built a product, written the docs and worked to get the word out. When 
 
 ---
 
+
+## New in v0.2.1
+
+- **Connect through platform logos**: 16 platform shortcuts open an API key form with the applicable endpoint prefilled.
+- **Mix model sources**: choose OpenRouter, direct provider APIs and custom OpenAI-compatible endpoints in the same test. Discover model IDs automatically or enter them manually.
+- **Keep results separate**: answers, citations and failures retain their endpoint, model and search setting, even when model names match.
+- **Browse the full model catalog**: filter by mainstream platform, source and search support. Custom search support is labeled unverified; structured analysis requires JSON Schema support.
+
+[Connection guide](docs/model-connections.md) · [Download v0.2.1](https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.2.1) · [Docker installation](docs/deployment/docker.md)
+
+### Coming in v0.3
+
+A **competitor detection dashboard** and a **continuous keyword monitoring dashboard** are planned for **late October 2026**. This is a tentative target and may change; these planned dashboards are not included in v0.2.1.
+
+
 ## What can you find out?
 
 - **How AI sees your product.** What does it call your brand, and what does it think you do? Do different models agree?
@@ -76,7 +91,7 @@ You have built a product, written the docs and worked to get the word out. When 
 To test your own product, you will need Node.js 22.13+ and your own OpenRouter API key:
 
 ```bash
-git clone --branch v0.2.0 --depth 1 https://github.com/Albert-Weasker/niubigeo.git
+git clone --branch v0.2.1 --depth 1 https://github.com/Albert-Weasker/niubigeo.git
 cd niubigeo
 npm ci
 cp .env.example .env
@@ -280,7 +295,7 @@ NiubiStar supports NiubiGEO’s open-source development and provides the global 
 - [How it works](docs/how-it-works.md) · [Architecture](docs/ARCHITECTURE.md)
 - [Measurement methodology](docs/measurement-methodology.md) · [Sources and evidence](docs/evidence-model.md)
 - [Deployment](docs/deployment/docker.md) · [Backups and upgrades](docs/upgrade.md)
-- [Known issues](docs/known-issues.md) · [Limitations](docs/limitations.md) · [Release notes](https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.2.0)
+- [Known issues](docs/known-issues.md) · [Limitations](docs/limitations.md) · [Release notes](https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.2.1)
 - [Contributing](CONTRIBUTING.md) · [Security policy](SECURITY.md) · [License](LICENSE)
 
 ---

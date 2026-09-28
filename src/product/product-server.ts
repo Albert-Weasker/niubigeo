@@ -1,9 +1,14 @@
+import { customConnection, customConnections, withCustomConnection, withCustomConnections, withCustomProviderTransport, type customProviderFetch } from "../providers/custom-connection.js";
+import { connectionCatalog, requestCustomConnection, requestConnections, connectionKey } from "./connections/provider-connections.js";
+import { requestOpenRouterKey, validateOpenRouterKey } from "./connections/connection-http.js";
+import { ProviderConnectionInputError } from "./connections/connection-errors.js";
+import { renderProviderConnectionsUi } from "../ui/provider-connections-ui.js";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { readFile, stat } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { extname, resolve, sep } from "node:path";
 import { pathToFileURL } from "node:url";
-import { loadDotEnv, productDataDir } from "../config/env.js";
+import { loadDotEnv, productDataDir, withRequestProviderKeys, resolveProviderKey } from "../config/env.js";
 import { PROVIDER_MODEL_CAPABILITIES } from "../providers/catalog.js";
 import { ProductConfigurationFileStore } from "./configuration/configuration-store.js";
 import { handleProductConfigurationApi } from "./configuration/configuration-http.js";
@@ -35,6 +40,8 @@ import { renderProductPhase5AppHtml } from "../ui/product-phase5-app.js";
 loadDotEnv();
 
 export interface ProductServerDependencies {
+  customProviderFetch?: typeof customProviderFetch | undefined;
+  keyValidationFetch?: typeof fetch | undefined;
   modelCatalog?: ProductModelCatalog | undefined;
   recognitionExecutor?: RecognitionAnswerExecutor | undefined;
   measurementExecutor?: RecognitionAnswerExecutor | undefined;
@@ -76,7 +83,7 @@ async function handle(req: IncomingMessage, res: ServerResponse, dependencies: P
   const projectStore = new ProductProjectFileStore(productDataDir());
   const projects = new ProductProjectService(projectStore);
   const configurationStore = new ProductConfigurationFileStore(projectStore);
-  const catalog = dependencies.modelCatalog || new OpenRouterProductModelCatalog(PROVIDER_MODEL_CAPABILITIES);
+  const catalog = connectionCatalog(dependencies.modelCatalog || new OpenRouterProductModelCatalog(PROVIDER_MODEL_CAPABILITIES));
   const selections = new ProductModelSelectionService(projects, configurationStore, catalog);
   const baselines = new ProductBaselineService(projects, selections, configurationStore);
   const recognitionStore = new ProductRecognitionFileStore(projectStore);
@@ -91,7 +98,8 @@ async function handle(req: IncomingMessage, res: ServerResponse, dependencies: P
 
   if (method === "GET" && url.pathname === "/") {
     const measurementView = url.searchParams.get("view") === "measurements";
-    return send(res, 200, measurementView ? renderProductPhase5AppHtml() : renderProductPhase4AppHtml(), "text/html; charset=utf-8");
+    const html = measurementView ? renderProductPhase5AppHtml() : renderProductPhase4AppHtml();
+    return send(res, 200, html.replace("<body>", "<body>" + renderProviderConnectionsUi()), "text/html; charset=utf-8");
   }
   if (method === "GET" && url.pathname === "/health") return send(res, 200, { ok: true });
   if (method === "GET" && route[0] === "assets" && route.length > 1) {
@@ -102,6 +110,12 @@ async function handle(req: IncomingMessage, res: ServerResponse, dependencies: P
     return sendAsset(res, path);
   }
 
+  if (method === "POST" && url.pathname === "/api/openrouter/key") return send(res, 200, await validateOpenRouterKey(resolveProviderKey("openrouter"), dependencies.keyValidationFetch));
+  if (method === "POST" && url.pathname === "/api/custom-provider/connect") {
+    if (!customConnection()) throw new ProviderConnectionInputError("请填写接口地址和 API Key。", 401);
+    resolveProviderKey(connectionKey(customConnection()!.baseUrl));
+    return send(res, 200, { connected: true, baseUrl: customConnection()!.baseUrl, models: await catalog.list(), verified: customConnection()!.models.length === 0 });
+  }
   if (await handleProductConfigurationApi({ method, route, projects, selections, baselines, catalog, readJson: () => readJson(req), send: (status, body) => send(res, status, body) })) return;
   if (await handleMeasurementApi({ method, route, readJson: () => readJson(req), send: (status, body) => send(res, status, body), projects, watchSets, measurements, stats })) return;
   if (await handleScheduleApi({ method, route, readJson: () => readJson(req), send: (status, body) => send(res, status, body), service: schedules })) return;
@@ -114,7 +128,18 @@ async function handle(req: IncomingMessage, res: ServerResponse, dependencies: P
 
 export function createProductServer(dependencies: ProductServerDependencies = {}) {
   return createServer((req, res) => {
-    handle(req, res, dependencies).catch((error) => send(res, 500, { error: error instanceof Error ? error.message : String(error) }));
+    const execute = async () => {
+      const origin = req.headers.origin;
+      if (req.headers["sec-fetch-site"] === "cross-site" || (origin && new URL(origin).host !== req.headers.host)) throw new ProviderConnectionInputError("Cross-origin requests are not allowed.", 403);
+      const single = requestCustomConnection(req);
+      const multiple = requestConnections(req);
+      const key = requestOpenRouterKey(req);
+      const work = () => handle(req, res, dependencies);
+      if (!single && !multiple.connections.length && !Object.keys(multiple.keys).length && !key) return work();
+      const keys = { [single ? connectionKey(single.baseUrl) : "openrouter"]: key, ...multiple.keys };
+      return withCustomConnections(single ? [single] : multiple.connections, () => withCustomConnection(single, () => withRequestProviderKeys(keys, work)));
+    };
+    void withCustomProviderTransport(dependencies.customProviderFetch, execute).catch(error => send(res, error instanceof ProviderConnectionInputError ? error.status : 500, { error: error instanceof ProviderConnectionInputError ? error.message : "Provider operation failed." }));
   });
 }
 

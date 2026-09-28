@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { AsyncLocalStorage } from "node:async_hooks";
 import { splitLines, stripMatchingQuotes } from "../utils/text.js";
 
 const PROVIDER_ENV_KEYS: Record<string, string[]> = {
@@ -11,6 +12,38 @@ const PROVIDER_ENV_KEYS: Record<string, string[]> = {
   deepseek: ["DEEPSEEK_API_KEY"],
   "openai-compatible": ["OPENAI_COMPATIBLE_API_KEY"],
 };
+
+const SECRET_FIELD_NAMES = new Set([
+  "authorization", "apikey", "api_key", "api-key", "accesstoken", "access_token", "access-token",
+  "secret", "openrouterkey", "openrouter_key", "openrouter-key",
+]);
+
+function isSecretFieldName(name: string): boolean {
+  // Header/credential field names are ASCII; only their casing is insignificant.
+  return [...name].every(character => character.charCodeAt(0) < 128) && SECRET_FIELD_NAMES.has(name.toLowerCase());
+}
+
+const requestProviderKeys = new AsyncLocalStorage<Readonly<Record<string, string | undefined>>>();
+
+/** A web request may use only its own keys, including after an async job is queued. */
+export function withRequestProviderKeys<T>(keys: Readonly<Record<string, string | undefined>>, work: () => T): T {
+  return requestProviderKeys.run(Object.freeze({ ...keys }), work);
+}
+
+export function isRequestProviderScope(): boolean { return requestProviderKeys.getStore() !== undefined; }
+
+/** Remove credentials before upstream payloads or errors can reach evidence storage. */
+export function redactRequestSecrets<T>(value: T): T {
+  const keys = Object.values(requestProviderKeys.getStore() || {}).filter((key): key is string => Boolean(key));
+  if (!isRequestProviderScope()) return value;
+  const visit = (input: unknown): unknown => {
+    if (typeof input === "string") return keys.reduce((text, key) => text.split(key).join("[REDACTED]"), input);
+    if (Array.isArray(input)) return input.map(visit);
+    if (input && typeof input === "object") return Object.fromEntries(Object.entries(input).map(([name, item]) => [name, isSecretFieldName(name) ? "[REDACTED]" : visit(item)]));
+    return input;
+  };
+  return visit(value) as T;
+}
 
 export function loadDotEnv(cwd = process.cwd()): void {
   const envPath = join(cwd, ".env");
@@ -51,6 +84,12 @@ function envSecretValue(key: string): string | undefined {
 }
 
 export function resolveProviderKey(providerId: string, explicitKey?: string): string {
+  const scoped = requestProviderKeys.getStore();
+  if (scoped) {
+    const key = scoped[providerId]?.trim();
+    if (key) return key;
+    throw new Error("A user-supplied API key is required for this web request.");
+  }
   if (explicitKey?.trim()) return explicitKey.trim();
   const keys = providerEnvKeys(providerId);
   for (const key of keys) {
@@ -61,6 +100,8 @@ export function resolveProviderKey(providerId: string, explicitKey?: string): st
 }
 
 export function hasProviderKey(providerId: string): boolean {
+  const scoped = requestProviderKeys.getStore();
+  if (scoped) return Boolean(scoped[providerId]?.trim());
   if (providerId === "openai-compatible") {
     return Boolean(openAICompatibleBaseUrl()) && providerEnvKeys(providerId).some((key) => Boolean(envSecretValue(key)));
   }
