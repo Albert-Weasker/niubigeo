@@ -1,5 +1,6 @@
 services:
   niubistar-geo:
+    image: ghcr.io/albert-weasker/niubigeo:v0.2.1
     build: .
     ports:
       - "127.0.0.1:${PORT:-8787}:8787"
@@ -14,6 +15,7 @@ services:
       - ./data:/app/data
 
   niubigeo-worker:
+    image: ghcr.io/albert-weasker/niubigeo:v0.2.1
     build: .
     profiles: [monitoring]
     command: ["node", "dist/src/product/scheduling/schedule-worker.js", "60"]

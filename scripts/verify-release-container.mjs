@@ -58,6 +58,12 @@ try {
     verify(`${asset} status`, response.status, 200);
     verify(`${asset} content`, sha(Buffer.from(await response.arrayBuffer())), sha(local));
   }
+  for (const asset of ["deepseek-color.svg", "openai.svg", "openrouter.svg"]) {
+    const local = await readFile(`assets/providers/${asset}`);
+    const response = await fetch(`${base}/assets/providers/${asset}`);
+    verify(`${asset} status`, response.status, 200);
+    verify(`${asset} content`, sha(Buffer.from(await response.arrayBuffer())), sha(local));
+  }
   const created = await request("/api/projects", "POST", { primaryDomain: "example.com", name: "Release acceptance" });
   verify("Create project", created.status, 201);
   const id = created.body.project.id;

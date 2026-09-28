@@ -1,7 +1,8 @@
 # Changelog
 
-## Unreleased
+## NiubiGEO v0.2.1 - 2026-09-28
 
+- Add 16 clickable platform logos that open the matching API key form.
 - Add browser-scoped OpenRouter and custom OpenAI-compatible connections to the open-source workbench, including model discovery and manual model IDs.
 - Allow mixed-source monitoring with separate endpoint/model identities, per-model search settings, independent evidence and failures.
 - Show the complete current model catalog with mainstream-family and API-source filters; distinguish unverified custom search support.
