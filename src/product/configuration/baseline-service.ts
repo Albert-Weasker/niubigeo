@@ -14,6 +14,7 @@ function snapshots(projectId: string, selections: Awaited<ReturnType<ProductMode
     .map((selection) => ({
       selectionId: selection.id,
       providerId: selection.providerId,
+      ...(selection.baseUrl ? { baseUrl: selection.baseUrl, upstreamModelId: selection.upstreamModelId } : {}),
       modelId: selection.modelId,
       displayName: selection.displayName,
       webSearchMode: selection.webSearchMode,
@@ -29,6 +30,7 @@ function configHash(input: Omit<ProductBaseline, "id" | "version" | "projectId" 
     recognitionProtocol: input.recognitionProtocol,
     modelSnapshots: input.modelSnapshots.map((snapshot) => ({
       providerId: snapshot.providerId,
+      ...(snapshot.baseUrl ? { baseUrl: snapshot.baseUrl } : {}),
       modelId: snapshot.modelId,
       displayName: snapshot.displayName,
       webSearchMode: snapshot.webSearchMode,

@@ -42,6 +42,7 @@ function currentSnapshots(selections: ProductModelSelection[]): ProductModelSnap
     .map((selection) => ({
       selectionId: selection.id,
       providerId: selection.providerId,
+      ...(selection.baseUrl ? { baseUrl: selection.baseUrl, upstreamModelId: selection.upstreamModelId } : {}),
       modelId: selection.modelId,
       displayName: selection.displayName,
       webSearchMode: selection.webSearchMode,
@@ -75,18 +76,20 @@ function hasDiff(diff: MonitoringConfigurationDiff): boolean {
     || diff.languageChange !== null;
 }
 
+function modelKey(model: ProductModelSnapshot): string { return JSON.stringify([model.providerId, model.baseUrl || "", model.modelId]); }
+
 function compare(project: ProductProject, baseline: ProductBaseline, selections: ProductModelSelection[]): MonitoringConfigurationDiff {
   const protocol = recognitionProtocolSnapshot();
   const language = recognitionProtocolLanguage(project.defaultLanguage);
   const current = currentSnapshots(selections);
-  const previousByModel = new Map(baseline.modelSnapshots.map((snapshot) => [snapshot.modelId, snapshot]));
-  const currentByModel = new Map(current.map((snapshot) => [snapshot.modelId, snapshot]));
-  const addedModels = current.filter((snapshot) => !previousByModel.has(snapshot.modelId)).map(modelIdentity);
-  const removedModels = baseline.modelSnapshots.filter((snapshot) => !currentByModel.has(snapshot.modelId)).map(modelIdentity);
+  const previousByModel = new Map(baseline.modelSnapshots.map((snapshot) => [modelKey(snapshot), snapshot]));
+  const currentByModel = new Map(current.map((snapshot) => [modelKey(snapshot), snapshot]));
+  const addedModels = current.filter((snapshot) => !previousByModel.has(modelKey(snapshot))).map(modelIdentity);
+  const removedModels = baseline.modelSnapshots.filter((snapshot) => !currentByModel.has(modelKey(snapshot))).map(modelIdentity);
   const webSearchModeChanges: WebSearchModeChange[] = [];
 
   for (const snapshot of current) {
-    const previous = previousByModel.get(snapshot.modelId);
+    const previous = previousByModel.get(modelKey(snapshot));
     if (previous && previous.webSearchMode !== snapshot.webSearchMode) {
       webSearchModeChanges.push({
         ...modelIdentity(snapshot),

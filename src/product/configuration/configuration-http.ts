@@ -1,3 +1,4 @@
+import { ProviderConnectionInputError } from "../connections/connection-errors.js";
 import { ProductProjectNotFoundError } from "../projects/project-errors.js";
 import { ProductProjectService } from "../projects/project-service.js";
 import {
@@ -28,6 +29,7 @@ function selectionInputs(body: Record<string, unknown>): ProductModelSelectionIn
 }
 
 function sendError(send: ProductConfigurationJsonSender, error: unknown): void {
+  if (error instanceof ProviderConnectionInputError) return send(error.status, { error: error.message, code: "provider_connection_invalid" });
   if (error instanceof ProductProjectNotFoundError) return send(404, { error: error.message, code: "project_not_found" });
   if (error instanceof ProductBaselineNotFoundError) return send(404, { error: error.message, code: "baseline_not_found" });
   if (error instanceof ProductConfigurationInputError) return send(422, { error: error.message, code: "configuration_invalid" });
@@ -49,7 +51,7 @@ export async function handleProductConfigurationApi(input: {
   const { method, route, readJson, send, projects, selections, baselines, catalog } = input;
   try {
     if (route.length === 2 && route[0] === "api" && route[1] === "provider-models" && method === "GET") {
-      return send(200, { providerId: "openrouter", models: await catalog.list() }), true;
+      return send(200, { models: await catalog.list() }), true;
     }
     if (route.length < 4 || route[0] !== "api" || route[1] !== "projects") return false;
     const projectId = route[2];

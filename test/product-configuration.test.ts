@@ -276,7 +276,8 @@ test("Phase 2 UI exposes the domain-only configuration flow without prompt or ex
   assert.equal(html.includes('data-testid="model-catalog-sort"'), true);
   assert.equal(html.includes('上架时间：新到旧'), true);
   assert.equal(html.includes('目录未提供上架时间'), true);
-  assert.equal(html.includes("逗号"), false);
+  assert.equal(html.includes('id="model-source-filter"'), true);
+  assert.equal(html.includes('id="model-platform-filter"'), true);
   assert.equal(html.includes("<textarea"), false);
   assert.equal(html.includes("AuditPlan"), false);
   assert.equal(html.includes("/api/audit"), false);

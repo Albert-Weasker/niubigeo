@@ -3,7 +3,9 @@ import type { RecognitionProtocolSnapshot } from "./recognition-protocol.js";
 
 export interface ProductModelSnapshot {
   selectionId: string;
-  providerId: "openrouter";
+  providerId: "openrouter" | "openai-compatible";
+  baseUrl?: string | undefined;
+  upstreamModelId?: string | undefined;
   modelId: string;
   displayName: string;
   webSearchMode: ProductWebSearchMode;

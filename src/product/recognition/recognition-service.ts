@@ -1,3 +1,5 @@
+import { customAnswerProvider, connectionKey, resolveCustomModel } from "../connections/provider-connections.js";
+import { withCustomConnection } from "../../providers/custom-connection.js";
 import { randomUUID } from "node:crypto";
 import { resolveProviderKey } from "../../config/env.js";
 import type { AnswerResult } from "../../core/types.js";
@@ -82,10 +84,11 @@ export class OpenRouterRecognitionAnswerExecutor implements RecognitionAnswerExe
       description: DOMAIN_RECOGNITION_TOOL_DESCRIPTION,
       schema: domainRecognitionResponseSchema,
     };
-    return this.providers.get("openrouter").run({
+    const custom = resolveCustomModel(input.modelSnapshot.modelId);
+    return withCustomConnection(custom?.connection, () => (custom ? customAnswerProvider(custom.connection.baseUrl) : this.providers.get("openrouter")).run({
       prompt: input.prompt,
-      model: input.modelSnapshot.modelId,
-      apiKey: resolveProviderKey("openrouter"),
+      model: input.modelSnapshot.upstreamModelId || input.modelSnapshot.modelId,
+      apiKey: resolveProviderKey(input.modelSnapshot.baseUrl ? connectionKey(input.modelSnapshot.baseUrl) : input.modelSnapshot.providerId),
       maxTokens: input.requestParameters.maxTokens,
       temperature: input.requestParameters.temperature,
       webSearchEnabled: input.requestParameters.webSearchEnabled,
@@ -106,7 +109,7 @@ export class OpenRouterRecognitionAnswerExecutor implements RecognitionAnswerExe
             },
           }),
       requireProviderParameters: input.requestParameters.requireProviderParameters,
-    });
+    }));
   }
 }
 
@@ -146,7 +149,7 @@ function requestParameters(snapshot: ProductModelSnapshot): RecognitionRequestPa
     // response schema independent lets the provider perform search and then
     // return one structured final answer instead of competing tool calls.
     structuredOutputTransport: "response_json_schema",
-    requireProviderParameters: true,
+    requireProviderParameters: snapshot.providerId === "openrouter",
     webSearchEnabled: snapshot.webSearchMode === "provider_native",
     webSearchMode: snapshot.webSearchMode,
   };
@@ -657,9 +660,9 @@ export class ProductRecognitionRunService {
   private savedAnswerForReanalysis(modelRun: RecognitionModelRun, attempt: RecognitionModelRunAttempt): AnswerResult {
     return {
       providerId: attempt.providerId,
-      providerName: "OpenRouter",
+      providerName: modelRun.modelSnapshot.baseUrl ? new URL(modelRun.modelSnapshot.baseUrl).hostname : "OpenRouter",
       sourceType: "api",
-      sourceLabel: "Source: OpenRouter API",
+      sourceLabel: modelRun.modelSnapshot.baseUrl ? "Source: " + new URL(modelRun.modelSnapshot.baseUrl).hostname + " API" : "Source: OpenRouter API",
       resultCaveat: "This record was locally reanalyzed from a saved Provider response.",
       model: attempt.providerModel || modelRun.modelSnapshot.modelId,
       modelVersion: attempt.providerModelVersion || attempt.providerModel || modelRun.modelSnapshot.modelId,
@@ -698,7 +701,7 @@ export class ProductRecognitionRunService {
       status: "running",
       promptHash: sha256(prompt),
       requestParameters: parameters,
-      providerId: "openrouter",
+      providerId: previous.modelSnapshot.providerId,
       costUsd: null,
       createdAt: nowIso(),
       startedAt: nowIso(),
@@ -786,7 +789,7 @@ export class ProductRecognitionRunService {
             status: "running",
             promptHash: sha256(prompt),
             requestParameters: retryParams,
-            providerId: "openrouter",
+            providerId: modelRun.modelSnapshot.providerId,
             costUsd: null,
             createdAt: nowIso(),
             startedAt: nowIso(),

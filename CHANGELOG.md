@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Add browser-scoped OpenRouter and custom OpenAI-compatible connections to the open-source workbench, including model discovery and manual model IDs.
+- Allow mixed-source monitoring with separate endpoint/model identities, per-model search settings, independent evidence and failures.
+- Show the complete current model catalog with mainstream-family and API-source filters; distinguish unverified custom search support.
+- Keep credentials out of persisted settings and evidence, and allow operator opt-in for local model servers.
+
 ## NiubiGEO v0.2.0 - 2026-09-08
 
 - Published the current project-based workbench: independent projects, model selection, monitoring configuration, domain recognition, cross-model evidence, keyword measurements and the scheduling worker.

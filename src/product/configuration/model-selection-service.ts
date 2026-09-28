@@ -1,3 +1,4 @@
+import { selectedCustomModel } from "../connections/provider-connections.js";
 import { randomUUID } from "node:crypto";
 import { ProductProjectService } from "../projects/project-service.js";
 import { ProductConfigurationInputError } from "./configuration-errors.js";
@@ -31,7 +32,7 @@ export class ProductModelSelectionService {
 
   async replace(projectId: string, inputs: ProductModelSelectionInput[]): Promise<ProductModelSelection[]> {
     await this.projects.get(projectId);
-    const catalogItems = await this.catalog.list();
+    const catalogItems = inputs.every(input => input.modelId.startsWith("custom:")) ? [] : await this.catalog.list();
     const catalogByModel = new Map(catalogItems.map((item) => [item.modelId, item]));
     const previous = await this.store.readModelSelections(projectId);
     const previousByModel = new Map(previous.map((selection) => [selection.modelId, selection]));
@@ -44,7 +45,7 @@ export class ProductModelSelectionService {
       if (!validMode(input.webSearchMode)) throw new ProductConfigurationInputError("Web search mode must be off or provider_native.");
       if (seen.has(modelId)) throw new ProductConfigurationInputError(`Model is selected more than once: ${modelId}.`);
       seen.add(modelId);
-      const model = catalogByModel.get(modelId);
+      const model = selectedCustomModel(modelId) || catalogByModel.get(modelId);
       if (!model || !model.available) throw new ProductConfigurationInputError(`Selected model is unavailable: ${modelId}.`);
       if (input.webSearchMode === "provider_native" && !model.nativeWebSearchSupported) {
         throw new ProductConfigurationInputError(`Provider-native web search is not supported by ${model.displayName}.`);
@@ -54,7 +55,8 @@ export class ProductModelSelectionService {
       selections.push({
         id: existing?.id || randomUUID(),
         projectId,
-        providerId: "openrouter",
+        providerId: model.providerId,
+        ...(model.baseUrl ? { baseUrl: model.baseUrl, upstreamModelId: model.upstreamModelId } : {}),
         modelId,
         displayName: model.displayName,
         webSearchMode: input.webSearchMode,

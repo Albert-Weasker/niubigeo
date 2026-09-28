@@ -43,7 +43,7 @@ function parameters(model: ProductModelSnapshot, schemaName: string, schemaHash:
     model: model.modelId,
     temperature: DEFAULT_TEMPERATURE,
     maxTokens: DEFAULT_MAX_TOKENS,
-    requireProviderParameters: true,
+    requireProviderParameters: model.providerId === "openrouter",
     responseSchemaName: schemaName,
     responseSchemaHash: schemaHash,
     // Provider-native search and the response schema are independent request
@@ -63,6 +63,7 @@ function fingerprint(input: {
 }): ProbeFingerprint {
   const raw = {
     provider: input.model.providerId,
+    ...(input.model.baseUrl ? { baseUrl: input.model.baseUrl } : {}),
     model: input.model.modelId,
     webSearchMode: input.model.webSearchMode,
     protocol: input.protocol.id,
@@ -311,7 +312,7 @@ export class ProductMeasurementRunService {
     const prompt = isDomain
       ? domainRecognitionPrompt({ normalizedDomain: original.subjectDomain || "", language: original.protocol.language, protocol: { protocolId: "domain-recognition", protocolVersion: "v1", inputType: "domain_only", requestedFields: ["domainRecognition", "brandIdentity", "businessDescription", "productCategory", "competitors", "brandKeywords", "competitorKeywords", "citations", "unknowns"], promptTemplateHash: original.protocol.promptTemplateHash } })
       : keywordDiscoveryPrompt({ keyword: original.keyword || "", language: original.protocol.language });
-    const attempt: ProbeAttempt = { id: randomUUID(), projectId: run.projectId, runId: run.id, modelRunId: modelRun.id, probeRunId: original.id, attemptNumber: attempts.length + 1, status: "running", promptHash: sha256(prompt), requestParameters: request, providerId: "openrouter", costUsd: null, costState: "reserved", createdAt: now(), startedAt: now() };
+    const attempt: ProbeAttempt = { id: randomUUID(), projectId: run.projectId, runId: run.id, modelRunId: modelRun.id, probeRunId: original.id, attemptNumber: attempts.length + 1, status: "running", promptHash: sha256(prompt), requestParameters: request, providerId: modelRun.modelSnapshot.providerId, costUsd: null, costState: "reserved", createdAt: now(), startedAt: now() };
     const probe = { ...original, status: "running" as const, attemptIds: [...original.attemptIds, attempt.id], firstAttemptId: original.firstAttemptId || attempt.id, latestAttemptId: attempt.id, startedAt: now(), completedAt: undefined };
     await Promise.all([this.store.saveAttempt(attempt), this.store.saveProbe(probe)]);
     if (modelRun.modelSnapshot.webSearchMode === "provider_native" && !modelRun.modelSnapshot.nativeWebSearchSupported) {

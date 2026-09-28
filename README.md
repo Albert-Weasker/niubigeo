@@ -50,6 +50,9 @@ You have built a product, written the docs and worked to get the word out. When 
 
 ---
 
+
+New model connections: [mix OpenRouter, direct and custom APIs](docs/model-connections.md).
+
 ## What can you find out?
 
 - **How AI sees your product.** What does it call your brand, and what does it think you do? Do different models agree?

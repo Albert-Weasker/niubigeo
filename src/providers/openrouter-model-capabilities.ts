@@ -50,6 +50,7 @@ function releasedAt(value: unknown): string | null {
 }
 
 export class OpenRouterModelCatalog implements OpenRouterModelCapabilitySource {
+  private loadedAt = 0;
   private modelsPromise: Promise<Map<string, OpenRouterModelCapability>> | null = null;
 
   async capability(model: string): Promise<OpenRouterModelCapability> {
@@ -69,7 +70,8 @@ export class OpenRouterModelCatalog implements OpenRouterModelCapabilitySource {
   }
 
   private models(): Promise<Map<string, OpenRouterModelCapability>> {
-    if (!this.modelsPromise) {
+    if (!this.modelsPromise || Date.now() - this.loadedAt > 15 * 60 * 1000) {
+      this.loadedAt = Date.now();
       this.modelsPromise = this.load().catch((error) => {
         this.modelsPromise = null;
         throw error;
@@ -81,7 +83,7 @@ export class OpenRouterModelCatalog implements OpenRouterModelCapabilitySource {
   private async load(): Promise<Map<string, OpenRouterModelCapability>> {
     let response: Response;
     try {
-      response = await fetch("https://openrouter.ai/api/v1/models");
+      response = await fetch("https://openrouter.ai/api/v1/models", { signal: AbortSignal.timeout(10000) });
     } catch (cause) {
       throw new ProviderRequestError({
         code: "upstream_unavailable",
@@ -102,6 +104,9 @@ export class OpenRouterModelCatalog implements OpenRouterModelCapabilitySource {
     for (const value of data) {
       const row = asObject(value);
       if (typeof row?.id !== "string") continue;
+      const architecture = asObject(row.architecture);
+      const outputs = stringValues(architecture?.output_modalities);
+      if (outputs.length && !outputs.includes("text")) continue;
       const supportedParameters = stringValues(row.supported_parameters);
       const pricing = asObject(row.pricing);
       const searchProtocol = protocol(supportedParameters, hasOwn(pricing, "web_search"));

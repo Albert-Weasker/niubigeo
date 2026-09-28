@@ -14,6 +14,14 @@ function git(...args) {
   return execFileSync('git', args, { encoding: 'utf8', maxBuffer: 20 * 1024 * 1024 });
 }
 
+function hasScheme(value) {
+  const end = value.indexOf(':');
+  if (end < 1) return false;
+  const scheme = value.slice(0, end).toLowerCase();
+  const alpha = character => character >= 'a' && character <= 'z';
+  return alpha(scheme[0]) && [...scheme].every(character => alpha(character) || (character >= '0' && character <= '9') || '+.-'.includes(character));
+}
+
 function checkLinks() {
   const root = git('rev-parse', '--show-toplevel').trim();
   const ref = args[1];
@@ -30,7 +38,7 @@ function checkLinks() {
     for (let dir = path.posix.dirname(file); dir !== '.'; dir = path.posix.dirname(dir)) targets.add(dir);
   }
 
-  const markdownFiles = [...files].filter(file => /\.(?:md|markdown)$/i.test(file));
+  const markdownFiles = [...files].filter(file => ['.md', '.markdown'].some(extension => file.toLowerCase().endsWith(extension)));
   const failures = [];
   let checked = 0;
   for (const file of markdownFiles) {
@@ -41,8 +49,8 @@ function checkLinks() {
     $('pre, code').remove();
     $('a[href], img[src]').each((_, element) => {
       const href = $(element).attr(element.name === 'a' ? 'href' : 'src').trim();
-      if (!href || href.startsWith('#') || href.startsWith('//') || /^[a-z][a-z\d+.-]*:/i.test(href)) return;
-      const pathname = href.split(/[?#]/, 1)[0];
+      if (!href || href.startsWith('#') || href.startsWith('//') || hasScheme(href)) return;
+      const pathname = href.split('#', 1)[0].split('?', 1)[0];
       if (!pathname) return;
       checked++;
       let decoded;
