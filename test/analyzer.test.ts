@@ -92,3 +92,40 @@ test("classifies sentiment from the entity sentence instead of a broad paragraph
   assert.equal(competitorMention?.sentiment, "neutral");
   assert.notEqual(competitorMention?.mentionType, "negative");
 });
+
+test("matches only the exact target GitHub repository path", () => {
+  const target = entityFromInput({ type: "target", domain: "example.com", name: "Demo", githubRepo: "foo/bar" });
+  const exact = new ResponseAnalyzer().analyze({
+    target,
+    competitors: [],
+    text: "See the project.",
+    citations: [
+      {
+        id: "exact",
+        url: "https://github.com/foo/bar/",
+        domain: "github.com",
+        citationIndex: 0,
+        source: "answer_text_url",
+        citationType: "unknown",
+      },
+    ],
+  });
+  assert.equal(exact.citations[0]?.citationType, "target_github");
+
+  const unrelated = new ResponseAnalyzer().analyze({
+    target,
+    competitors: [],
+    text: "See another project.",
+    citations: [
+      {
+        id: "unrelated",
+        url: "https://github.com/foo/barista",
+        domain: "github.com",
+        citationIndex: 0,
+        source: "answer_text_url",
+        citationType: "unknown",
+      },
+    ],
+  });
+  assert.equal(unrelated.citations[0]?.citationType, "third_party");
+});
