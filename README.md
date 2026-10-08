@@ -81,7 +81,7 @@ NiubiGEO began with one question: **what does AI actually say about a product?**
 | v0.1 | AI visibility testing | Shipped |
 | v0.2 | Evidence and reproducibility | Shipped |
 | v0.2.1 | Multi-provider model connections | Shipped |
-| v0.3 | Keyword monitoring and structured research | In development |
+| v0.3 | Keyword monitoring and structured research | Released |
 
 See the [monitoring section](#monitoring) and [release history](https://github.com/Albert-Weasker/niubigeo/releases) for verifiable updates.
 
@@ -94,11 +94,11 @@ See the [monitoring section](#monitoring) and [release history](https://github.c
 
 [Connection guide](docs/model-connections.md) · [Download v0.2.1](https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.2.1) · [Docker installation](docs/deployment/docker.md)
 
-### v0.3 preview · Keyword Monitoring NEW / BETA
+### v0.3 · Keyword Monitoring NEW / BETA
 
-The first v0.3 module is being built in the workbench: define custom keywords, import batches, start from AI Coding/SaaS/GEO examples, choose hourly/daily/weekly frequency, keep independent history and compare snapshots in Diff View. [English guide](docs/keyword-monitoring.md) · [中文指南](docs/keyword-monitoring.zh-CN.md).
+v0.3 adds a separate Keyword Monitoring module in the workbench: define custom keywords, import batches, classify prompts as Discovery, Alternative, Comparison, Brand or Use case, start from AI Coding/SaaS/GEO/comparison templates, choose hourly/daily/weekly frequency, keep independent history, configure an optional brand and aliases, and compare snapshots in Diff View. [English guide](docs/keyword-monitoring.md) · [中文指南](docs/keyword-monitoring.zh-CN.md).
 
-The competitor detection dashboard is deferred. v0.3 is planned for late October 2026; this is a tentative target and may change. Until the release is published, v0.3 remains a preview.
+This release does not include a separate competitor detection dashboard. The current v0.3 scope is keyword monitoring, independent history and change comparison.
 
 
 ## What can you find out?
@@ -181,7 +181,7 @@ To hide the card, set `NIUBIGEO_VIDEO_ADVISOR_ENABLED=false` in `.env` and resta
 
 ### From snapshot to Diff View
 
-A single answer is a snapshot. Repeated runs become an observation. The v0.3 keyword beta makes the change explicit after two runs:
+A single answer is a snapshot. Repeated runs become an observation. The v0.3 keyword module makes the change explicit after two runs:
 
 ```text
 September                         October

@@ -82,7 +82,7 @@ NiubiGEO 从一个问题开始：**AI 到底如何描述一个产品？** 现在
 | v0.1 | AI 可见度测试 | 已发布 |
 | v0.2 | 证据与可复现性 | 已发布 |
 | v0.2.1 | 多来源模型连接 | 已发布 |
-| v0.3 | 关键词监控与结构化研究 | 开发中 |
+| v0.3 | 关键词监控与结构化研究 | 已发布 |
 
 请通过[持续监测](#monitoring)和[版本历史](https://github.com/Albert-Weasker/niubigeo/releases)查看可验证的项目更新。
 
@@ -95,11 +95,11 @@ NiubiGEO 从一个问题开始：**AI 到底如何描述一个产品？** 现在
 
 [使用指南](docs/model-connections.zh-CN.md) · [下载 v0.2.1](https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.2.1) · [Docker 安装](docs/deployment/docker.md)
 
-### v0.3 预告 · 关键词持续侦测 NEW / BETA
+### v0.3 · 关键词持续侦测 NEW / BETA
 
-v0.3 的第一项功能正在工作台中开发：支持自定义关键词、批量导入、AI Coding/SaaS/GEO 案例模板、每小时/每天/每周频率、独立历史记录，以及两次运行后的变化预览（Diff View）。[中文指南](docs/keyword-monitoring.zh-CN.md) · [English guide](docs/keyword-monitoring.md)。
+v0.3 在工作台中加入独立的关键词持续侦测模块：支持自定义关键词、批量导入，将提示词分为 Discovery、Alternative、Comparison、Brand、Use case，提供 AI Coding/SaaS/GEO/对比案例模板、每小时/每天/每周频率、独立历史记录、可选品牌与别名配置，以及两次运行后的变化预览（Diff View）。[中文指南](docs/keyword-monitoring.zh-CN.md) · [English guide](docs/keyword-monitoring.md)。
 
-竞争对手侦测面板暂缓。v0.3 计划于 **2026 年 10 月下旬**上线，时间暂定、可能调整；正式发布前，v0.3 仍属于预告。
+本版本不包含独立的竞争对手侦测面板。v0.3 当前范围是关键词监控、独立历史记录和变化对比。
 
 
 ## 用它看清什么？
@@ -182,7 +182,7 @@ npm run server
 
 ### 从 Snapshot 到 Diff View
 
-一次回答是一个快照，重复运行才会形成观察。v0.3 关键词 Beta 在完成两次运行后展示变化：
+一次回答是一个快照，重复运行才会形成观察。v0.3 关键词模块在完成两次运行后展示变化：
 
 ```text
 九月                              十月
