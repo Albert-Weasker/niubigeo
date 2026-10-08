@@ -1,16 +1,16 @@
 # Docker 部署
 
-## NiubiGEO v0.2.1
+## NiubiGEO v0.3.0
 
-正式镜像为 `ghcr.io/albert-weasker/niubigeo:v0.2.1`，支持 Linux amd64 和 arm64。可在宿主环境中设置 `OPENROUTER_API_KEY`，也可启动后点击平台 Logo 输入当前会话的 Key：
+正式镜像为 `ghcr.io/albert-weasker/niubigeo:v0.3.0`，支持 Linux amd64 和 arm64。可在宿主环境中设置 `OPENROUTER_API_KEY`，也可启动后点击平台 Logo 输入当前会话的 Key：
 
 ```bash
-docker pull ghcr.io/albert-weasker/niubigeo:v0.2.1
+docker pull ghcr.io/albert-weasker/niubigeo:v0.3.0
 docker run -d --name niubigeo \
   -p 127.0.0.1:8787:8787 \
   -e OPENROUTER_API_KEY \
   -v niubigeo-data:/app/data/product-v2 \
-  ghcr.io/albert-weasker/niubigeo:v0.2.1
+  ghcr.io/albert-weasker/niubigeo:v0.3.0
 ```
 
 打开 <http://localhost:8787>。命名卷 `niubigeo-data` 会在重新创建容器后保留；升级前请先[备份](../upgrade.md)。不要直接对公网开放工作台，远程访问需要另外配置认证和 TLS。
@@ -21,11 +21,11 @@ docker run -d --name niubigeo \
 docker run -d --name niubigeo-worker --no-healthcheck \
   -e OPENROUTER_API_KEY \
   -v niubigeo-data:/app/data/product-v2 \
-  ghcr.io/albert-weasker/niubigeo:v0.2.1 \
+  ghcr.io/albert-weasker/niubigeo:v0.3.0 \
   node dist/src/product/scheduling/schedule-worker.js 60
 ```
 
-公开镜像从 `v0.2.1` Tag 对应的 commit 构建。版本、源码标记、SVG、项目创建和重新创建容器后的持久化检查通过后，工作流才写入 `:v0.2.1` 与 `:latest`；候选版本不能更新 `latest`。实际 Digest 和来源记录见[正式发布附件](https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.2.1)。本版的统计及验收缺口仍见[发布说明](../releases/v0.2.1.md)，不将历史 blocked 记录改成 passed。
+公开镜像从 `v0.3.0` Tag 对应的 commit 构建。版本、源码标记、SVG、项目创建和重新创建容器后的持久化检查通过后，工作流才写入 `:v0.3.0` 与 `:latest`；候选版本不能更新 `latest`。实际 Digest 和来源记录见[正式发布附件](https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.3.0)。本版的统计及验收缺口仍见[发布说明](../releases/v0.3.0.md)，不将历史 blocked 记录改成 passed。
 
 <details>
 <summary>历史候选构建记录与部署参数说明（非正式镜像身份）</summary>

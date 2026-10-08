@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.2.1"><img src="assets/readme/version.svg" alt="NiubiGEO v0.2.1" width="172" height="28"></a>
+  <a href="https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.3.0"><img src="assets/readme/version.svg" alt="NiubiGEO v0.3.0" width="172" height="28"></a>
   <a href="LICENSE"><img src="assets/readme/license.svg" alt="Apache-2.0" width="172" height="28"></a>
   <a href="docs/deployment/docker.md"><img src="assets/readme/self-hosted.svg" alt="Self-hosted" width="132" height="28"></a>
 </p>
@@ -21,7 +21,13 @@
 
 **输入域名，对照不同模型的产品描述、推荐对象和引用来源。**
 
-> **打破黑盒 GEO，将证据还给用户。**
+> **拒绝黑盒 GEO 分数，把证据还给用户。**
+
+> **为什么每年花 $5,000+ 购买 GEO SaaS？**
+>
+> NiubiGEO 开源且支持自部署。使用自己的模型 API Key，把研究数据留在自己的环境中，查看每次观察背后的原始回答。
+>
+> **模型 API、托管和基础设施成本另计。**
 
 **[自行部署](#quick-start) · [官方推广平台](https://niubigeo.ai/) · [AI 顾问](https://video.niubistar.com/niubigeo)**
 
@@ -51,6 +57,35 @@
 ---
 
 
+## 为什么做 NiubiGEO
+
+GEO 工具可能把复杂问题压缩成一个无法解释的数字。NiubiGEO 从证据开始：
+
+```text
+问题 → AI 模型 → 原始回答 → 品牌提及 → 竞争对象 → 引用 → 历史运行
+```
+
+你可以检查回答、运行条件、来源，并在之后重新运行。没有原始回答的可见度结果，很难真正研究。
+
+## 自部署与数据自主权
+
+你的关键词、竞争对象清单、定位问题和研究历史可能属于商业敏感信息。自部署让你决定数据存在哪里、谁可以访问，以及哪些模型服务商会收到查询内容。这不等于“零数据暴露”：使用外部模型 API 时，提交的查询可能会发送给对应服务商。
+
+## 一个持续推进的项目
+
+NiubiGEO 从一个问题开始：**AI 到底如何描述一个产品？** 现在项目已经连接多模型测试、自然发现、来源证据、可重复运行和关键词监控。下一步是让不同运行之间的变化更容易被看见。
+
+## 项目状态
+
+| 阶段 | 重点 | 状态 |
+| :--- | :--- | :--- |
+| v0.1 | AI 可见度测试 | 已发布 |
+| v0.2 | 证据与可复现性 | 已发布 |
+| v0.2.1 | 多来源模型连接 | 已发布 |
+| v0.3 | 关键词监控与结构化研究 | 已发布 |
+
+请通过[持续监测](#monitoring)和[版本历史](https://github.com/Albert-Weasker/niubigeo/releases)查看可验证的项目更新。
+
 ## v0.2.1 新功能
 
 - **点击 Logo 连接模型**：16 个平台入口，点击后输入自己的 API Key，自动预填适用的接口地址。
@@ -58,11 +93,13 @@
 - **结果独立保存**：按接口来源、型号和联网方式分别记录回答、引用与失败，同名模型不会混在一起。
 - **完整模型目录**：按主流平台、来源和联网能力筛选。自定义接口联网能力显示“未验证”；结构化分析要求支持 JSON Schema。
 
-[使用指南](docs/model-connections.zh-CN.md) · [下载 v0.2.1](https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.2.1) · [Docker 安装](docs/deployment/docker.md)
+[使用指南](docs/model-connections.zh-CN.md) · [下载 v0.3.0](https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.3.0) · [Docker 安装](docs/deployment/docker.md)
 
-### v0.3 预告
+### v0.3 · 关键词持续侦测 NEW / BETA
 
-计划推出 **竞争对手侦测面板** 和 **关键词持续侦测面板**。预计于 **2026 年 10 月下旬** 上线，时间暂定，可能调整；以上为规划功能，尚未包含在 v0.2.1 中。
+v0.3 在工作台中加入独立的关键词持续侦测模块：支持自定义关键词、批量导入，将提示词分为 Discovery、Alternative、Comparison、Brand、Use case，提供 AI Coding/SaaS/GEO/对比案例模板、每小时/每天/每周频率、独立历史记录、可选品牌与别名配置，以及两次运行后的变化预览（Diff View）。[中文指南](docs/keyword-monitoring.zh-CN.md) · [English guide](docs/keyword-monitoring.md)。
+
+本版本不包含独立的竞争对手侦测面板。v0.3 当前范围是关键词监控、独立历史记录和变化对比。
 
 
 ## 用它看清什么？
@@ -91,7 +128,7 @@
 想测试自己的产品，准备 Node.js 22.13+ 和自己的 OpenRouter API Key：
 
 ```bash
-git clone --branch v0.2.1 --depth 1 https://github.com/Albert-Weasker/niubigeo.git
+git clone --branch v0.3.0 --depth 1 https://github.com/Albert-Weasker/niubigeo.git
 cd niubigeo
 npm ci
 cp .env.example .env
@@ -142,6 +179,21 @@ npm run server
 | **积累后续观察** | 保存待测范围，重复测量或设置定时任务；从历史记录与数据点回到组成结果的回答。 |
 
 <a id="monitoring"></a>
+
+### 从 Snapshot 到 Diff View
+
+一次回答是一个快照，重复运行才会形成观察。v0.3 关键词模块在完成两次运行后展示变化：
+
+```text
+九月                              十月
+1. Cursor                         1. Claude Code ↑
+2. Windsurf                       2. Cursor ↓
+3. Claude Code                    3. Windsurf
+
+来源：3 个                       来源：4 个（+1）
+```
+
+实际 Diff View 会比较已经保存的运行，显示新增或移除的推荐、位置变化和来源链接变化。上面的排版用于说明变化展示方式，不代表已经发布的真实实验结果。
 
 ### 持续测量与定时监测
 
@@ -295,7 +347,7 @@ NiubiStar 同时为官方服务提供真人执行网络，支持实际使用环�
 - [工作原理](docs/how-it-works.md) · [架构说明](docs/ARCHITECTURE.md)
 - [测量方法](docs/measurement-methodology.md) · [来源与证据](docs/evidence-model.md)
 - [部署](docs/deployment/docker.md) · [备份与升级](docs/upgrade.md)
-- [已知问题](docs/known-issues.md) · [能力边界](docs/limitations.md) · [发布说明](https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.2.1)
+- [已知问题](docs/known-issues.md) · [能力边界](docs/limitations.md) · [发布说明](https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.3.0)
 - [贡献指南](CONTRIBUTING.md) · [安全政策](SECURITY.md) · [许可证](LICENSE)
 
 ---

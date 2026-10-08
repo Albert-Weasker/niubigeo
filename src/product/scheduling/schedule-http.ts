@@ -1,4 +1,5 @@
 import type { ProductScheduleService } from "./schedule-service.js";
+import type { KeywordMonitorService } from "../keyword-monitor-service.js";
 import type { MonitoringScheduleRule } from "./schedule-schema.js";
 
 type Sender = (status: number, body: unknown) => void;
@@ -32,10 +33,10 @@ function sendError(send: Sender, error: unknown): void {
   return send(422, { code: "monitoring_task_invalid", error: message });
 }
 
-export async function handleScheduleApi(input: { method: string; route: string[]; readJson: Reader; send: Sender; service: ProductScheduleService }): Promise<boolean> {
-  const { method, route, readJson, send, service } = input;
+export async function handleScheduleApi(input: { method: string; route: string[]; readJson: Reader; send: Sender; service: ProductScheduleService; keywordService?: KeywordMonitorService }): Promise<boolean> {
+  const { method, route, readJson, send, service, keywordService } = input;
   try {
-    if (route[0] === "api" && route[1] === "scheduler" && route[2] === "due" && route.length === 3 && method === "POST") return send(200, { occurrences: await service.runDue() }), true;
+    if (route[0] === "api" && route[1] === "scheduler" && route[2] === "due" && route.length === 3 && method === "POST") return send(200, { occurrences: await service.runDue(), keywordRuns: keywordService ? await keywordService.runDue() : [] }), true;
     if (route.length < 4 || route[0] !== "api" || route[1] !== "projects" || route[3] !== "monitoring-tasks") return false;
     const projectId = route[2];
     if (!projectId) return false;

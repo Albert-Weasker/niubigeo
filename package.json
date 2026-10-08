@@ -1,6 +1,6 @@
 {
   "name": "niubigeo",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "private": true,
   "license": "Apache-2.0",
   "repository": {
@@ -55,7 +55,9 @@
     "examples:export": "tsx examples/cli.mjs export",
     "examples:preflight": "tsx examples/cli.mjs preflight",
     "examples:run": "tsx examples/cli.mjs run",
-    "test:examples": "node --test test/examples/*.test.mjs"
+    "test:examples": "node --test test/examples/*.test.mjs",
+    "test:keyword-monitor": "tsx --test test/keyword-monitor.test.ts",
+    "test:keyword-monitor-browser": "playwright test --config playwright.keyword-monitor.config.ts"
   },
   "dependencies": {
     "cheerio": "^1.2.0",
