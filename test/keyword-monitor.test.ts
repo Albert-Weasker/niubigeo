@@ -1,0 +1,10 @@
+import assert from "node:assert/strict";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import test from "node:test";
+import { ProductProjectFileStore } from "../src/product/projects/project-store.js";
+import { ProductProjectService } from "../src/product/projects/project-service.js";
+import { KeywordMonitorStore } from "../src/product/keyword-monitor-store.js";
+import { KeywordMonitorService } from "../src/product/keyword-monitor-service.js";
+test("keyword monitors are independent, customizable and template-backed", async()=>{const root=await mkdtemp(join(tmpdir(),"niubigeo-keywords-"));try{const projects=new ProductProjectService(new ProductProjectFileStore(root));const project=await projects.createDraft({primaryDomain:"example.com",brandName:"牛逼GEO",aliases:["NiubiGEO"]});const service=new KeywordMonitorService(projects,new KeywordMonitorStore(new ProductProjectFileStore(root)));const templates=service.templates();assert.ok(templates.some(t=>t.id==="ai-coding"));const rows=await service.createBatch(project.id,{keywords:["best AI coding agent","best AI coding agent","best Cursor alternatives"],frequency:"weekly",brandName:"牛逼GEO",aliases:["NiubiGEO"]});assert.equal(rows.length,2);assert.equal(rows[0]?.frequency,"weekly");assert.equal(rows[0]?.brandName,"牛逼GEO");assert.deepEqual(rows[0]?.aliases,["NiubiGEO"]);const other=await projects.createDraft({primaryDomain:"other.example"});assert.deepEqual(await service.list(other.id),[]);assert.equal((await service.runs(project.id,rows[0]?.id)).length,0);await service.update(project.id,rows[0]!.id,{frequency:"hourly",enabled:false});assert.equal((await service.list(project.id)).find(item=>item.id===rows[0]?.id)?.enabled,false)}finally{await rm(root,{recursive:true,force:true})}});

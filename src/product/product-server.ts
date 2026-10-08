@@ -36,6 +36,10 @@ import { ProductScheduleFileStore } from "./scheduling/schedule-store.js";
 import { ProductScheduleService } from "./scheduling/schedule-service.js";
 import { handleScheduleApi } from "./scheduling/schedule-http.js";
 import { renderProductPhase5AppHtml } from "../ui/product-phase5-app.js";
+import { renderKeywordMonitoringAppHtml } from "../ui/keyword-monitoring-app.js";
+import { KeywordMonitorStore } from "./keyword-monitor-store.js";
+import { KeywordMonitorService } from "./keyword-monitor-service.js";
+import { handleKeywordMonitorApi } from "./keyword-monitor-http.js";
 
 loadDotEnv();
 
@@ -94,11 +98,13 @@ async function handle(req: IncomingMessage, res: ServerResponse, dependencies: P
   const watchSets = new ProductWatchSetService(projects, baselines, measurementStore, recognitionStore, reportStore);
   const measurements = new ProductMeasurementRunService(projects, baselines, watchSets, measurementStore, dependencies.measurementExecutor || dependencies.recognitionExecutor);
   const stats = new ProductMeasurementStatsService(projects, measurementStore);
+  const keywordMonitors = new KeywordMonitorService(projects, new KeywordMonitorStore(projectStore), baselines, dependencies.measurementExecutor || dependencies.recognitionExecutor);
   const schedules = new ProductScheduleService(projects, baselines, watchSets, measurements, new ProductScheduleFileStore(projectStore));
 
   if (method === "GET" && url.pathname === "/") {
     const measurementView = url.searchParams.get("view") === "measurements";
-    const html = measurementView ? renderProductPhase5AppHtml() : renderProductPhase4AppHtml();
+    const keywordView = url.searchParams.get("view") === "keyword-monitoring";
+    const html = keywordView ? renderKeywordMonitoringAppHtml() : measurementView ? renderProductPhase5AppHtml() : renderProductPhase4AppHtml();
     return send(res, 200, html.replace("<body>", "<body>" + renderProviderConnectionsUi()), "text/html; charset=utf-8");
   }
   if (method === "GET" && url.pathname === "/health") return send(res, 200, { ok: true });
@@ -118,7 +124,8 @@ async function handle(req: IncomingMessage, res: ServerResponse, dependencies: P
   }
   if (await handleProductConfigurationApi({ method, route, projects, selections, baselines, catalog, readJson: () => readJson(req), send: (status, body) => send(res, status, body) })) return;
   if (await handleMeasurementApi({ method, route, readJson: () => readJson(req), send: (status, body) => send(res, status, body), projects, watchSets, measurements, stats })) return;
-  if (await handleScheduleApi({ method, route, readJson: () => readJson(req), send: (status, body) => send(res, status, body), service: schedules })) return;
+  if (await handleKeywordMonitorApi({ method, route, readJson: () => readJson(req), send: (status, body) => send(res, status, body), projects, service: keywordMonitors })) return;
+  if (await handleScheduleApi({ method, route, readJson: () => readJson(req), send: (status, body) => send(res, status, body), service: schedules, keywordService: keywordMonitors })) return;
   if (await handleRecognitionReportApi({ method, route, service: reports, send: (status, body) => send(res, status, body) })) return;
   if (await handleProductRecognitionRetryApi({ method, route, service: recognition, send: (status, body) => send(res, status, body) })) return;
   if (await handleProductRecognitionApi({ method, route, service: recognition, idempotencyKey: typeof req.headers["idempotency-key"] === "string" ? req.headers["idempotency-key"] : undefined, readJson: () => readJson(req), send: (status, body) => send(res, status, body) })) return;

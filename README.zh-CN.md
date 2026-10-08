@@ -60,6 +60,10 @@
 
 [使用指南](docs/model-connections.zh-CN.md) · [下载 v0.2.1](https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.2.1) · [Docker 安装](docs/deployment/docker.md)
 
+### 关键词持续侦测 NEW / BETA
+
+第一阶段已加入关键词持续侦测：支持自定义关键词、批量导入、AI Coding/SaaS/GEO 案例模板、每小时/每天/每周频率，以及可选的品牌和别名历史记录。[中文指南](docs/keyword-monitoring.zh-CN.md) · [English guide](docs/keyword-monitoring.md)。竞争对手侦测面板暂缓。
+
 ### v0.3 预告
 
 计划推出 **竞争对手侦测面板** 和 **关键词持续侦测面板**。预计于 **2026 年 10 月下旬** 上线，时间暂定，可能调整；以上为规划功能，尚未包含在 v0.2.1 中。

@@ -60,6 +60,10 @@ You have built a product, written the docs and worked to get the word out. When 
 
 [Connection guide](docs/model-connections.md) · [Download v0.2.1](https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.2.1) · [Docker installation](docs/deployment/docker.md)
 
+### Keyword Monitoring NEW / BETA
+
+The first v0.3 module is now available in the workbench: define custom keywords, import batches, start from AI Coding/SaaS/GEO examples, choose hourly/daily/weekly frequency, and keep independent answer history with optional brand aliases. [English guide](docs/keyword-monitoring.md) · [中文指南](docs/keyword-monitoring.zh-CN.md). The competitor detection dashboard remains deferred.
+
 ### Coming in v0.3
 
 A **competitor detection dashboard** and a **continuous keyword monitoring dashboard** are planned for **late October 2026**. This is a tentative target and may change; these planned dashboards are not included in v0.2.1.

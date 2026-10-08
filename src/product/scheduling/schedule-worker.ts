@@ -14,6 +14,11 @@ import { RecognitionReportFileStore } from "../reports/report-store.js";
 import { ProductScheduleService } from "./schedule-service.js";
 import { ProductScheduleFileStore } from "./schedule-store.js";
 import { ProductWatchSetService } from "../measurements/watchset-service.js";
+import { KeywordMonitorStore } from "../keyword-monitor-store.js";
+import { KeywordMonitorService } from "../keyword-monitor-service.js";
+import { OpenRouterRecognitionAnswerExecutor } from "../recognition/recognition-service.js";
+
+export function productKeywordMonitorService(): KeywordMonitorService { const projectStore=new ProductProjectFileStore(productDataDir()); const projects=new ProductProjectService(projectStore); const configurationStore=new ProductConfigurationFileStore(projectStore); const selections=new ProductModelSelectionService(projects,configurationStore,new OpenRouterProductModelCatalog(PROVIDER_MODEL_CAPABILITIES)); const baselines=new ProductBaselineService(projects,selections,configurationStore); return new KeywordMonitorService(projects,new KeywordMonitorStore(projectStore),baselines,new OpenRouterRecognitionAnswerExecutor()); }
 
 export function productScheduleService(): ProductScheduleService {
   const projectStore = new ProductProjectFileStore(productDataDir());
@@ -36,12 +41,15 @@ export async function runProductScheduleDue(): Promise<Awaited<ReturnType<Produc
 export async function runProductScheduleWorker(pollSeconds = 60): Promise<void> {
   if (!Number.isInteger(pollSeconds) || pollSeconds < 10) throw new Error("Poll seconds must be an integer of at least 10.");
   const service = productScheduleService();
+  const keywordService = productKeywordMonitorService();
   let stopped = false;
   const stop = () => { stopped = true; };
   process.once("SIGINT", stop);
   process.once("SIGTERM", stop);
   while (!stopped) {
     const occurrences = await service.runDue();
+    const keywordRuns = await keywordService.runDue();
+    if (keywordRuns.length) console.log(JSON.stringify({ type: "keyword_monitor_due", runCount: keywordRuns.length, runIds: keywordRuns.map((item) => item.id) }));
     if (occurrences.length) console.log(JSON.stringify({ type: "product_schedule_due", occurrenceCount: occurrences.length, occurrenceIds: occurrences.map((item) => item.id) }));
     await new Promise<void>((resolve) => setTimeout(resolve, pollSeconds * 1000));
   }
