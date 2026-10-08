@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.2.1"><img src="assets/readme/version.svg" alt="NiubiGEO v0.2.1" width="172" height="28"></a>
+  <a href="https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.3.0"><img src="assets/readme/version.svg" alt="NiubiGEO v0.3.0" width="172" height="28"></a>
   <a href="LICENSE"><img src="assets/readme/license.svg" alt="Apache-2.0" width="172" height="28"></a>
   <a href="docs/deployment/docker.md"><img src="assets/readme/self-hosted.svg" alt="Self-hosted" width="132" height="28"></a>
 </p>
@@ -92,7 +92,7 @@ See the [monitoring section](#monitoring) and [release history](https://github.c
 - **Keep results separate**: answers, citations and failures retain their endpoint, model and search setting, even when model names match.
 - **Browse the full model catalog**: filter by mainstream platform, source and search support. Custom search support is labeled unverified; structured analysis requires JSON Schema support.
 
-[Connection guide](docs/model-connections.md) · [Download v0.2.1](https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.2.1) · [Docker installation](docs/deployment/docker.md)
+[Connection guide](docs/model-connections.md) · [Download v0.3.0](https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.3.0) · [Docker installation](docs/deployment/docker.md)
 
 ### v0.3 · Keyword Monitoring NEW / BETA
 
@@ -127,7 +127,7 @@ This release does not include a separate competitor detection dashboard. The cur
 To test your own product, you will need Node.js 22.13+ and your own OpenRouter API key:
 
 ```bash
-git clone --branch v0.2.1 --depth 1 https://github.com/Albert-Weasker/niubigeo.git
+git clone --branch v0.3.0 --depth 1 https://github.com/Albert-Weasker/niubigeo.git
 cd niubigeo
 npm ci
 cp .env.example .env
@@ -346,7 +346,7 @@ NiubiStar supports NiubiGEO’s open-source development and provides the global 
 - [How it works](docs/how-it-works.md) · [Architecture](docs/ARCHITECTURE.md)
 - [Measurement methodology](docs/measurement-methodology.md) · [Sources and evidence](docs/evidence-model.md)
 - [Deployment](docs/deployment/docker.md) · [Backups and upgrades](docs/upgrade.md)
-- [Known issues](docs/known-issues.md) · [Limitations](docs/limitations.md) · [Release notes](https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.2.1)
+- [Known issues](docs/known-issues.md) · [Limitations](docs/limitations.md) · [Release notes](https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.3.0)
 - [Contributing](CONTRIBUTING.md) · [Security policy](SECURITY.md) · [License](LICENSE)
 
 ---
