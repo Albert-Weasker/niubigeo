@@ -17,11 +17,17 @@
   <a href="https://www.producthunt.com/products/niubigeo?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-niubigeo" target="_blank" rel="noopener noreferrer"><img alt="NiubiGEO - Open-source AI visibility. Human-powered growth. | Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1256676&amp;theme=light&amp;t=1789989066112"></a>
 </p>
 
-# Does AI recommend your product? Who shows up instead?
+# Refuse black-box GEO scores. Put the evidence back in your hands.
 
-**Enter a domain. Compare how models describe your product, who they recommend, and which sources they cite.**
+**An open-source GEO research tool for AI visibility, reproducible testing, competitors and evidence.**
 
-> **Open the GEO reporting black box. Put evidence in your hands.**
+Enter a domain, compare model answers, inspect citations and repeat the same research later.
+
+> **Why pay $5,000+/year for a GEO SaaS dashboard?**
+>
+> NiubiGEO is open source and self-hosted. Run it with your own model API keys, keep your research data in your environment and inspect the answer behind every observation.
+
+**Model API, hosting and infrastructure costs are separate.**
 
 **[Self-host](#quick-start) · [Official promotion platform](https://niubigeo.ai/) · [AI advisor](https://video.niubistar.com/niubigeo)**
 
@@ -50,6 +56,34 @@ You have built a product, written the docs and worked to get the word out. When 
 
 ---
 
+## Why NiubiGEO exists
+
+GEO tools can turn a complicated question into one unexplained number. NiubiGEO starts with the evidence instead:
+
+```text
+Question → AI model → Original answer → Mentions → Competitors → Citations → Historical run
+```
+
+You can inspect the answer, the conditions, the sources and the next run. A visibility result without its underlying answer is difficult to investigate.
+
+## Self-hosted research and data ownership
+
+Your keywords, competitor lists, positioning questions and research history may be commercially sensitive. Self-hosting lets you choose where the data is stored, who can access it and which model providers receive queries. It does not imply zero data exposure: external model APIs may receive the prompts you send to them.
+
+## A project that keeps moving
+
+NiubiGEO began with one question: **what does AI actually say about a product?** The project now connects multi-model testing, natural discovery, source evidence, repeatable runs and keyword monitoring. The next step is to make changes between runs easier to see.
+
+## Project status
+
+| Stage | Focus | Status |
+| :--- | :--- | :--- |
+| v0.1 | AI visibility testing | Shipped |
+| v0.2 | Evidence and reproducibility | Shipped |
+| v0.2.1 | Multi-provider model connections | Shipped |
+| v0.3 | Keyword monitoring and structured research | In development |
+
+See the [monitoring section](#monitoring) and [release history](https://github.com/Albert-Weasker/niubigeo/releases) for verifiable updates.
 
 ## New in v0.2.1
 
@@ -60,13 +94,11 @@ You have built a product, written the docs and worked to get the word out. When 
 
 [Connection guide](docs/model-connections.md) · [Download v0.2.1](https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.2.1) · [Docker installation](docs/deployment/docker.md)
 
-### Keyword Monitoring NEW / BETA
+### v0.3 preview · Keyword Monitoring NEW / BETA
 
-The first v0.3 module is now available in the workbench: define custom keywords, import batches, start from AI Coding/SaaS/GEO examples, choose hourly/daily/weekly frequency, and keep independent answer history with optional brand aliases. [English guide](docs/keyword-monitoring.md) · [中文指南](docs/keyword-monitoring.zh-CN.md). The competitor detection dashboard remains deferred.
+The first v0.3 module is being built in the workbench: define custom keywords, import batches, start from AI Coding/SaaS/GEO examples, choose hourly/daily/weekly frequency, keep independent history and compare snapshots in Diff View. [English guide](docs/keyword-monitoring.md) · [中文指南](docs/keyword-monitoring.zh-CN.md).
 
-### Coming in v0.3
-
-A **competitor detection dashboard** and a **continuous keyword monitoring dashboard** are planned for **late October 2026**. This is a tentative target and may change; these planned dashboards are not included in v0.2.1.
+The competitor detection dashboard is deferred. v0.3 is planned for late October 2026; this is a tentative target and may change. Until the release is published, v0.3 remains a preview.
 
 
 ## What can you find out?
@@ -146,6 +178,21 @@ To hide the card, set `NIUBIGEO_VIDEO_ADVISOR_ENABLED=false` in `.env` and resta
 | **Build a history** | Save what you want to measure, repeat tests or schedule them. Follow historical records and data points back to the answers behind them. |
 
 <a id="monitoring"></a>
+
+### From snapshot to Diff View
+
+A single answer is a snapshot. Repeated runs become an observation. The v0.3 keyword beta makes the change explicit after two runs:
+
+```text
+September                         October
+1. Cursor                         1. Claude Code ↑
+2. Windsurf                       2. Cursor ↓
+3. Claude Code                    3. Windsurf
+
+Sources: 3                       Sources: 4 (+1)
+```
+
+The real Diff View compares the stored runs and shows added or removed recommendations, position changes and source links. The layout above is illustrative; its values are examples, not a published experiment. It does not invent a score or pretend that a single answer represents every AI system.
 
 ### Repeated measurements and scheduled monitoring
 
