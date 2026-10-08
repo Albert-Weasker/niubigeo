@@ -11,6 +11,8 @@ Keyword Monitoring is a separate module in the same workbench as domain recognit
 - Optionally set a monitored brand and aliases, such as `牛逼GEO` and `NiubiGEO`.
 - Keep each run's answer, model, brand mentions, positions and citations in independent history.
 
+The page includes a **Diff View** after two runs: it compares recommendations, mention positions and added or removed source links between the previous and latest snapshots.
+
 The page is labeled **Keyword Monitoring NEW / BETA**. APIs and metrics may change during beta. The competitor detection dashboard is intentionally deferred.
 
 Temporary browser keys are not available to the separate scheduler worker; self-hosted scheduled runs require server-side model keys. Runs use the models saved in the workbench.
