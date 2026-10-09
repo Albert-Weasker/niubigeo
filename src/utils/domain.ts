@@ -79,14 +79,26 @@ export function urlLooksLikeGithubRepo(url: string): boolean {
 
 export function githubRepoSlug(urlOrSlug: string): string | null {
   const value = urlOrSlug.trim();
+  const alphanumeric = (character: string): boolean => {
+    const code = character.toLowerCase().charCodeAt(0);
+    return (code >= 97 && code <= 122) || (code >= 48 && code <= 57);
+  };
+  const validParts = (parts: string[]): boolean => {
+    const owner = parts[0] || "";
+    const repo = parts[1] || "";
+    return parts.length === 2 && owner.length > 0 && owner.length <= 39 &&
+      alphanumeric(owner[0] || "") && alphanumeric(owner.at(-1) || "") &&
+      [...owner].every((character) => alphanumeric(character) || character === "-") &&
+      repo.length > 0 && ![".", ".."].includes(repo) &&
+      [...repo].every((character) => alphanumeric(character) || ["_", "-", "."].includes(character));
+  };
   const parsed = urlFromInput(value);
-  if (parsed && parsed.hostname.toLowerCase() === "github.com") {
+  if (parsed?.hostname.toLowerCase() === "github.com") {
+    if (!["http:", "https:"].includes(parsed.protocol)) return null;
     const parts = parsed.pathname.split("/").filter(Boolean);
-    return parts.length === 2 ? `${parts[0]}/${parts[1]}` : null;
+    return validParts(parts) ? `${parts[0]}/${parts[1]}` : null;
   }
-  const parts = value.split("/").filter(Boolean);
-  if (parts.length === 2 && parts.every((part) => !part.split("").some((character) => character.trim() === ""))) {
-    return `${parts[0]}/${parts[1]}`;
-  }
-  return null;
+  if (value.includes("://")) return null;
+  const parts = value.split("/");
+  return validParts(parts) ? `${parts[0]}/${parts[1]}` : null;
 }
