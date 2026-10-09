@@ -352,3 +352,6 @@ NiubiStar supports NiubiGEO’s open-source development and provides the global 
 ---
 
 NiubiGEO observes Provider API responses, not results from consumer chat interfaces. Offline and web-enabled tests should be interpreted separately. Traditional search-engine rank tracking is not included.
+
+<!-- Evidence comparison contract -->
+Change comparisons require successful answered observations within the same project and baseline; failed calls are not evidence of brand disappearance.
