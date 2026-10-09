@@ -1,0 +1,10 @@
+import assert from "node:assert/strict";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import test from "node:test";
+import { ProductProjectFileStore } from "../src/product/projects/project-store.js";
+import { ProductProjectService } from "../src/product/projects/project-service.js";
+import { KeywordMonitorStore } from "../src/product/keyword-monitor-store.js";
+import { KeywordMonitorService } from "../src/product/keyword-monitor-service.js";
+test("archived projects cannot spend credits through keyword runs",async()=>{const root=await mkdtemp(join(tmpdir(),"keyword-state-"));try{const projectStore=new ProductProjectFileStore(root);const projects=new ProductProjectService(projectStore);const project=await projects.createDraft({primaryDomain:"example.com"});await projects.setActiveBaseline(project.id,"baseline");let calls=0;const service=new KeywordMonitorService(projects,new KeywordMonitorStore(projectStore),{get:async()=>({modelSnapshots:[]})} as never,{execute:async()=>{calls++;throw Error("must not execute")}});const monitor=await service.create(project.id,{keyword:"best tools"});await projects.archive(project.id);await assert.rejects(service.run(project.id,monitor.id),{message:"An archived project cannot start keyword monitoring runs."});assert.equal(calls,0);assert.deepEqual(await service.runs(project.id),[])}finally{await rm(root,{recursive:true,force:true})}});
