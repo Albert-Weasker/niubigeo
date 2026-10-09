@@ -253,6 +253,9 @@ export class BaselineBuilder {
       runCountPerPrompt?: number | undefined;
     },
   ): MonitoringBaseline {
+    if (changes.runCountPerPrompt !== undefined && (!Number.isInteger(changes.runCountPerPrompt) || changes.runCountPerPrompt <= 0)) {
+      throw new Error("invalid_run_count");
+    }
     const prompts = changes.prompts || source.prompts;
     const providerTargets = changes.providerTargets || source.providerTargets;
     const language = changes.language || source.language;
