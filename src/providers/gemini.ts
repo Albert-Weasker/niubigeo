@@ -86,7 +86,9 @@ export class GeminiProvider implements AnswerProvider {
       sourceLabel: `Source: ${this.definition.label} API`,
       resultCaveat: this.definition.resultCaveat,
       model: input.model,
-      modelVersion: input.model,
+      modelVersion: typeof asObject(raw)?.modelVersion === "string" && String(asObject(raw)?.modelVersion).trim()
+        ? String(asObject(raw)?.modelVersion).trim()
+        : input.model,
       text,
       citations,
       webQueries,
