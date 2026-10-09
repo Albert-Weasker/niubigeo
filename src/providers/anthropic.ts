@@ -87,6 +87,7 @@ export class AnthropicProvider implements AnswerProvider {
       model: input.model,
       modelVersion,
       text,
+      rawProviderResponse: raw,
       citations,
       webQueries,
       search,
