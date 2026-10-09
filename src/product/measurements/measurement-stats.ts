@@ -257,7 +257,7 @@ export function pairedRecommendationGap(input: { target: MeasurementMetricPoint;
   if (input.target.denominator === 0 || input.competitor.denominator === 0 || input.target.denominator !== input.competitor.denominator) return null;
   if (input.target.samples.length !== input.competitor.samples.length) return null;
   for (let index = 0; index < input.target.samples.length; index += 1) {
-    if (input.target.samples[index]?.probeRunId !== input.competitor.samples[index]?.probeRunId) return null;
+    if (input.target.samples[index]?.probeRunId !== input.competitor.samples[index]?.probeRunId || input.target.samples[index]?.included !== input.competitor.samples[index]?.included) return null;
   }
   return (input.target.value || 0) - (input.competitor.value || 0);
 }
