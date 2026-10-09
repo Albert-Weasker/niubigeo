@@ -352,3 +352,5 @@ NiubiStar supports NiubiGEO’s open-source development and provides the global 
 ---
 
 NiubiGEO observes Provider API responses, not results from consumer chat interfaces. Offline and web-enabled tests should be interpreted separately. Traditional search-engine rank tracking is not included.
+
+Recommendation differences require the same included answer samples for the brand and competitor. Equal sample counts alone are insufficient; mismatched exclusions produce no comparison.
