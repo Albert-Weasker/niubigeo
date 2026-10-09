@@ -1,0 +1,10 @@
+import assert from "node:assert/strict";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import test from "node:test";
+import { ProductProjectFileStore } from "../src/product/projects/project-store.js";
+import { ProductProjectService } from "../src/product/projects/project-service.js";
+import { KeywordMonitorStore } from "../src/product/keyword-monitor-store.js";
+import { KeywordMonitorService } from "../src/product/keyword-monitor-service.js";
+test("invalid frequency updates cannot persist weekly fallback",async()=>{const root=await mkdtemp(join(tmpdir(),"keyword-frequency-"));try{const projects=new ProductProjectService(new ProductProjectFileStore(root));const project=await projects.createDraft({primaryDomain:"example.com"});const service=new KeywordMonitorService(projects,new KeywordMonitorStore(new ProductProjectFileStore(root)));const monitor=await service.create(project.id,{keyword:"best tools"});for(const frequency of ["monthly", "", "DAILY"]){await assert.rejects(service.update(project.id,monitor.id,{frequency:frequency as never}),{message:"关键词监控频率无效。"});assert.equal((await service.list(project.id))[0]?.frequency,"daily")}}finally{await rm(root,{recursive:true,force:true})}});
