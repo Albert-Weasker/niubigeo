@@ -1,0 +1,10 @@
+import assert from "node:assert/strict";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import test from "node:test";
+import { ProductProjectFileStore } from "../src/product/projects/project-store.js";
+import { ProductProjectService } from "../src/product/projects/project-service.js";
+import { KeywordMonitorStore } from "../src/product/keyword-monitor-store.js";
+import { KeywordMonitorService } from "../src/product/keyword-monitor-service.js";
+test("invalid batch creates no partial monitors",async()=>{const root=await mkdtemp(join(tmpdir(),"keyword-batch-"));try{const projects=new ProductProjectService(new ProductProjectFileStore(root));const project=await projects.createDraft({primaryDomain:"example.com"});const service=new KeywordMonitorService(projects,new KeywordMonitorStore(new ProductProjectFileStore(root)));await assert.rejects(service.createBatch(project.id,{keywords:["valid keyword"," "]}));assert.deepEqual(await service.list(project.id),[])}finally{await rm(root,{recursive:true,force:true})}});
