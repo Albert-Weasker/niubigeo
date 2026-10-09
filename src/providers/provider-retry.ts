@@ -78,7 +78,7 @@ export async function runProviderWithRetry(
         });
       }
       if (attempt === totalAttempts || !isRetryableProviderError(error)) break;
-      if (failureCode === "empty_answer") maxTokens = Math.min(maxTokens * 2, emptyAnswerMaxTokens());
+      if (failureCode === "empty_answer") maxTokens = Math.max(maxTokens, Math.min(maxTokens * 2, emptyAnswerMaxTokens()));
       await sleep(baseDelayMs() * attempt);
     }
   }
