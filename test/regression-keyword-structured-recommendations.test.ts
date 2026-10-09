@@ -1,0 +1,10 @@
+import assert from "node:assert/strict";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import test from "node:test";
+import { ProductProjectFileStore } from "../src/product/projects/project-store.js";
+import { ProductProjectService } from "../src/product/projects/project-service.js";
+import { KeywordMonitorStore } from "../src/product/keyword-monitor-store.js";
+import { KeywordMonitorService } from "../src/product/keyword-monitor-service.js";
+test("object and string structured output retain recommendations",async()=>{const root=await mkdtemp(join(tmpdir(),"keyword-structured-"));try{const projectStore=new ProductProjectFileStore(root);const projects=new ProductProjectService(projectStore);const project=await projects.createDraft({primaryDomain:"example.com"});await projects.setActiveBaseline(project.id,"baseline");const parsed={mentions:[{name:"Tool",recommendation:"positive"},{name:"Other",recommendation:"negative"}]};for(const value of [parsed,JSON.stringify(parsed)]){const service=new KeywordMonitorService(projects,new KeywordMonitorStore(projectStore),{get:async()=>({modelSnapshots:[{modelId:"m",displayName:"Model",providerId:"openrouter",webSearchMode:"offline"}]})} as never,{execute:async()=>({text:"Tool is recommended",citations:[],structuredOutput:{value}})} as never);const monitor=await service.create(project.id,{keyword:"best tools"});const run=await service.run(project.id,monitor.id);assert.deepEqual(run.modelResults[0]?.recommended,["Tool"])}}finally{await rm(root,{recursive:true,force:true})}});
