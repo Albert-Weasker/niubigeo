@@ -129,9 +129,9 @@ export class ProductProjectService {
       const restored: ProductProject = {
         ...project,
         status: restoredStatus,
-        statusBeforeArchive: undefined,
+        statusBeforeArchive: restoredStatus === "archived" ? project.statusBeforeArchive : undefined,
         statusBeforeDelete: undefined,
-        archivedAt: undefined,
+        archivedAt: restoredStatus === "archived" ? project.archivedAt : undefined,
         deletedAt: undefined,
         updatedAt: nowIso(),
       };
