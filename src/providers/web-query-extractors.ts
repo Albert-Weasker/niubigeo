@@ -23,7 +23,9 @@ export function extractResponseWebQueries(raw: unknown): string[] {
   const root = asObject(raw);
   const output = Array.isArray(root?.output) ? root.output : [];
   const queries: string[] = [];
-  for (const item of output) collectQueriesFromObject(queries, item);
+  for (const item of output) {
+    if (asObject(item)?.type === "web_search_call") collectQueriesFromObject(queries, item);
+  }
   return uniqueStrings(queries);
 }
 
@@ -31,7 +33,10 @@ export function extractAnthropicWebQueries(raw: unknown): string[] {
   const root = asObject(raw);
   const content = Array.isArray(root?.content) ? root.content : [];
   const queries: string[] = [];
-  for (const part of content) collectQueriesFromObject(queries, part);
+  for (const part of content) {
+    const row = asObject(part);
+    if (row?.type === "server_tool_use" && row.name === "web_search") collectQueriesFromObject(queries, part);
+  }
   return uniqueStrings(queries);
 }
 
