@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { mkdir, open, readFile, readdir, rename, rm, unlink, writeFile } from "node:fs/promises";
+import { mkdir, open, readFile, readdir, rename, rm, stat, unlink, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { sha256 } from "../../utils/hash.js";
 import type { ProductProject, ProductProjectListOptions } from "./project-schema.js";
@@ -14,6 +14,32 @@ function safeSegment(value: string, label: string): string {
 
 function isNotFound(error: unknown): boolean {
   return Boolean(error && typeof error === "object" && "code" in error && error.code === "ENOENT");
+}
+
+const LOCK_STALE_MS = 30 * 60 * 1000;
+
+async function acquireLock(path: string): Promise<Awaited<ReturnType<typeof open>> | null> {
+  const create = async () => {
+    const handle = await open(path, "wx");
+    await handle.writeFile(`${JSON.stringify({ pid: process.pid, createdAt: new Date().toISOString() })}\n`, "utf8");
+    return handle;
+  };
+  try {
+    return await create();
+  } catch (error) {
+    if (!(error && typeof error === "object" && "code" in error && error.code === "EEXIST")) throw error;
+    try {
+      if (Date.now() - (await stat(path)).mtimeMs <= LOCK_STALE_MS) return null;
+      await unlink(path);
+    } catch (staleError) {
+      if (!isNotFound(staleError)) throw staleError;
+    }
+    try { return await create(); }
+    catch (retryError) {
+      if (retryError && typeof retryError === "object" && "code" in retryError && retryError.code === "EEXIST") return null;
+      throw retryError;
+    }
+  }
 }
 
 async function readJson<T>(path: string): Promise<T> {
@@ -92,18 +118,20 @@ export class ProductProjectFileStore {
     await rm(this.projectDir(projectId), { recursive: true, force: false });
   }
 
+  async withProjectLock<T>(projectId: string, operation: () => Promise<T>): Promise<{ acquired: boolean; value?: T }> {
+    await mkdir(this.locksDir(), { recursive: true });
+    const path = join(this.locksDir(), `${sha256(`project:${projectId}`)}.lock`);
+    const handle = await acquireLock(path);
+    if (!handle) return { acquired: false };
+    try { return { acquired: true, value: await operation() }; }
+    finally { await handle.close(); await unlink(path).catch(() => undefined); }
+  }
+
   async withDomainLock<T>(normalizedDomain: string, operation: () => Promise<T>): Promise<T> {
     await mkdir(this.locksDir(), { recursive: true });
     const path = join(this.locksDir(), `${sha256(normalizedDomain)}.lock`);
-    let handle;
-    try {
-      handle = await open(path, "wx");
-    } catch (error) {
-      if (error && typeof error === "object" && "code" in error && error.code === "EEXIST") {
-        throw new Error("A project change for this domain is already in progress.");
-      }
-      throw error;
-    }
+    const handle = await acquireLock(path);
+    if (!handle) throw new Error("A project change for this domain is already in progress.");
     try {
       return await operation();
     } finally {

@@ -475,7 +475,11 @@ export class ProductRecognitionRunService {
 
   async start(projectId: string, input: string | { idempotencyKey?: string; modelIds?: string[] } = {}): Promise<RecognitionRunDetail> {
     const request = typeof input === "string" ? { idempotencyKey: input } : input;
-    return this.withStartLock(projectId, () => this.startUnlocked(projectId, request));
+    return this.withStartLock(projectId, async () => {
+      const guarded = await this.projects.withProjectLock(projectId, () => this.startUnlocked(projectId, request));
+      if (!guarded.acquired || !guarded.value) throw new RecognitionInputError("A recognition run is already being started for this project.");
+      return guarded.value;
+    });
   }
 
   private async withStartLock<T>(projectId: string, operation: () => Promise<T>): Promise<T> {
@@ -498,6 +502,8 @@ export class ProductRecognitionRunService {
   private async startUnlocked(projectId: string, input: { idempotencyKey?: string; modelIds?: string[] }): Promise<RecognitionRunDetail> {
     const project = await this.projects.get(projectId);
     if (!project.activeBaselineId) throw new RecognitionInputError("Save a monitoring configuration before starting recognition.");
+    const configuration = await this.baselines.currentConfiguration(projectId);
+    if (configuration.status !== "unchanged") throw new RecognitionInputError("Confirm a new monitoring configuration before starting recognition.");
     const baseline = await this.baselines.get(projectId, project.activeBaselineId);
     const requestedModelIds = input.modelIds ? new Set(input.modelIds) : null;
     const modelSnapshots = requestedModelIds

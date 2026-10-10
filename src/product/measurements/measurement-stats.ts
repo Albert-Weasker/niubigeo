@@ -65,9 +65,12 @@ function sample(probe: ProbeMaterial, included: boolean, numerator: boolean, exc
   return { probeRunId: probe.probe.id, attemptId: probe.attempt?.id || null, included, numerator, exclusionReason };
 }
 
-function firstAttempt(detail: import("./measurement-schema.js").MeasurementProbeDetail): import("./measurement-schema.js").ProbeAttempt | null {
-  if (!detail.probe.firstAttemptId) return null;
-  return detail.attempts.find((attempt) => attempt.id === detail.probe.firstAttemptId) || null;
+function latestAttempt(detail: import("./measurement-schema.js").MeasurementProbeDetail): import("./measurement-schema.js").ProbeAttempt | null {
+  if (detail.probe.latestAttemptId) {
+    const latest = detail.attempts.find((attempt) => attempt.id === detail.probe.latestAttemptId);
+    if (latest) return latest;
+  }
+  return [...detail.attempts].sort((left, right) => left.attemptNumber - right.attemptNumber).at(-1) || null;
 }
 
 function simpleKey(parts: string[]): string { return parts.join("|"); }
@@ -80,7 +83,11 @@ export class ProductMeasurementStatsService {
     const runs = (await this.store.listRuns(projectId)).sort((left, right) => left.createdAt.localeCompare(right.createdAt));
     const source = await Promise.all(runs.map((run) => this.materialForRun(run)));
     const sourceRuns = source.filter((entry) => entry.material.length > 0);
-    const snapshotId = `stats-${sha256(JSON.stringify(sourceRuns.map((entry) => ({ runId: entry.run.id, probeIds: entry.material.map((item) => ({ probe: item.probe.id, attempt: item.attempt?.id || null })) })))).slice(0, 24)}`;
+    const snapshotId = `stats-${sha256(JSON.stringify(sourceRuns.map((entry) => ({
+      run: { id: entry.run.id, status: entry.run.status, completed: entry.run.completedProbeCount, failed: entry.run.failedProbeCount },
+      models: entry.models.map((model) => ({ id: model.id, status: model.status, probes: model.probeRunIds })),
+      probes: entry.material.map((item) => ({ probe: item.probe.id, status: item.probe.status, attempt: item.attempt ? { id: item.attempt.id, status: item.attempt.status } : null, result: item.domain?.id || item.keyword?.id || null })),
+    })))).slice(0, 24)}`;
     const previous = await this.store.readSnapshot(projectId, snapshotId);
     if (previous) return previous;
     const points: MeasurementMetricPoint[] = [];
@@ -118,7 +125,7 @@ export class ProductMeasurementStatsService {
       for (const probe of await this.store.listProbes(run.projectId, run.id, model.id)) {
         const detail = await this.store.probeDetail(run.projectId, run.id, model.id, probe.id);
         if (!detail) continue;
-        material.push({ probe, model, attempt: firstAttempt(detail), domain: detail.domainResult, keyword: detail.keywordResult, mentions: detail.mentions, citations: detail.evidence.providerCitations });
+        material.push({ probe, model, attempt: latestAttempt(detail), domain: detail.domainResult, keyword: detail.keywordResult, mentions: detail.mentions, citations: detail.evidence.providerCitations });
       }
     }
     return { run, watchSet, models, material };

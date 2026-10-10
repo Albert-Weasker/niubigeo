@@ -34,6 +34,7 @@ import { ProductWatchSetService } from "./watchset-service.js";
 const DEFAULT_BUDGET: MeasurementBudget = { requestLimit: 100, dailyRequestLimit: null, tokenLimit: null, costLimitUsd: null };
 const DEFAULT_MAX_TOKENS = 900;
 const DEFAULT_TEMPERATURE = 0;
+type BudgetUsage = { tokens: number; costUsd: number; tokenUnknown: boolean; costUnknown: boolean };
 
 function now(): string { return new Date().toISOString(); }
 function normalized(value: string): string { return value.trim().toLocaleLowerCase(); }
@@ -159,6 +160,8 @@ function failureStatus(code: string): ProbeAttempt["status"] { return code === "
 
 export class ProductMeasurementRunService {
   private readonly locks = new Map<string, Promise<void>>();
+  private readonly budgetLocks = new Map<string, Promise<void>>();
+  private readonly budgetUsage = new Map<string, BudgetUsage>();
 
   constructor(
     private readonly projects: ProductProjectService,
@@ -172,6 +175,8 @@ export class ProductMeasurementRunService {
     return this.withLock(projectId, async () => {
       const project = await this.projects.get(projectId);
       if (!project.activeBaselineId) throw new Error("Save a monitoring configuration before starting a measurement.");
+      const configuration = await this.baselines.currentConfiguration(projectId);
+      if (configuration.status !== "unchanged") throw new Error("Confirm a new monitoring configuration before starting a measurement.");
       const baseline = await this.baselines.get(projectId, project.activeBaselineId);
       const watchSet = await this.watchSets.current(projectId);
       if (watchSet.baselineId !== baseline.id) throw new Error("Confirm a new monitoring scope after changing the monitoring configuration.");
@@ -237,7 +242,15 @@ export class ProductMeasurementRunService {
     const watchSet = await this.watchSets.get(projectId, parent.run.watchSetId);
     const model = parent.modelRuns.find((item) => item.id === modelRunId);
     if (!model) throw new Error("Measurement model run was not found.");
-    await this.executeProbe(parent.run, baseline, watchSet, model, detail.probe);
+    await this.withBudgetLock(parent.run.id, async () => {
+      const blockedReason = await this.budgetBlockedReason(parent.run);
+      if (blockedReason) {
+        await this.store.saveProbe({ ...detail.probe, status: "budget_blocked", exclusionReason: blockedReason, completedAt: now() });
+        return;
+      }
+      await this.executeProbe(parent.run, baseline, watchSet, model, detail.probe);
+      await this.recordProbeUsage(parent.run, model, detail.probe);
+    });
     await this.refreshStatuses(projectId, runId);
   }
 
@@ -272,11 +285,82 @@ export class ProductMeasurementRunService {
     await this.store.saveModelRun(current);
     for (const probe of probes) {
       await this.store.saveProbe(probe);
-      await this.executeProbe(run, baseline, watchSet, current, probe);
+      await this.withBudgetLock(run.id, async () => {
+        const blockedReason = await this.budgetBlockedReason(run);
+        if (blockedReason) {
+          await this.store.saveProbe({ ...probe, status: "budget_blocked", exclusionReason: blockedReason, completedAt: now() });
+          return;
+        }
+        await this.executeProbe(run, baseline, watchSet, current, probe);
+        await this.recordProbeUsage(run, current, probe);
+      });
     }
     const stored = await this.store.listProbes(run.projectId, run.id, current.id);
-    const failed = stored.filter((probe) => probe.status !== "completed").length;
-    await this.store.saveModelRun({ ...current, status: failed === 0 ? "completed" : stored.some((probe) => probe.status === "completed") ? "partial" : "failed", completedAt: now() });
+    const incomplete = stored.filter((probe) => probe.status !== "completed").length;
+    const blocked = stored.filter((probe) => probe.status === "budget_blocked").length;
+    const status = blocked > 0 && incomplete === blocked ? "budget_blocked" : incomplete === 0 ? "completed" : stored.some((probe) => probe.status === "completed") ? "partial" : "failed";
+    await this.store.saveModelRun({ ...current, status, completedAt: now() });
+  }
+
+  private async withBudgetLock<T>(runId: string, operation: () => Promise<T>): Promise<T> {
+    const previous = this.budgetLocks.get(runId) || Promise.resolve();
+    let release: (() => void) | undefined;
+    const hold = new Promise<void>((resolve) => { release = resolve; });
+    const queue = previous.then(() => hold);
+    this.budgetLocks.set(runId, queue);
+    await previous;
+    try { return await operation(); }
+    finally { release?.(); if (this.budgetLocks.get(runId) === queue) this.budgetLocks.delete(runId); }
+  }
+
+  private async runAttempts(run: MeasurementRun): Promise<ProbeAttempt[]> {
+    const modelRuns = await this.store.listModelRuns(run.projectId, run.id);
+    const attempts: ProbeAttempt[] = [];
+    for (const modelRun of modelRuns) {
+      for (const probe of await this.store.listProbes(run.projectId, run.id, modelRun.id)) {
+        attempts.push(...await this.store.listAttempts(run.projectId, run.id, modelRun.id, probe.id));
+      }
+    }
+    return attempts;
+  }
+
+  private async usageForRun(run: MeasurementRun): Promise<BudgetUsage> {
+    const cached = this.budgetUsage.get(run.id);
+    if (cached) return cached;
+    const usage: BudgetUsage = { tokens: 0, costUsd: 0, tokenUnknown: false, costUnknown: false };
+    for (const attempt of await this.runAttempts(run)) {
+      if (attempt.status === "queued" || attempt.status === "running") continue;
+      if (attempt.tokenUsage) usage.tokens += attempt.tokenUsage.total;
+      else usage.tokenUnknown = true;
+      if (attempt.costState === "known" && attempt.costUsd !== null && attempt.costUsd !== undefined) usage.costUsd += attempt.costUsd;
+      else if (attempt.costState === "unknown" || attempt.costUsd === null || attempt.costUsd === undefined) usage.costUnknown = true;
+    }
+    this.budgetUsage.set(run.id, usage);
+    return usage;
+  }
+
+  private async recordProbeUsage(run: MeasurementRun, modelRun: MeasurementModelRun, probe: ProbeRun): Promise<void> {
+    const usage = await this.usageForRun(run);
+    for (const attempt of await this.store.listAttempts(run.projectId, run.id, modelRun.id, probe.id)) {
+      if (attempt.status === "queued" || attempt.status === "running") continue;
+      if (attempt.tokenUsage) usage.tokens += attempt.tokenUsage.total;
+      else usage.tokenUnknown = true;
+      if (attempt.costState === "known" && attempt.costUsd !== null && attempt.costUsd !== undefined) usage.costUsd += attempt.costUsd;
+      else if (attempt.costState === "unknown" || attempt.costUsd === null || attempt.costUsd === undefined) usage.costUnknown = true;
+    }
+  }
+
+  private async budgetBlockedReason(run: MeasurementRun): Promise<string | null> {
+    const usage = await this.usageForRun(run);
+    if (run.budget.tokenLimit !== null) {
+      if (usage.tokenUnknown) return "budget_blocked: token usage unavailable";
+      if (usage.tokens >= run.budget.tokenLimit) return `budget_blocked: token limit reached (${usage.tokens}/${run.budget.tokenLimit})`;
+    }
+    if (run.budget.costLimitUsd !== null) {
+      if (usage.costUnknown) return "budget_blocked: provider cost unavailable";
+      if (usage.costUsd >= run.budget.costLimitUsd) return `budget_blocked: cost limit reached (${usage.costUsd}/${run.budget.costLimitUsd} USD)`;
+    }
+    return null;
   }
 
   private planProbes(run: MeasurementRun, watchSet: WatchSet, modelRun: MeasurementModelRun): ProbeRun[] {
@@ -379,7 +463,9 @@ export class ProductMeasurementRunService {
         else failed += 1;
       }
     }
-    const status = failed === 0 ? "completed" : completed > 0 ? "partial" : "failed";
+    const probes = (await Promise.all(modelRuns.map((model) => this.store.listProbes(projectId, runId, model.id)))).flat();
+    const budgetBlocked = probes.filter((probe) => probe.status === "budget_blocked").length;
+    const status = budgetBlocked > 0 && failed === budgetBlocked ? "budget_blocked" : failed === 0 ? "completed" : completed > 0 ? "partial" : "failed";
     await this.store.saveRun({ ...run, completedProbeCount: completed, failedProbeCount: failed, status, completedAt: now() });
   }
 }
