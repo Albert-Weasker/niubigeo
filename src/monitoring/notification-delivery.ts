@@ -36,6 +36,14 @@ function webhookBody(channel: MonitoringNotificationChannel, envelope: Notificat
   };
 }
 
+const DEFAULT_WEBHOOK_TIMEOUT_MS = 10_000;
+
+function webhookTimeoutMs(channel: MonitoringNotificationChannel): number {
+  if (channel.timeoutMs !== undefined) return channel.timeoutMs;
+  const configured = Number(process.env.NIUBIGEO_WEBHOOK_TIMEOUT_MS || DEFAULT_WEBHOOK_TIMEOUT_MS);
+  return Number.isInteger(configured) && configured >= 1000 && configured <= 120000 ? configured : DEFAULT_WEBHOOK_TIMEOUT_MS;
+}
+
 export class WebhookNotificationAdapter implements NotificationDeliveryAdapter {
   supports(channel: MonitoringNotificationChannel): boolean {
     return channel.type !== "email";
@@ -46,6 +54,7 @@ export class WebhookNotificationAdapter implements NotificationDeliveryAdapter {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(webhookBody(channel, envelope)),
+      signal: AbortSignal.timeout(webhookTimeoutMs(channel)),
     });
     if (!response.ok) throw new Error(`Notification endpoint returned HTTP ${response.status}.`);
   }

@@ -70,32 +70,36 @@ export class ProductBaselineService {
   }
 
   async create(projectId: string): Promise<ProductBaseline> {
-    const project = await this.projects.get(projectId);
-    const modelSnapshots = snapshots(projectId, await this.selections.list(projectId));
-    if (modelSnapshots.length === 0) throw new ProductConfigurationInputError("Select at least one available model before creating a baseline.");
-    const recognitionProtocol = recognitionProtocolSnapshot();
-    const candidate = {
-      normalizedDomain: project.normalizedDomain,
-      recognitionProtocol,
-      modelSnapshots,
-      language: recognitionProtocolLanguage(project.defaultLanguage),
-      analysisVersion: DOMAIN_RECOGNITION_ANALYSIS_VERSION,
-    };
-    const hash = configHash(candidate);
-    const existing = await this.store.listBaselines(projectId);
-    if (existing.some((baseline) => baseline.configHash === hash)) {
-      throw new ProductBaselineConflictError("Current configuration already has a baseline.");
-    }
-    const baseline: ProductBaseline = {
-      id: randomUUID(),
-      projectId,
-      version: existing.length + 1,
-      ...candidate,
-      configHash: hash,
-      createdAt: new Date().toISOString(),
-    };
-    await this.store.saveBaseline(baseline);
-    await this.projects.setActiveBaseline(projectId, baseline.id);
-    return baseline;
+    const guarded = await this.projects.withProjectLock(projectId, async () => {
+      const project = await this.projects.get(projectId);
+      const modelSnapshots = snapshots(projectId, await this.selections.list(projectId));
+      if (modelSnapshots.length === 0) throw new ProductConfigurationInputError("Select at least one available model before creating a baseline.");
+      const recognitionProtocol = recognitionProtocolSnapshot();
+      const candidate = {
+        normalizedDomain: project.normalizedDomain,
+        recognitionProtocol,
+        modelSnapshots,
+        language: recognitionProtocolLanguage(project.defaultLanguage),
+        analysisVersion: DOMAIN_RECOGNITION_ANALYSIS_VERSION,
+      };
+      const hash = configHash(candidate);
+      const existing = await this.store.listBaselines(projectId);
+      if (existing.some((baseline) => baseline.configHash === hash)) {
+        throw new ProductBaselineConflictError("Current configuration already has a baseline.");
+      }
+      const baseline: ProductBaseline = {
+        id: randomUUID(),
+        projectId,
+        version: existing.length + 1,
+        ...candidate,
+        configHash: hash,
+        createdAt: new Date().toISOString(),
+      };
+      await this.store.saveBaseline(baseline);
+      await this.projects.setActiveBaseline(projectId, baseline.id);
+      return baseline;
+    });
+    if (!guarded.acquired || !guarded.value) throw new ProductBaselineConflictError("A baseline change is already in progress for this project.");
+    return guarded.value;
   }
 }

@@ -109,6 +109,14 @@ test("Phase 1 product API persists isolated projects through an actual server re
     assert.equal(empty.status, 200);
     assert.deepEqual(empty.body.projects, []);
 
+    const malformed = await fetch(`${server.baseUrl}/api/projects`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: "{not-json",
+    });
+    assert.equal(malformed.status, 400);
+    assert.equal((await malformed.json() as { error?: string }).error, "Request body must contain valid JSON.");
+
     const alphaCreate = await api(server.baseUrl, "POST", "/api/projects", { domain: "example.com", name: "Alpha" });
     assert.equal(alphaCreate.status, 201);
     const alpha = projectFrom(alphaCreate);

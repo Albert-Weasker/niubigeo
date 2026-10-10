@@ -168,6 +168,30 @@ test("Phase 2 preserves immutable baseline snapshots and increments only after a
   });
 });
 
+test("concurrent baseline creation admits one version and rejects the duplicate", async () => {
+  await withFixture(async ({ projects, selections, baselines }) => {
+    const project = await projects.createDraft({ primaryDomain: "baseline-race.example" });
+    await selections.replace(project.id, selectedModels());
+    const results = await Promise.allSettled([baselines.create(project.id), baselines.create(project.id)]);
+    assert.equal(results.filter((result) => result.status === "fulfilled").length, 1);
+    assert.equal(results.filter((result) => result.status === "rejected").length, 1);
+    assert.equal((await baselines.list(project.id)).length, 1);
+  });
+});
+
+test("concurrent project updates preserve both independent fields", async () => {
+  await withFixture(async ({ projects }) => {
+    const project = await projects.createDraft({ primaryDomain: "project-update-race.example", name: "Before", brandName: "Before" });
+    await Promise.all([
+      projects.update(project.id, { name: "Name after" }),
+      projects.update(project.id, { brandName: "Brand after" }),
+    ]);
+    const updated = await projects.get(project.id);
+    assert.equal(updated.name, "Name after");
+    assert.equal(updated.brandName, "Brand after");
+  });
+});
+
 test("monitoring configuration state distinguishes saved, changed, and domain protocol differences", async () => {
   await withFixture(async ({ projects, selections, baselines }) => {
     const project = await projects.createDraft({ primaryDomain: "state.example", defaultLanguage: "zh-CN" });

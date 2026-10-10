@@ -80,29 +80,35 @@ export class ProductProjectService {
   }
 
   async update(projectId: string, input: UpdateProductProjectInput): Promise<ProductProject> {
-    const project = await this.require(projectId);
-    if (project.status === "deleted") throw new ProductProjectStateError("A deleted project cannot be edited.");
-    const requestedDomain = input.primaryDomain === undefined ? project.normalizedDomain : normalizeDomain(input.primaryDomain);
-    if (!requestedDomain) throw new ProductProjectInputError("A valid primary domain is required.");
-
-    const save = async (): Promise<ProductProject> => {
-      await this.assertDomainAvailable(requestedDomain, project.id);
-      const updated: ProductProject = {
-        ...project,
-        primaryDomain: requestedDomain,
-        normalizedDomain: requestedDomain,
-        name: cleanOptionalText(input.name) || project.name,
-        brandName: cleanOptionalText(input.brandName) || project.brandName,
-        aliases: input.aliases === undefined ? project.aliases : uniqueText(input.aliases),
-        defaultLanguage: cleanOptionalText(input.defaultLanguage) || project.defaultLanguage,
-        updatedAt: nowIso(),
+    const operation = async (): Promise<ProductProject> => {
+      const project = await this.require(projectId);
+      if (project.status === "deleted") throw new ProductProjectStateError("A deleted project cannot be edited.");
+      const requestedDomain = input.primaryDomain === undefined ? project.normalizedDomain : normalizeDomain(input.primaryDomain);
+      if (!requestedDomain) throw new ProductProjectInputError("A valid primary domain is required.");
+      const save = async (): Promise<ProductProject> => {
+        await this.assertDomainAvailable(requestedDomain, project.id);
+        const updated: ProductProject = {
+          ...project,
+          primaryDomain: requestedDomain,
+          normalizedDomain: requestedDomain,
+          name: cleanOptionalText(input.name) || project.name,
+          brandName: cleanOptionalText(input.brandName) || project.brandName,
+          aliases: input.aliases === undefined ? project.aliases : uniqueText(input.aliases),
+          defaultLanguage: cleanOptionalText(input.defaultLanguage) || project.defaultLanguage,
+          updatedAt: nowIso(),
+        };
+        await this.store.save(updated);
+        return updated;
       };
-      await this.store.save(updated);
-      return updated;
+      if (requestedDomain === project.normalizedDomain) return save();
+      return this.store.withDomainLock(requestedDomain, save);
     };
-
-    if (requestedDomain === project.normalizedDomain) return save();
-    return this.store.withDomainLock(requestedDomain, save);
+    for (let attempt = 0; attempt < 100; attempt += 1) {
+      const guarded = await this.store.withProjectLock(projectId, operation);
+      if (guarded.acquired && guarded.value) return guarded.value;
+      await new Promise((resolve) => setTimeout(resolve, 10));
+    }
+    throw new ProductProjectStateError("A project change is already in progress.");
   }
 
   async archive(projectId: string): Promise<ProductProject> {

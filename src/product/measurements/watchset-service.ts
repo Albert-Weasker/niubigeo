@@ -153,13 +153,17 @@ export class ProductWatchSetService {
   }
 
   async confirm(projectId: string, watchSetId: string): Promise<WatchSet> {
-    const source = await this.get(projectId, watchSetId);
-    if (source.status === "active") return source;
-    const active = (await this.store.listWatchSets(projectId)).find((item) => item.status === "active");
-    if (active) await this.store.saveWatchSet({ ...active, status: "retired", retiredAt: now() });
-    const confirmed = { ...source, status: "active" as const, confirmedAt: now() };
-    await this.store.saveWatchSet(confirmed);
-    return confirmed;
+    const guarded = await this.projects.withProjectLock(projectId, async () => {
+      const source = await this.get(projectId, watchSetId);
+      if (source.status === "active") return source;
+      const active = (await this.store.listWatchSets(projectId)).find((item) => item.status === "active");
+      if (active) await this.store.saveWatchSet({ ...active, status: "retired", retiredAt: now() });
+      const confirmed = { ...source, status: "active" as const, confirmedAt: now() };
+      await this.store.saveWatchSet(confirmed);
+      return confirmed;
+    });
+    if (!guarded.acquired || !guarded.value) throw new Error("A monitoring scope change is already in progress for this project.");
+    return guarded.value;
   }
 
   async current(projectId: string): Promise<WatchSet> {
