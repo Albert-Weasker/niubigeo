@@ -427,3 +427,18 @@ test("monitoring tasks persist previews, lifecycle transitions, and model scope 
     assert.equal((await fixture.schedules.get(project.id, task.id)).status, "deleted");
   });
 });
+
+test("concurrent watch-set confirmations leave at most one active scope", async () => {
+  await withFixture(async (fixture) => {
+    const { project } = await ready(fixture, "watch-race.example", [{ modelId: "phase5/off", webSearchMode: "off" }]);
+    const first = await fixture.watchSets.createFromSuggestion(project.id, {});
+    const second = await fixture.watchSets.createFromSuggestion(project.id, {});
+    const results = await Promise.allSettled([
+      fixture.watchSets.confirm(project.id, first.id),
+      fixture.watchSets.confirm(project.id, second.id),
+    ]);
+    assert.equal(results.filter((result) => result.status === "fulfilled").length, 1);
+    assert.equal(results.filter((result) => result.status === "rejected").length, 1);
+    assert.equal((await fixture.store.listWatchSets(project.id)).filter((scope) => scope.status === "active").length, 1);
+  });
+});

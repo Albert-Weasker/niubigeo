@@ -48,6 +48,7 @@ import { ProductRecognitionRunService } from "./product/recognition/recognition-
 import type { RecognitionAnswerExecutor } from "./product/recognition/recognition-service.js";
 import { handleProductRecognitionApi, handleProductRecognitionRetryApi } from "./product/recognition/recognition-http.js";
 import type { ProductModelCatalog } from "./product/configuration/model-selection-schema.js";
+import { ProviderConnectionInputError } from "./product/connections/connection-errors.js";
 
 loadDotEnv();
 
@@ -95,7 +96,16 @@ async function readJson(req: IncomingMessage): Promise<Record<string, unknown>> 
   const chunks: Buffer[] = [];
   for await (const chunk of req) chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
   if (chunks.length === 0) return {};
-  return JSON.parse(Buffer.concat(chunks).toString("utf8")) as Record<string, unknown>;
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(Buffer.concat(chunks).toString("utf8"));
+  } catch {
+    throw new ProviderConnectionInputError("Request body must contain valid JSON.", 400);
+  }
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    throw new ProviderConnectionInputError("Request body must be a JSON object.", 400);
+  }
+  return parsed as Record<string, unknown>;
 }
 
 function providerTargetsFromBody(body: Record<string, unknown>): ProviderTarget[] {
@@ -223,6 +233,9 @@ function notificationPolicyFromBody(value: unknown): MonitoringNotificationPolic
         type: type as MonitoringNotificationChannelType,
         target,
         enabled: channel.enabled !== false,
+        ...(typeof channel.timeoutMs === "number" && Number.isInteger(channel.timeoutMs) && channel.timeoutMs >= 1000 && channel.timeoutMs <= 120000
+          ? { timeoutMs: channel.timeoutMs }
+          : {}),
       });
     }
   }
@@ -962,7 +975,7 @@ async function handle(req: IncomingMessage, res: ServerResponse, dependencies: P
 
 export function createProductServer(dependencies: ProductServerDependencies = {}) {
   return createServer((req, res) => {
-    handle(req, res, dependencies).catch((error) => send(res, 500, { error: error instanceof Error ? error.message : String(error) }));
+    handle(req, res, dependencies).catch((error) => send(res, error instanceof ProviderConnectionInputError ? error.status : 500, { error: error instanceof Error ? error.message : String(error) }));
   });
 }
 

@@ -501,6 +501,7 @@ export class ProductRecognitionRunService {
 
   private async startUnlocked(projectId: string, input: { idempotencyKey?: string; modelIds?: string[] }): Promise<RecognitionRunDetail> {
     const project = await this.projects.get(projectId);
+    if (project.status === "archived") throw new RecognitionInputError("Archived projects cannot start recognition runs.");
     if (!project.activeBaselineId) throw new RecognitionInputError("Save a monitoring configuration before starting recognition.");
     const configuration = await this.baselines.currentConfiguration(projectId);
     if (configuration.status !== "unchanged") throw new RecognitionInputError("Confirm a new monitoring configuration before starting recognition.");

@@ -137,6 +137,15 @@ async function settled(service: ProductRecognitionRunService, projectId: string,
   throw new Error("Recognition run did not settle during the test.");
 }
 
+test("archived projects reject manual recognition starts", async () => {
+  await withFixture(async (fixture) => {
+    const project = await readyProject(fixture, "archived.example", [{ modelId: "test/off", webSearchMode: "off" }]);
+    await fixture.projects.archive(project.id);
+    const service = new ProductRecognitionRunService(fixture.projects, fixture.baselines, fixture.recognitionStore, new FixtureExecutor(new Map()));
+    await assert.rejects(() => service.start(project.id), (error: unknown) => error instanceof Error && error.message === "Archived projects cannot start recognition runs.");
+  });
+});
+
 test("Phase 3 archives separate model recognition evidence and preserves it across a service restart", async () => {
   await withFixture(async (fixture) => {
     const first = await readyProject(fixture, "alpha.example", [

@@ -35,7 +35,7 @@ import { ExportReportModelBuilder } from "../src/dashboard/export-report-model.j
 import { WorkbenchReadModelBuilder } from "../src/dashboard/workbench-read-model.js";
 import { BaselineService } from "../src/baselines/baseline-service.js";
 import { NotificationService } from "../src/monitoring/notification-service.js";
-import type { NotificationDeliveryAdapter, NotificationEnvelope } from "../src/monitoring/notification-delivery.js";
+import { WebhookNotificationAdapter, type NotificationDeliveryAdapter, type NotificationEnvelope } from "../src/monitoring/notification-delivery.js";
 import type { MonitoringNotificationChannel, MonitoringTask } from "../src/monitoring/monitoring-task-schema.js";
 
 const target = entityFromInput({ type: "target", domain: "example.com", name: "Example" });
@@ -747,6 +747,25 @@ test("monitoring events are persisted and delivered without changing run status"
     assert.equal(current.run.status, "completed");
   } finally {
     await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("webhook delivery passes a bounded configurable timeout", async () => {
+  const originalFetch = globalThis.fetch;
+  let receivedSignal: AbortSignal | undefined;
+  globalThis.fetch = (async (_input: URL | RequestInfo, init?: RequestInit) => {
+    receivedSignal = init?.signal as AbortSignal | undefined;
+    return new Response("ok", { status: 200 });
+  }) as typeof fetch;
+  try {
+    await new WebhookNotificationAdapter().deliver(
+      { id: "webhook", type: "webhook", target: "https://example.com/hook", enabled: true, timeoutMs: 2500 },
+      { event: {} as never, project: {} as never, task: {} as never, title: "test", message: "test" },
+    );
+    assert.ok(receivedSignal);
+    assert.equal(receivedSignal?.aborted, false);
+  } finally {
+    globalThis.fetch = originalFetch;
   }
 });
 

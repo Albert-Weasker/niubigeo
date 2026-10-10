@@ -25,6 +25,7 @@ export interface MonitoringNotificationChannel {
   type: MonitoringNotificationChannelType;
   target: string;
   enabled: boolean;
+  timeoutMs?: number | undefined;
 }
 
 export interface MonitoringNotificationPolicy {

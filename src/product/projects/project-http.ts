@@ -6,6 +6,7 @@ import {
 } from "./project-errors.js";
 import type { CreateProductProjectInput, UpdateProductProjectInput } from "./project-schema.js";
 import { ProductProjectService } from "./project-service.js";
+import { ProviderConnectionInputError } from "../connections/connection-errors.js";
 
 export type ProjectJsonReader = () => Promise<Record<string, unknown>>;
 export type ProjectJsonSender = (status: number, body: unknown) => void;
@@ -44,6 +45,7 @@ function queryFlag(url: URL, key: string): boolean {
 }
 
 function sendError(send: ProjectJsonSender, error: unknown): void {
+  if (error instanceof ProviderConnectionInputError) return send(error.status, { error: error.message, code: "provider_connection_invalid" });
   if (error instanceof ProductProjectInputError) return send(400, { error: error.message, code: "invalid_project_input" });
   if (error instanceof ProductProjectNotFoundError) return send(404, { error: error.message, code: "project_not_found" });
   if (error instanceof ProductProjectConflictError) return send(409, { error: error.message, code: "project_domain_conflict" });

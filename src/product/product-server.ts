@@ -77,7 +77,16 @@ async function readJson(req: IncomingMessage): Promise<Record<string, unknown>> 
   const chunks: Buffer[] = [];
   for await (const chunk of req) chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
   if (chunks.length === 0) return {};
-  return JSON.parse(Buffer.concat(chunks).toString("utf8")) as Record<string, unknown>;
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(Buffer.concat(chunks).toString("utf8"));
+  } catch {
+    throw new ProviderConnectionInputError("Request body must contain valid JSON.", 400);
+  }
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    throw new ProviderConnectionInputError("Request body must be a JSON object.", 400);
+  }
+  return parsed as Record<string, unknown>;
 }
 
 async function handle(req: IncomingMessage, res: ServerResponse, dependencies: ProductServerDependencies): Promise<void> {
