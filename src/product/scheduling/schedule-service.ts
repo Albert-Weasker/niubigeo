@@ -115,7 +115,7 @@ export class ProductScheduleService {
       for (const task of await this.store.listTasks(project.id)) {
         await this.reconcileOccurrences(project.id, task.id);
         if (task.status !== "active" || !task.nextRunAt || Date.parse(task.nextRunAt) > at.getTime()) continue;
-        const guarded = await this.store.withTaskLock(project.id, task.id, async () => {
+        const projectGuard = await this.projects.withProjectLock(project.id, async () => this.store.withTaskLock(project.id, task.id, async () => {
           let current = await this.store.readTask(project.id, task.id);
           while (current && current.status === "active" && current.nextRunAt && Date.parse(current.nextRunAt) <= at.getTime()) {
             const occurrenceResult = await this.store.getOrCreateOccurrence({ projectId: project.id, taskId: current.id, taskVersion: current.version, scheduledFor: current.nextRunAt, status: "planned" });
@@ -132,8 +132,8 @@ export class ProductScheduleService {
             current = await this.store.readTask(project.id, task.id);
           }
           return null;
-        });
-        if (guarded.acquired && guarded.value) created.push(guarded.value);
+        }));
+        if (projectGuard.acquired && projectGuard.value?.acquired && projectGuard.value.value) created.push(projectGuard.value.value);
       }
     }
     return created;

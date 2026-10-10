@@ -153,7 +153,7 @@ export function createProductServer(dependencies: ProductServerDependencies = {}
 const entrypoint = process.argv[1] ? pathToFileURL(process.argv[1]).href : "";
 if (import.meta.url === entrypoint) {
   const port = Number(process.env.PORT || 8787);
-  createProductServer().listen(port, () => {
+  createProductServer().listen(port, "127.0.0.1", () => {
     console.log(`niubigeo product server listening on http://localhost:${port}`);
   });
 }

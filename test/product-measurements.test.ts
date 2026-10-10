@@ -167,6 +167,54 @@ test("T03 blocks identity-bearing keywords from protocol K without blocking doma
   });
 });
 
+test("budget enforcement allows usage below the limit", async () => {
+  await withFixture(async (fixture) => {
+    const { project } = await ready(fixture, "target.example", [{ modelId: "phase5/off", webSearchMode: "off" }]);
+    const run = await fixture.measurements.start(project.id, { budget: { tokenLimit: 100, costLimitUsd: 0.01 } });
+    const detail = await settled(fixture.measurements, project.id, run.id);
+    assert.equal(detail.run.status, "completed");
+    assert.equal(fixture.executor.calls.length, 3);
+  });
+});
+
+test("budget enforcement blocks the next probe when usage reaches the limit exactly", async () => {
+  await withFixture(async (fixture) => {
+    const { project } = await ready(fixture, "target.example", [{ modelId: "phase5/off", webSearchMode: "off" }]);
+    const run = await fixture.measurements.start(project.id, { budget: { tokenLimit: 30, costLimitUsd: 0.0005 } });
+    const detail = await settled(fixture.measurements, project.id, run.id);
+    const probes = await fixture.store.listProbes(project.id, run.id, detail.modelRuns[0]!.id);
+    assert.equal(fixture.executor.calls.length, 1);
+    assert.equal(detail.run.status, "budget_blocked");
+    assert.equal(probes.filter((probe) => probe.status === "budget_blocked").length, 2);
+    assert.equal((probes.find((probe) => probe.status === "budget_blocked")?.exclusionReason || "").includes("token limit reached"), true);
+  });
+});
+
+test("budget enforcement stops subsequent probes after a provider response exceeds the limit", async () => {
+  await withFixture(async (fixture) => {
+    const { project } = await ready(fixture, "target.example", [{ modelId: "phase5/off", webSearchMode: "off" }]);
+    const run = await fixture.measurements.start(project.id, { budget: { tokenLimit: 100, costLimitUsd: 0.0001 } });
+    const detail = await settled(fixture.measurements, project.id, run.id);
+    const probes = await fixture.store.listProbes(project.id, run.id, detail.modelRuns[0]!.id);
+    assert.equal(fixture.executor.calls.length, 1);
+    assert.equal(probes.filter((probe) => probe.status === "budget_blocked").length, 2);
+    assert.equal((probes.find((probe) => probe.status === "budget_blocked")?.exclusionReason || "").includes("cost limit reached"), true);
+  });
+});
+
+test("budget enforcement blocks after a provider returns an unknown cost", async () => {
+  await withFixture(async (fixture) => {
+    fixture.executor.costUsd = undefined;
+    const { project } = await ready(fixture, "target.example", [{ modelId: "phase5/off", webSearchMode: "off" }]);
+    const run = await fixture.measurements.start(project.id, { budget: { costLimitUsd: 0.01 } });
+    const detail = await settled(fixture.measurements, project.id, run.id);
+    const probes = await fixture.store.listProbes(project.id, run.id, detail.modelRuns[0]!.id);
+    assert.equal(fixture.executor.calls.length, 1);
+    assert.equal(detail.run.status, "budget_blocked");
+    assert.equal((probes.find((probe) => probe.status === "budget_blocked")?.exclusionReason || "").includes("provider cost unavailable"), true);
+  });
+});
+
 test("T04/T05/T06/T08/T10 retain all discovered entities and do not invent target wins", async () => {
   await withFixture(async (fixture) => {
     const { project, watchSet } = await ready(fixture, "target.example", [{ modelId: "phase5/native", webSearchMode: "provider_native" }]);
@@ -222,6 +270,9 @@ test("T13/T16/T17/T18/T22 keep model histories independent and retry without rep
     const after = await fixture.measurements.getProbe(project.id, first.id, failed.id, probe.id);
     assert.equal(before.attempts.length, 1); assert.equal(after.attempts.length, 2);
     assert.equal(after.attempts[0]?.status, "provider_failed"); assert.equal(after.probe.firstAttemptId, before.probe.firstAttemptId);
+    const retrySnapshot = await fixture.stats.build(project.id);
+    const retriedPoint = retrySnapshot.points.find((item) => item.metric === "domain_recognition" && item.modelId === "phase5/failing");
+    assert.equal(retriedPoint?.samples.some((item) => item.attemptId === after.attempts[1]?.id), true);
     await fixture.selections.replace(project.id, [{ modelId: "phase5/off", webSearchMode: "off" }, { modelId: "phase5/added", webSearchMode: "off" }]);
     await fixture.baselines.create(project.id);
     const newWatch = await fixture.watchSets.createFromSuggestion(project.id, {});

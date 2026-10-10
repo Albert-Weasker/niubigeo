@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { mkdir, open, readFile, readdir, rename, unlink, writeFile } from "node:fs/promises";
+import { mkdir, open, readFile, readdir, rename, stat, unlink, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { sha256 } from "../../utils/hash.js";
 import type { ProductProjectFileStore } from "../projects/project-store.js";
@@ -8,6 +8,31 @@ import type { BudgetLedgerEntry, MonitoringTask, ScheduledOccurrence } from "./s
 function notFound(error: unknown): boolean { return Boolean(error && typeof error === "object" && "code" in error && error.code === "ENOENT"); }
 async function readJson<T>(path: string): Promise<T> { return JSON.parse(await readFile(path, "utf8")) as T; }
 async function writeJson(path: string, value: unknown): Promise<void> { const temporary = `${path}.${randomUUID()}.tmp`; await writeFile(temporary, `${JSON.stringify(value, null, 2)}\n`, "utf8"); await rename(temporary, path); }
+
+const LOCK_STALE_MS = 30 * 60 * 1000;
+
+async function acquireLock(path: string): Promise<Awaited<ReturnType<typeof open>> | null> {
+  const create = async () => {
+    const handle = await open(path, "wx");
+    await handle.writeFile(`${JSON.stringify({ pid: process.pid, createdAt: new Date().toISOString() })}\n`, "utf8");
+    return handle;
+  };
+  try { return await create(); }
+  catch (error) {
+    if (!(error && typeof error === "object" && "code" in error && error.code === "EEXIST")) throw error;
+    try {
+      if (Date.now() - (await stat(path)).mtimeMs <= LOCK_STALE_MS) return null;
+      await unlink(path);
+    } catch (staleError) {
+      if (!notFound(staleError)) throw staleError;
+    }
+    try { return await create(); }
+    catch (retryError) {
+      if (retryError && typeof retryError === "object" && "code" in retryError && retryError.code === "EEXIST") return null;
+      throw retryError;
+    }
+  }
+}
 
 export class ProductScheduleFileStore {
   constructor(private readonly projects: ProductProjectFileStore) {}
@@ -54,13 +79,8 @@ export class ProductScheduleFileStore {
   async withTaskLock<T>(projectId: string, taskId: string, operation: () => Promise<T>): Promise<{ acquired: boolean; value?: T }> {
     await mkdir(this.lockRoot(projectId), { recursive: true });
     const path = this.lockPath(projectId, taskId);
-    let handle;
-    try {
-      handle = await open(path, "wx");
-    } catch (error) {
-      if (error && typeof error === "object" && "code" in error && error.code === "EEXIST") return { acquired: false };
-      throw error;
-    }
+    const handle = await acquireLock(path);
+    if (!handle) return { acquired: false };
     try {
       return { acquired: true, value: await operation() };
     } finally {

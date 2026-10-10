@@ -160,6 +160,10 @@ export class ProductProjectService {
     await this.store.purge(projectId);
   }
 
+  async withProjectLock<T>(projectId: string, operation: () => Promise<T>): Promise<{ acquired: boolean; value?: T }> {
+    return this.store.withProjectLock(projectId, operation);
+  }
+
   async setActiveBaseline(projectId: string, baselineId: string): Promise<ProductProject> {
     const project = await this.require(projectId);
     if (project.status === "deleted") throw new ProductProjectStateError("A deleted project cannot receive a baseline.");

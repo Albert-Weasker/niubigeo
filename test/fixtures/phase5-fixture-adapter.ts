@@ -68,6 +68,8 @@ function comparisonDiscoveryOutput(sample: number): { text: string; structured: 
 
 export class Phase5FixtureExecutor implements RecognitionAnswerExecutor {
   readonly calls: Array<{ modelId: string; prompt: string; schemaName: string | null; webSearchMode: string }> = [];
+  tokenUsage: { input: number; output: number; total: number } | undefined = { input: 10, output: 20, total: 30 };
+  costUsd: number | undefined = 0.0005;
   private failures = new Map<string, number>();
   private domainSamples = new Map<string, number>();
   private keywordSamples = new Map<string, number>();
@@ -111,7 +113,7 @@ export class Phase5FixtureExecutor implements RecognitionAnswerExecutor {
         : [{ id: "ordinary-url", url: modelId === "phase5/text-url" ? "https://target.example/reference" : "https://ordinary.example/reference", domain: modelId === "phase5/text-url" ? "target.example" : "ordinary.example", citationIndex: 0, source: "answer_text_url", citationType: "unknown" }],
       webQueries: native ? ["workflow"] : [],
       search: { requested: native, requestMode: native ? "provider_native" : "auto", used: native, usedMode: native ? "provider_native" : "none", endpointKind: "official_api", endpointProtocol: "responses", endpointUrl: "https://fixture.invalid", toolName: native ? "web_search" : undefined, webQueries: native ? ["workflow"] : [], citationCount: native ? 1 : 0, executionMode: native ? "native" : "unverified" },
-      tokenUsage: { input: 10, output: 20, total: 30 }, costUsd: native ? 0.001 : 0.0005, latencyMs: 1, createdAt: "2026-09-07T00:00:00.000Z",
+      tokenUsage: this.tokenUsage, costUsd: this.costUsd === undefined ? undefined : native ? this.costUsd * 2 : this.costUsd, latencyMs: 1, createdAt: "2026-09-07T00:00:00.000Z",
     };
   }
 }
