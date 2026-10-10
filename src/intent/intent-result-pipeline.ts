@@ -38,6 +38,7 @@ function citationViews(input: IntentPipelineInput): ProviderCitationView[] {
   const seen = new Set<string>();
   const out: ProviderCitationView[] = [];
   for (const citation of input.citations) {
+    if (citation.source === "answer_text_url") continue;
     if (!citation.url || seen.has(citation.url)) continue;
     seen.add(citation.url);
     const row: ProviderCitationView = {

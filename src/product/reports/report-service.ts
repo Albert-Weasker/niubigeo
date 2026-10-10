@@ -172,11 +172,16 @@ function payloadValueAtPath(payload: unknown, path: string): unknown {
   return current;
 }
 
+function normalUrl(value: string): string {
+  try { return new URL(value).toString(); } catch { return value; }
+}
+
 function citationPathsAreValid(attempt: RecognitionModelRunAttempt | null, archive: RecognitionArchive): boolean {
   if (archive.providerCitations.length === 0) return true;
   if (!attempt || !attempt.rawProviderResponse) return false;
   for (const citation of archive.providerCitations) {
-    if (payloadValueAtPath(attempt.rawProviderResponse, citation.providerPayloadPath) !== citation.url) return false;
+    const payloadUrl = payloadValueAtPath(attempt.rawProviderResponse, citation.providerPayloadPath);
+    if (typeof payloadUrl !== "string" || normalUrl(payloadUrl) !== normalUrl(citation.url)) return false;
   }
   return true;
 }
