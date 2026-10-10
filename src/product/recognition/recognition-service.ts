@@ -183,13 +183,13 @@ function providerCitations(answer: AnswerResult, parent: { projectId: string; ru
   const results: ProviderCitation[] = [];
   for (const citation of answer.citations) {
     if (citation.source === "answer_text_url") continue;
-    if (!citation.title || !citation.providerPayloadPath) continue;
+    if (!citation.providerPayloadPath) continue;
     results.push({
       id: randomUUID(),
       ...parent,
       url: normalUrl(citation.url),
       domain: citation.domain,
-      title: citation.title,
+      title: citation.title || citation.domain || citation.url,
       providerCitationSource: citation.source,
       providerCitationIndex: citation.citationIndex,
       providerPayloadPath: citation.providerPayloadPath,

@@ -88,11 +88,13 @@ function parseProviderTargets(options: Record<string, string | boolean>): Provid
   const webSearchMode = webSearchModeOption(options);
   const targets = option(options, "targets");
   if (targets) {
-    return targets.split(",").map((pair) => {
+    return targets.split(",").map((rawPair) => {
+      const pair = rawPair.trim();
       const [providerId, ...modelParts] = pair.split(":");
-      const model = modelParts.join(":");
-      if (!providerId || !model) throw new Error(`Invalid target "${pair}". Use provider:model.`);
-      return { providerId, model, webSearchEnabled, webSearchMode };
+      const model = modelParts.join(":").trim();
+      const normalizedProviderId = providerId?.trim();
+      if (!normalizedProviderId || !model) throw new Error(`Invalid target "${pair}". Use provider:model.`);
+      return { providerId: normalizedProviderId, model, webSearchEnabled, webSearchMode };
     });
   }
   const providerId = option(options, "provider") || "openrouter";
@@ -325,8 +327,15 @@ async function schedule(options: Record<string, string | boolean>): Promise<void
   const configPath = option(options, "config");
   if (!configPath) throw new Error("--config is required");
   const config = JSON.parse(readFileSync(configPath, "utf8")) as Record<string, unknown>;
-  const intervalMinutes = Number(config.intervalMinutes || 1440);
+  const intervalMinutes = Number(config.intervalMinutes ?? 1440);
+  if (!Number.isInteger(intervalMinutes) || intervalMinutes <= 0) {
+    throw new Error("intervalMinutes must be a positive integer.");
+  }
+  let running = false;
   const runOnce = async () => {
+    if (running) return;
+    running = true;
+    try {
     const optionsFromConfig: Record<string, string | boolean> = {
       domain: String(config.domain || ""),
       name: typeof config.name === "string" ? config.name : "",
@@ -342,9 +351,12 @@ async function schedule(options: Record<string, string | boolean>): Promise<void
     if (typeof config.promptsPerKeyword === "number") optionsFromConfig["prompts-per-keyword"] = String(config.promptsPerKeyword);
     if (config.webSearchEnabled === true) optionsFromConfig["web-search"] = true;
     if (typeof config.webSearchMode === "string") optionsFromConfig["web-search-mode"] = config.webSearchMode;
-    await runAudit({
-      ...optionsFromConfig,
-    });
+      await runAudit({
+        ...optionsFromConfig,
+      });
+    } finally {
+      running = false;
+    }
   };
   await runOnce();
   setInterval(() => {
