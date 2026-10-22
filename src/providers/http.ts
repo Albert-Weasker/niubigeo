@@ -1,3 +1,4 @@
+import { ProviderRequestError } from "./provider-error.js";
 import { AsyncLocalStorage } from "node:async_hooks";
 import { isRequestProviderScope, redactRequestSecrets } from "../config/env.js";
 
@@ -54,7 +55,9 @@ export async function postJsonWithRetry(url: string, init: RequestInit, attempts
       }
       lastError = new Error(`HTTP ${response.status}`);
     } catch (error) {
-      lastError = isRequestProviderScope() ? new Error(redactRequestSecrets(error instanceof Error ? error.message : String(error))) : error;
+      lastError = controller.signal.aborted
+        ? new ProviderRequestError({ code: "timeout", message: "Provider request timed out." })
+        : isRequestProviderScope() ? new Error(redactRequestSecrets(error instanceof Error ? error.message : String(error))) : error;
       if (attempt === attempts) throw lastError;
     } finally {
       clearTimeout(timeout);
