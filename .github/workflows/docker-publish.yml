@@ -129,6 +129,10 @@ jobs:
           BUILDX_METADATA: ${{ steps.build.outputs.metadata }}
         run: node scripts/release-image-policy.mjs publish
 
+      - name: Update explicitly requested v0.3.0 compatibility alias
+        if: steps.policy.outputs.tag == 'v0.3.1'
+        run: node scripts/alias-v030-image.mjs
+
       - name: Record source and digest mapping
         if: always()
         uses: actions/upload-artifact@v4
@@ -138,4 +142,5 @@ jobs:
             ${{ env.RELEASE_PLAN_FILE }}
             ${{ env.RELEASE_RECEIPT_FILE }}
             release-container-*.json
+            v030-alias-receipt.json
           if-no-files-found: ignore
