@@ -165,3 +165,6 @@ A generated report fails if:
 - It copies raw AI output into the main body.
 - It lacks an API-vs-browser caveat.
 - It lacks links to supporting AI answers or sources.
+
+<!-- Evidence comparison contract -->
+Change comparisons require successful answered observations within the same project and baseline; failed calls are not evidence of brand disappearance.
