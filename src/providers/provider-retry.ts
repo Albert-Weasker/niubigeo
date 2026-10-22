@@ -47,21 +47,9 @@ export async function runProviderWithRetry(
   const callId = options.callId || `provider-call-${randomUUID()}`;
   for (let attempt = 1; attempt <= totalAttempts; attempt += 1) {
     const startedAt = new Date().toISOString();
+    let result: AnswerResult;
     try {
-      const result = await provider.run({ ...input, maxTokens });
-      if (options.context && options.onAttempt) {
-        await options.onAttempt({
-          callId,
-          attempt,
-          context: options.context,
-          providerId: provider.definition.id,
-          model: input.model,
-          startedAt,
-          finishedAt: new Date().toISOString(),
-          result,
-        });
-      }
-      return result;
+      result = await provider.run({ ...input, maxTokens });
     } catch (error) {
       lastError = error;
       const failureCode: ProviderFailureCode = providerFailureCode(error);
@@ -80,7 +68,21 @@ export async function runProviderWithRetry(
       if (attempt === totalAttempts || !isRetryableProviderError(error)) break;
       if (failureCode === "empty_answer") maxTokens = Math.min(maxTokens * 2, emptyAnswerMaxTokens());
       await sleep(baseDelayMs() * attempt);
+      continue;
     }
+    if (options.context && options.onAttempt) {
+      await options.onAttempt({
+        callId,
+        attempt,
+        context: options.context,
+        providerId: provider.definition.id,
+        model: input.model,
+        startedAt,
+        finishedAt: new Date().toISOString(),
+        result,
+      });
+    }
+    return result;
   }
   throw lastError instanceof Error ? lastError : new Error(String(lastError));
 }
