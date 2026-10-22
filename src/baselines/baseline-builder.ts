@@ -50,7 +50,9 @@ function orderedProviderTargets(targets: ProviderTarget[]): ProviderTarget[] {
     if (provider !== 0) return provider;
     const model = a.model.localeCompare(b.model);
     if (model !== 0) return model;
-    return String(Boolean(a.webSearchEnabled)).localeCompare(String(Boolean(b.webSearchEnabled)));
+    const search = String(Boolean(a.webSearchEnabled)).localeCompare(String(Boolean(b.webSearchEnabled)));
+    if (search !== 0) return search;
+    return JSON.stringify(providerPayload(a)).localeCompare(JSON.stringify(providerPayload(b)));
   });
 }
 
