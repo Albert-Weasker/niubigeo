@@ -19,7 +19,7 @@ RUN npm ci --omit=dev
 
 FROM node:22-alpine AS runtime
 WORKDIR /app
-ENV NODE_ENV=production PORT=8787 PRODUCT_DATA_DIR=/app/data/product-v2
+ENV NODE_ENV=production HOST=0.0.0.0 PORT=8787 PRODUCT_DATA_DIR=/app/data/product-v2
 LABEL org.opencontainers.image.title="NiubiGEO"
 LABEL org.opencontainers.image.description="Open-source AI brand visibility and competitor reports"
 LABEL org.opencontainers.image.source="https://github.com/Albert-Weasker/niubigeo"
