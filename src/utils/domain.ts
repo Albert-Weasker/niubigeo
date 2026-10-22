@@ -32,7 +32,11 @@ export function extractDomainFromUrl(value: string): string {
 export function domainMatches(candidate: string, expected: string): boolean {
   const a = normalizeDomain(candidate);
   const b = normalizeDomain(expected);
-  return a === b || a.endsWith(`.${b}`);
+  if (!a || !b) return false;
+  if (a === b) return true;
+  // A single label (e.g. "com") must not match every domain under that TLD.
+  if (!b.includes(".")) return false;
+  return a.endsWith(`.${b}`);
 }
 
 export function slugify(value: string): string {
