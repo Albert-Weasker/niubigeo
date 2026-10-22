@@ -32,7 +32,7 @@
 **[自行部署](#quick-start) · [官方推广平台](https://niubigeo.ai/) · [AI 顾问](https://video.niubistar.com/niubigeo)**
 
 <p align="center">
-  <strong><a href="https://niubigeo.ai/">官网</a> · <a href="https://github.com/Albert-Weasker/niubigeo">项目仓库</a> · <a href="README.md">English</a> · <a href="#quick-start">快速开始</a> · <a href="#cases">20 组真实案例</a> · <a href="https://github.com/Albert-Weasker/niubigeo/releases">发布版本</a> · <a href="https://github.com/Albert-Weasker/niubigeo/pkgs/container/niubigeo">容器镜像</a> · <a href="#docs">文档</a></strong>
+  <strong><a href="https://niubigeo.ai/">官网</a> · <a href="https://github.com/Albert-Weasker/niubigeo">项目仓库</a> · <a href="README.md">English</a> · <a href="README.ja-JP.md">日本語</a> · <a href="#quick-start">快速开始</a> · <a href="#cases">20 组真实案例</a> · <a href="https://github.com/Albert-Weasker/niubigeo/releases">发布版本</a> · <a href="https://github.com/Albert-Weasker/niubigeo/pkgs/container/niubigeo">容器镜像</a> · <a href="#docs">文档</a></strong>
   <br>
   <a href="#features">功能一览</a> · <a href="#how-to">使用流程</a> · <a href="#monitoring">持续监测</a> · <a href="#niubigeo-vs-commercial-ai-visibility-tools">工具对比</a> · <a href="#why">为什么做</a> · <a href="#sponsors">赞助商</a> · <a href="#official-services">官方服务</a> · <a href="docs/PRODUCT-GUIDE.zh-CN.md#faq">公开 FAQ</a>
 </p>
