@@ -9,7 +9,7 @@
 <p align="center">
   <a href="https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.3.0"><img src="assets/readme/version.svg" alt="NiubiGEO v0.3.0" width="172" height="28"></a>
   <a href="LICENSE"><img src="assets/readme/license.svg" alt="Apache-2.0" width="172" height="28"></a>
-  <a href="docs/deployment/docker.md"><img src="assets/readme/self-hosted.svg" alt="Self-hosted" width="132" height="28"></a>
+  <a href="docs/deployment/docker.en.md"><img src="assets/readme/self-hosted.svg" alt="Self-hosted" width="132" height="28"></a>
 </p>
 
 <p align="center">
@@ -92,7 +92,7 @@ See the [monitoring section](#monitoring) and [release history](https://github.c
 - **Keep results separate**: answers, citations and failures retain their endpoint, model and search setting, even when model names match.
 - **Browse the full model catalog**: filter by mainstream platform, source and search support. Custom search support is labeled unverified; structured analysis requires JSON Schema support.
 
-[Connection guide](docs/model-connections.md) · [Download v0.3.0](https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.3.0) · [Docker installation](docs/deployment/docker.md)
+[Connection guide](docs/model-connections.md) · [Download v0.3.0](https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.3.0) · [Docker installation](docs/deployment/docker.en.md)
 
 ### v0.3 · Keyword Monitoring NEW / BETA
 
@@ -141,7 +141,7 @@ npm run server
 
 Open [**http://localhost:8787**](http://localhost:8787) to create your first project.
 
-Prefer a container? Follow the [Docker guide](docs/deployment/docker.md). Existing users should read [Backups and upgrades](docs/upgrade.md).
+Prefer a container? Follow the [Docker guide](docs/deployment/docker.en.md). Existing users should read [Backups and upgrades](docs/upgrade.md).
 
 <a id="how-to"></a>
 
@@ -198,7 +198,7 @@ The real Diff View compares the stored runs and shows added or removed recommend
 
 The first domain test shows how models describe your product now. Confirm the competing products and keywords to measure that scope again or create a schedule. Previous records remain when your model selection changes; new models do not acquire invented history.
 
-Scheduled execution requires the [monitoring worker](docs/deployment/docker.md) to be running. [PostHog’s three recorded measurements](examples/cases/R04/README.md) include a scheduled run, with answers and failures available for each. A few minutes of repeated tests do not establish long-term growth.
+Scheduled execution requires the [monitoring worker](docs/deployment/docker.en.md) to be running. [PostHog’s three recorded measurements](examples/cases/R04/README.md) include a scheduled run, with answers and failures available for each. A few minutes of repeated tests do not establish long-term growth.
 
 **[How it works in detail](docs/how-it-works.md)** · [Metrics and comparison conditions](docs/measurement-methodology.md) · [Known issues](docs/known-issues.md)
 
@@ -345,7 +345,7 @@ NiubiStar supports NiubiGEO’s open-source development and provides the global 
 
 - [How it works](docs/how-it-works.md) · [Architecture](docs/ARCHITECTURE.md)
 - [Measurement methodology](docs/measurement-methodology.md) · [Sources and evidence](docs/evidence-model.md)
-- [Deployment](docs/deployment/docker.md) · [Backups and upgrades](docs/upgrade.md)
+- [Deployment](docs/deployment/docker.en.md) · [Backups and upgrades](docs/upgrade.md)
 - [Known issues](docs/known-issues.md) · [Limitations](docs/limitations.md) · [Release notes](https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.3.0)
 - [Contributing](CONTRIBUTING.md) · [Security policy](SECURITY.md) · [License](LICENSE)
 
