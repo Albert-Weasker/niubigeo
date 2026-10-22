@@ -32,7 +32,7 @@ export function extractDomainFromUrl(value: string): string {
 export function domainMatches(candidate: string, expected: string): boolean {
   const a = normalizeDomain(candidate);
   const b = normalizeDomain(expected);
-  return a === b || a.endsWith(`.${b}`);
+  return Boolean(a && b) && (a === b || a.endsWith(`.${b}`));
 }
 
 export function slugify(value: string): string {
