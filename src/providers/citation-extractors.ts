@@ -19,6 +19,7 @@ export function citationFromUrl(
 ): Citation | null {
   try {
     const parsed = new URL(url);
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return null;
     return {
       id: `${source}-${citationIndex}-${parsed.toString()}`,
       url: parsed.toString(),
