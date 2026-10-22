@@ -59,6 +59,8 @@ export class CronScheduleCalculator implements ScheduleCalculator {
 
   validate(schedule: MonitoringSchedule): void {
     if (!schedule.timezone.trim()) throw new Error("Schedule timezone is required.");
+    // Cron parsing does not validate manual schedules because they have no expression.
+    new Intl.DateTimeFormat("en", { timeZone: schedule.timezone }).format(new Date(0));
     this.next(schedule, new Date("2026-01-01T00:00:00.000Z"));
   }
 }
