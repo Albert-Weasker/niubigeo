@@ -165,3 +165,5 @@ A generated report fails if:
 - It copies raw AI output into the main body.
 - It lacks an API-vs-browser caveat.
 - It lacks links to supporting AI answers or sources.
+
+Recommendation differences require the same included answer samples for the brand and competitor. Equal sample counts alone are insufficient; mismatched exclusions produce no comparison.
