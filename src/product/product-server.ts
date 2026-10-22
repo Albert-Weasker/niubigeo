@@ -21,7 +21,7 @@ import { ProductProjectService } from "./projects/project-service.js";
 import { ProductProjectFileStore } from "./projects/project-store.js";
 import { handleProductRecognitionApi, handleProductRecognitionRetryApi } from "./recognition/recognition-http.js";
 import type { RecognitionAnswerExecutor } from "./recognition/recognition-service.js";
-import { ProductRecognitionRunService } from "./recognition/recognition-service.js";
+import { OpenRouterRecognitionAnswerExecutor, ProductRecognitionRunService } from "./recognition/recognition-service.js";
 import { ProductRecognitionFileStore } from "./recognition/recognition-store.js";
 import { RecognitionReportFileStore } from "./reports/report-store.js";
 import { RecognitionReportService } from "./reports/report-service.js";
@@ -107,7 +107,7 @@ async function handle(req: IncomingMessage, res: ServerResponse, dependencies: P
   const watchSets = new ProductWatchSetService(projects, baselines, measurementStore, recognitionStore, reportStore);
   const measurements = new ProductMeasurementRunService(projects, baselines, watchSets, measurementStore, dependencies.measurementExecutor || dependencies.recognitionExecutor);
   const stats = new ProductMeasurementStatsService(projects, measurementStore);
-  const keywordMonitors = new KeywordMonitorService(projects, new KeywordMonitorStore(projectStore), baselines, dependencies.measurementExecutor || dependencies.recognitionExecutor);
+  const keywordMonitors = new KeywordMonitorService(projects, new KeywordMonitorStore(projectStore), baselines, dependencies.measurementExecutor || dependencies.recognitionExecutor || new OpenRouterRecognitionAnswerExecutor());
   const schedules = new ProductScheduleService(projects, baselines, watchSets, measurements, new ProductScheduleFileStore(projectStore));
 
   if (method === "GET" && url.pathname === "/") {

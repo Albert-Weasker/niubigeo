@@ -1,5 +1,7 @@
 # Docker 部署
 
+[English](docker.en.md)
+
 ## NiubiGEO v0.3.0
 
 正式镜像为 `ghcr.io/albert-weasker/niubigeo:v0.3.0`，支持 Linux amd64 和 arm64。可在宿主环境中设置 `OPENROUTER_API_KEY`，也可启动后点击平台 Logo 输入当前会话的 Key：
@@ -12,6 +14,8 @@ docker run -d --name niubigeo \
   -v niubigeo-data:/app/data/product-v2 \
   ghcr.io/albert-weasker/niubigeo:v0.3.0
 ```
+
+独立 `docker run` 示例使用命名卷；仓库 Compose 使用 `./data:/app/data`，实际产品目录为 `./data/product-v2`。两者是替代方案，不是同一份数据；server 和 worker 必须采用同一种挂载，切换方案前先停止服务、备份并迁移数据。
 
 打开 <http://localhost:8787>。命名卷 `niubigeo-data` 会在重新创建容器后保留；升级前请先[备份](../upgrade.md)。不要直接对公网开放工作台，远程访问需要另外配置认证和 TLS。
 

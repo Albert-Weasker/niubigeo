@@ -17,9 +17,9 @@ test("catalog validates direct models and lets OpenRouter carry routed model ids
   assert.throws(() => catalog.validate("openai", "google/gemini-flash-1.5"));
 });
 
-test("provider roles keep answer models separate from stable analysis models", () => {
+test("OpenRouter analysis reuses the selected routed answer model", () => {
   const catalog = new ProviderCatalog();
   const openrouter = catalog.get("openrouter");
-  assert.equal(analysisModelFor(openrouter, "vendor/answer-model"), "openai/gpt-5.6-luna");
+  assert.equal(analysisModelFor(openrouter, "vendor/answer-model"), "vendor/answer-model");
   assert.equal(openrouter.definition.id, "openrouter");
 });

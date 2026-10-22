@@ -19,7 +19,7 @@ export const PROVIDER_DEFINITIONS: ProviderDefinition[] = [
     sourceType: "api",
     envKeys: ["OPENROUTER_API_KEY", "OPENROUTER_KEY"],
     defaultModels: ["openai/gpt-4o-mini", "anthropic/claude-3.5-haiku", "google/gemini-flash-1.5"],
-    analysisModel: "openai/gpt-5.6-luna",
+    // Reuse the selected model for analysis instead of an unrelated fixed alias.
     supportsAnyModel: true,
     supportsJsonSchema: true,
     supportsNativeCitations: true,
