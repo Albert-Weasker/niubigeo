@@ -17,7 +17,7 @@ function extractText(raw: unknown): string {
   return parts
     .map((part) => {
       const obj = asObject(part);
-      return typeof obj?.text === "string" ? obj.text : "";
+      return obj?.thought !== true && typeof obj?.text === "string" ? obj.text : "";
     })
     .filter(Boolean)
     .join("\n")
