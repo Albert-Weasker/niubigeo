@@ -49,6 +49,22 @@ try {
   verify("OCI version", config.Config.Labels["org.opencontainers.image.version"], version);
   const pkg = JSON.parse(docker("exec", name, "node", "-p", "JSON.stringify(require('./package.json'))"));
   verify("Packaged version", pkg.version, version.slice(1));
+  const securityCheck = docker("exec", name, "node", "--input-type=module", "-e", `
+    import assert from 'node:assert/strict';
+    import {createPublicWebFetcher, fetchPublicWebText} from './dist/src/utils/public-web-fetch.js';
+    for (const url of ['http://127.1', 'http://169.254.169.254', 'http://[::1]']) {
+      await assert.rejects(fetchPublicWebText(url));
+    }
+    let requests = 0;
+    const fetchPage = createPublicWebFetcher(async () => [{address:'93.184.216.34',family:4}], async () => {
+      requests++;
+      return {status:302,location:'http://169.254.169.254',contentType:'text/html',text:''};
+    });
+    await assert.rejects(fetchPage('https://example.com'));
+    assert.equal(requests, 1);
+    console.log('passed');
+  `);
+  verify("Packaged SSRF address and redirect protections", securityCheck, "passed");
   verify("Fresh installation has no seeded projects", (await request("/api/projects")).body.projects, []);
   const html = await (await fetch(base)).text();
   verify("Product HTML delivered", html.includes("data-testid=\"new-project\"") || html.includes("data-testid='new-project'"), true);

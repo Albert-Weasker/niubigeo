@@ -2,17 +2,17 @@
 
 [English](docker.en.md)
 
-## NiubiGEO v0.3.1
+## NiubiGEO v0.3.2
 
-正式镜像为 `ghcr.io/albert-weasker/niubigeo:v0.3.1`，支持 Linux amd64 和 arm64。可在宿主环境中设置 `OPENROUTER_API_KEY`，也可启动后点击平台 Logo 输入当前会话的 Key：
+正式镜像为 `ghcr.io/albert-weasker/niubigeo:v0.3.2`，支持 Linux amd64 和 arm64。可在宿主环境中设置 `OPENROUTER_API_KEY`，也可启动后点击平台 Logo 输入当前会话的 Key：
 
 ```bash
-docker pull ghcr.io/albert-weasker/niubigeo:v0.3.1
+docker pull ghcr.io/albert-weasker/niubigeo:v0.3.2
 docker run -d --name niubigeo \
   -p 127.0.0.1:8787:8787 \
   -e OPENROUTER_API_KEY \
   -v niubigeo-data:/app/data/product-v2 \
-  ghcr.io/albert-weasker/niubigeo:v0.3.1
+  ghcr.io/albert-weasker/niubigeo:v0.3.2
 ```
 
 独立 `docker run` 示例使用命名卷；仓库 Compose 使用 `./data:/app/data`，实际产品目录为 `./data/product-v2`。两者是替代方案，不是同一份数据；server 和 worker 必须采用同一种挂载，切换方案前先停止服务、备份并迁移数据。
@@ -25,11 +25,11 @@ docker run -d --name niubigeo \
 docker run -d --name niubigeo-worker --no-healthcheck \
   -e OPENROUTER_API_KEY \
   -v niubigeo-data:/app/data/product-v2 \
-  ghcr.io/albert-weasker/niubigeo:v0.3.1 \
+  ghcr.io/albert-weasker/niubigeo:v0.3.2 \
   node dist/src/product/scheduling/schedule-worker.js 60
 ```
 
-公开镜像从 `v0.3.1` Tag 对应的 commit 构建。版本、源码标记、SVG、项目创建和重新创建容器后的持久化检查通过后，工作流才写入 `:v0.3.1` 与 `:latest`；候选版本不能更新 `latest`。实际 Digest 和来源记录见[正式发布附件](https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.3.1)。本版的统计及验收缺口仍见[发布说明](../releases/v0.3.1.md)，不将历史 blocked 记录改成 passed。
+公开镜像从 `v0.3.2` Tag 对应的 commit 构建。版本、源码标记、SVG、项目创建和重新创建容器后的持久化检查通过后，工作流才写入 `:v0.3.2` 与 `:latest`；候选版本不能更新 `latest`。实际 Digest 和来源记录见[正式发布附件](https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.3.2)。本版的统计及验收缺口仍见[发布说明](../releases/v0.3.2.md)，不将历史 blocked 记录改成 passed。
 
 <details>
 <summary>历史候选构建记录与部署参数说明（非正式镜像身份）</summary>
@@ -257,4 +257,8 @@ preview/rc、普通 release 事件及默认手动 candidate 路径不得移动 l
 
 </details>
 
-Docker `v0.3.0` 将作为已验证 v0.3.1 镜像的兼容标签，内部版本为 v0.3.1。已有容器需重新拉取并重建；原 Git tag 不变。
+Docker `v0.3.0` 将作为已验证 v0.3.2 镜像的兼容标签，内部版本为 v0.3.2。已有容器需重新拉取并重建；原 Git tag 不变。
+
+### v0.3.2 安全更新
+
+本次安全发布后，所有历史 Docker 标签（含旧 `sha-` 标签）统一成为 v0.3.2 修复镜像的兼容别名；原 Git 标签不变。已有容器及固定旧 Digest 的部署必须主动拉取、更新引用并重建，详见[安全发布说明](../releases/v0.3.2.md)。v0.1/v0.2 用户升级前请先备份和迁移数据。
