@@ -133,6 +133,10 @@ jobs:
         if: steps.policy.outputs.tag == 'v0.3.1'
         run: node scripts/alias-v030-image.mjs
 
+      - name: Update all explicitly requested historical Docker aliases
+        if: steps.policy.outputs.tag == 'v0.3.2'
+        run: node scripts/alias-security-images.mjs
+
       - name: Record source and digest mapping
         if: always()
         uses: actions/upload-artifact@v4
@@ -143,4 +147,5 @@ jobs:
             ${{ env.RELEASE_RECEIPT_FILE }}
             release-container-*.json
             v030-alias-receipt.json
+            security-alias-receipt.json
           if-no-files-found: ignore
