@@ -1,3 +1,4 @@
+import { fetchPublicWebText } from "../utils/public-web-fetch.js";
 import type { AnswerProvider, DiscoveryEvidence, DomainProfile, Entity, MonitoringPrompt, PromptAuditCategory, PromptType } from "../core/types.js";
 import { FileStore } from "../store/file-store.js";
 import { entityFromInput, normalizeDomain } from "../utils/domain.js";
@@ -73,11 +74,11 @@ function candidateEntryUrls(inputDomain: string): string[] {
 }
 
 async function fetchEvidencePage(url: string): Promise<FetchedEvidencePage | null> {
-  const response = await fetch(url, { redirect: "follow" });
-  if (!response.ok) return null;
-  const contentType = response.headers.get("content-type") || "";
+  const response = await fetchPublicWebText(url);
+  if (!response) return null;
+  const contentType = response.contentType;
   if (!contentType.includes("text/html") && !contentType.includes("application/xhtml")) return null;
-  const html = (await response.text()).slice(0, 260_000);
+  const html = response.text.slice(0, 260_000);
   return {
     url: response.url || url,
     title: titleContent(html) || metaContent(html, "og:title"),

@@ -1,3 +1,4 @@
+import { validatePublicWebUrl } from "./utils/public-web-fetch.js";
 import { createServer, IncomingMessage, ServerResponse } from "node:http";
 import { pathToFileURL } from "node:url";
 import { readdir, readFile, stat } from "node:fs/promises";
@@ -874,6 +875,12 @@ async function handle(req: IncomingMessage, res: ServerResponse, dependencies: P
 
   if (method === "POST" && url.pathname === "/audit-plan") {
     const body = await readJson(req);
+    try {
+      const domain = typeof body.domain === "string" ? body.domain.trim() : "";
+      validatePublicWebUrl(domain.includes("://") ? domain : `https://${domain}`);
+    } catch {
+      return send(res, 400, { error: "domain must be a public HTTP(S) website" });
+    }
     const input = auditInputFromBody(body);
     if (!input.domain) return send(res, 400, { error: "domain is required" });
     const plan = await new AuditPlanner().plan({
