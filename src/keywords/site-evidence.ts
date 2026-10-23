@@ -1,3 +1,4 @@
+import { fetchPublicWebText } from "../utils/public-web-fetch.js";
 import type { SiteEvidence, SiteEvidencePage } from "../core/types.js";
 import { fetchGithubMetadata } from "../ingest/github.js";
 import { normalizeDomain } from "../utils/domain.js";
@@ -132,21 +133,7 @@ function candidateEntryUrls(inputDomain: string): string[] {
   return uniqueHosts.flatMap((host) => [`https://${host}`, `http://${host}`]);
 }
 
-async function fetchText(url: string): Promise<{ url: string; text: string; contentType: string } | null> {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 10_000);
-  try {
-    const response = await fetch(url, { redirect: "follow", signal: controller.signal });
-    if (!response.ok) return null;
-    return {
-      url: response.url || url,
-      text: await response.text(),
-      contentType: response.headers.get("content-type") || "",
-    };
-  } finally {
-    clearTimeout(timeout);
-  }
-}
+const fetchText = fetchPublicWebText;
 
 async function fetchEvidencePage(url: string): Promise<SiteEvidencePage | null> {
   const response = await fetchText(url);
