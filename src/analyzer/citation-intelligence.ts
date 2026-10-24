@@ -1,5 +1,18 @@
 import type { Citation, CitationDomainGroup, Entity } from "../core/types.js";
-import { domainMatches, extractDomainFromUrl } from "../utils/domain.js";
+import { domainMatches, extractDomainFromUrl, githubRepoSlug } from "../utils/domain.js";
+
+function isTargetGithubRepo(url: string, githubRepo: string | undefined): boolean {
+  const repo = githubRepoSlug(githubRepo || "");
+  if (!repo) return false;
+  try {
+    const parsed = new URL(url);
+    if (parsed.hostname.toLowerCase() !== "github.com") return false;
+    const pathRepo = parsed.pathname.replace(/^\/+|\/+$/g, "");
+    return pathRepo.toLowerCase() === repo.toLowerCase();
+  } catch {
+    return false;
+  }
+}
 
 export function attachCitationTypes(citations: Citation[], target: Entity, competitors: Entity[]): Citation[] {
   return citations.map((citation) => {
@@ -15,7 +28,7 @@ export function attachCitationTypes(citations: Citation[], target: Entity, compe
       };
     }
 
-    if (target.githubRepo && citation.url.toLowerCase().includes(`github.com/${target.githubRepo.toLowerCase()}`)) {
+    if (isTargetGithubRepo(citation.url, target.githubRepo)) {
       return {
         ...citation,
         domain,
