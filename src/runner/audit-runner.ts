@@ -10,7 +10,7 @@ import type {
   PromptRun,
   ReportBundle,
 } from "../core/types.js";
-import { resolveProviderKey, runsDir } from "../config/env.js";
+import { hasProviderKey, resolveProviderKey, runsDir } from "../config/env.js";
 import { ProviderCatalog } from "../providers/catalog.js";
 import { runProviderWithRetry } from "../providers/provider-retry.js";
 import { buildExecutionPrompt } from "../prompts/execution-prompt.js";
@@ -208,7 +208,9 @@ export class AuditRunner {
     const callLedger = new ProviderCallLedger();
     const projectId = `project-${slugify(normalizeDomain(input.confirmedPlan.target.domain))}`;
 
-    const profileTarget = selectProfileTarget(providerTargets);
+    const availableTargets = providerTargets.filter(target => hasProviderKey(target.providerId));
+    if (!availableTargets.length) throw new Error("No selected provider has an API key configured.");
+    const profileTarget = selectProfileTarget(availableTargets);
     const profileProvider = this.catalog.get(profileTarget.providerId);
     const profileApiKey = resolveProviderKey(profileTarget.providerId);
     const profileAnalysisModel = analysisModelFor(profileProvider, profileTarget.model);
@@ -373,7 +375,6 @@ export class AuditRunner {
   }): Promise<PromptRun> {
     const { prompt, providerTarget } = input.task;
     const provider = this.catalog.get(providerTarget.providerId);
-    const apiKey = resolveProviderKey(providerTarget.providerId);
     const analysisModel = analysisModelFor(provider, providerTarget.model);
     const id = runId(prompt, providerTarget, input.task.sampleIndex, input.task.sampleCount);
     const runStartedAt = new Date().toISOString();
@@ -398,6 +399,7 @@ export class AuditRunner {
     };
 
     try {
+      const apiKey = resolveProviderKey(providerTarget.providerId);
       const result = await runProviderWithRetry(provider, {
         prompt: executionPrompt,
         model: providerTarget.model,

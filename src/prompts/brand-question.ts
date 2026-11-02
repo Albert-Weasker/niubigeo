@@ -26,9 +26,30 @@ function identityAnchors(target: Entity): string[] {
   return [...new Set([target.name, domain, target.domain, ...target.aliases].map(comparable).filter(Boolean))];
 }
 
+function latinWordCharacter(value: string): boolean {
+  if (!value) return false;
+  const code = value.codePointAt(0)!;
+  return (code >= 48 && code <= 57) || value === "_" ||
+    (code >= 65 && code <= 90) || (code >= 97 && code <= 122) ||
+    (code >= 0xc0 && code <= 0x24f && value.toLowerCase() !== value.toUpperCase()) ||
+    (code >= 0x300 && code <= 0x36f);
+}
+
+function containsIdentity(text: string, anchor: string): boolean {
+  let position = text.indexOf(anchor);
+  while (position !== -1) {
+    const left = text[position - 1] || "";
+    const right = text[position + anchor.length] || "";
+    if ((!latinWordCharacter(anchor[0] || "") || !latinWordCharacter(left)) &&
+        (!latinWordCharacter(anchor[anchor.length - 1] || "") || !latinWordCharacter(right))) return true;
+    position = text.indexOf(anchor, position + 1);
+  }
+  return false;
+}
+
 export function questionContainsTargetIdentity(question: string, target: Entity): boolean {
   const normalizedQuestion = comparable(question);
-  return identityAnchors(target).some((anchor) => normalizedQuestion.includes(anchor));
+  return identityAnchors(target).some((anchor) => containsIdentity(normalizedQuestion, anchor));
 }
 
 function scopeMessage(target: Entity, language: string): string {
