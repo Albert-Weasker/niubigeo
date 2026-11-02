@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
     paths:
+      - 'src/product/keyword-monitor*'
+      - 'test/keyword-monitor*.test.ts'
       - 'src/product/scheduling/**'
       - 'src/product/projects/**'
       - 'test/product-scheduling.test.ts'
@@ -30,4 +32,4 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: node --test dist/test/product-scheduling.test.js
+      - run: node --test dist/test/product-scheduling.test.js dist/test/keyword-monitor.test.js dist/test/keyword-monitor-usability.test.js
