@@ -1,13 +1,24 @@
+import type { ProductModelSnapshot } from "./configuration/baseline-schema.js";
 export type KeywordMonitorFrequency = "hourly" | "daily" | "weekly";
 export type KeywordMonitorKind = "discovery" | "alternative" | "comparison" | "brand" | "use_case";
 export interface KeywordMonitor {
   id: string; projectId: string; keyword: string; normalizedKeyword: string; kind: KeywordMonitorKind;
   frequency: KeywordMonitorFrequency; enabled: boolean; brandName?: string; aliases: string[];
+  tags?: string[]; repeats?: number;
   createdAt: string; updatedAt: string; lastRunAt?: string; nextRunAt?: string;
+}
+export interface KeywordRunConditions {
+  baselineId: string; language: string; prompt: string; brandName: string; aliases: string[];
+  repeats: number; models: ProductModelSnapshot[]; protocolVersion: string;
+}
+export interface KeywordModelResult {
+  modelId: string; modelName: string; sampleIndex?: number; answer: string; mentioned: string[];
+  recommended: string[]; position: number | null; citations: string[]; error?: string;
+  modelVersion?: string; searchUsed?: boolean; carriedFromRunId?: string;
 }
 export interface KeywordMonitorRun {
   id: string; monitorId: string; projectId: string; status: "queued" | "completed" | "failed";
-  keyword: string; startedAt: string; completedAt?: string; answer?: string; mentioned: string[]; positions: Record<string, number | null>; modelResults?: Array<{ modelId: string; modelName: string; answer: string; mentioned: string[]; recommended: string[]; position: number | null; citations: string[]; error?: string }>; error?: string;
+  keyword: string; startedAt: string; completedAt?: string; answer?: string; mentioned: string[]; positions: Record<string, number | null>; modelResults?: KeywordModelResult[]; conditions?: KeywordRunConditions; retryOfRunId?: string; retryModelId?: string; error?: string;
 }
 export interface KeywordMonitorTemplate { id: string; name: string; description: string; kind: KeywordMonitorKind; keywords: string[]; }
 export const KEYWORD_MONITOR_TEMPLATES: KeywordMonitorTemplate[] = [
@@ -20,5 +31,6 @@ export const KEYWORD_MONITOR_TEMPLATES: KeywordMonitorTemplate[] = [
 export interface KeywordMonitorDiff {
   monitorId: string; previousRunId: string; latestRunId: string; previousAt: string; latestAt: string;
   addedRecommendations: string[]; removedRecommendations: string[]; movedMentions: Array<{ modelId: string; modelName: string; from: number | null; to: number | null }>;
+  warnings?: string[]; comparable?: boolean; excludedModels?: string[];
   addedSources: string[]; removedSources: string[]; changedModels: number; hasChanges: boolean;
 }

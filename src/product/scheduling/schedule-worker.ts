@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+import { WorkerStatusStore, type WorkerHeartbeat } from "./worker-status.js";
 import { pathToFileURL } from "node:url";
 import { loadDotEnv, productDataDir } from "../../config/env.js";
 import { PROVIDER_MODEL_CAPABILITIES } from "../../providers/catalog.js";
@@ -46,13 +48,24 @@ export async function runProductScheduleWorker(pollSeconds = 60): Promise<void> 
   const stop = () => { stopped = true; };
   process.once("SIGINT", stop);
   process.once("SIGTERM", stop);
-  while (!stopped) {
+  const store=new WorkerStatusStore(productDataDir());
+  const heartbeat:WorkerHeartbeat={id:randomUUID(),heartbeatAt:new Date().toISOString(),pollSeconds,state:"running"};
+  let writes=Promise.resolve();
+  const publish=()=>{const snapshot={...heartbeat,heartbeatAt:new Date().toISOString()};writes=writes.catch(()=>{}).then(()=>store.write(snapshot));return writes};
+  await publish();
+  const timer=setInterval(()=>{void publish().catch(()=>{console.error("Worker heartbeat could not be saved.")})},Math.min(10000,pollSeconds*1000));
+  try { while (!stopped) {
+    try {
     const occurrences = await service.runDue();
     const keywordRuns = await keywordService.runDue();
     if (keywordRuns.length) console.log(JSON.stringify({ type: "keyword_monitor_due", runCount: keywordRuns.length, runIds: keywordRuns.map((item) => item.id) }));
     if (occurrences.length) console.log(JSON.stringify({ type: "product_schedule_due", occurrenceCount: occurrences.length, occurrenceIds: occurrences.map((item) => item.id) }));
+    heartbeat.lastResult=occurrences.some(row=>row.status!=="completed")||keywordRuns.some(run=>run.status==="failed"||run.modelResults?.some(row=>row.error))?"failed":"completed";
+    if(occurrences.length||keywordRuns.length){heartbeat.lastExecutionAt=new Date().toISOString();heartbeat.lastExecutionResult=heartbeat.lastResult;}
+    } catch(error) {heartbeat.lastResult="failed";console.error("Monitoring cycle failed.");}
+    heartbeat.lastCycleAt=new Date().toISOString();await publish();
     await new Promise<void>((resolve) => setTimeout(resolve, pollSeconds * 1000));
-  }
+  }} finally {clearInterval(timer);process.removeListener("SIGINT",stop);process.removeListener("SIGTERM",stop);heartbeat.state="stopped";await publish();}
 }
 
 loadDotEnv();
