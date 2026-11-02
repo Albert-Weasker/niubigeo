@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { mkdir, readFile, readdir, rename, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, rename, writeFile, rm } from "node:fs/promises";
 import { join } from "node:path";
 export interface WorkerHeartbeat {
     id: string;
@@ -20,7 +20,13 @@ export class WorkerStatusStore {
         await mkdir(dir, { recursive: true });
         const path = join(dir, value.id + ".json"), temp = path + "." + randomUUID() + ".tmp";
         await writeFile(temp, JSON.stringify(value));
-        await rename(temp, path);
+        try {
+            for(let attempt=0;;attempt++) {
+                try {await rename(temp,path);break;}
+                catch(error) {const code=(error as NodeJS.ErrnoException).code;if(attempt>=5||!["EPERM","EBUSY","EACCES"].includes(code||""))throw error;await new Promise(resolve=>setTimeout(resolve,25*(attempt+1)));}
+            }
+        } finally {await rm(temp,{force:true}).catch(()=>undefined);}
+
     }
     async read(at = new Date()) {
         const dir = join(this.root, "worker-status");

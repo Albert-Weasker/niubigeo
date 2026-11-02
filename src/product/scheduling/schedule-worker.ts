@@ -63,7 +63,7 @@ export async function runProductScheduleWorker(pollSeconds = 60): Promise<void> 
     heartbeat.lastResult=occurrences.some(row=>row.status!=="completed")||keywordRuns.some(run=>run.status==="failed"||run.modelResults?.some(row=>row.error))?"failed":"completed";
     if(occurrences.length||keywordRuns.length){heartbeat.lastExecutionAt=new Date().toISOString();heartbeat.lastExecutionResult=heartbeat.lastResult;}
     } catch(error) {heartbeat.lastResult="failed";console.error("Monitoring cycle failed.");}
-    heartbeat.lastCycleAt=new Date().toISOString();await publish();
+    heartbeat.lastCycleAt=new Date().toISOString();await publish().catch(()=>{console.error("Worker heartbeat could not be saved; scheduling continues.")});
     await new Promise<void>((resolve) => setTimeout(resolve, pollSeconds * 1000));
   }} finally {clearInterval(timer);process.removeListener("SIGINT",stop);process.removeListener("SIGTERM",stop);heartbeat.state="stopped";await publish();}
 }

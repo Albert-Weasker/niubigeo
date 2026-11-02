@@ -121,13 +121,13 @@ test("a real worker records setup failure and publishes its heartbeat",async()=>
  const {ProductProjectService}=await import("../src/product/projects/project-service.js");
  const {KeywordMonitorStore}=await import("../src/product/keyword-monitor-store.js");
  const {KeywordMonitorService}=await import("../src/product/keyword-monitor-service.js");
- const root=await mkdtemp(join(tmpdir(),"monitor-worker-process-"));let child:ReturnType<typeof spawn>|undefined;
+ const root=await mkdtemp(join(tmpdir(),"monitor-worker-process-"));let child:ReturnType<typeof spawn>|undefined;let workerError="";
  try{
  const projectsStore=new ProductProjectFileStore(root),projects=new ProductProjectService(projectsStore),store=new KeywordMonitorStore(projectsStore);const service=new KeywordMonitorService(projects,store);
  const project=await projects.createDraft({primaryDomain:"worker.example"});const monitor=await service.create(project.id,{keyword:"best tools"});await service.update(project.id,monitor.id,{nextRunAt:"2020-01-01T00:00:00Z"});
- child=spawn(process.execPath,[fileURLToPath(new URL("../src/product/scheduling/schedule-worker.js",import.meta.url)),"10"],{env:{...process.env,PRODUCT_DATA_DIR:root},stdio:"ignore"});
+ child=spawn(process.execPath,[fileURLToPath(new URL("../src/product/scheduling/schedule-worker.js",import.meta.url)),"10"],{env:{...process.env,PRODUCT_DATA_DIR:root},stdio:["ignore","ignore","pipe"]});child.stderr?.on("data",chunk=>{workerError+=String(chunk)});
  const status=new WorkerStatusStore(root);let observed=false;
- for(let i=0;i<100;i++){const heartbeat=await status.read();if("lastExecutionResult" in heartbeat&&heartbeat.lastExecutionResult==="failed"){observed=true;assert.equal(heartbeat.state,"running");break;}await new Promise(r=>setTimeout(r,50))}
+ for(let i=0;i<100;i++){const heartbeat=await status.read();if("lastExecutionResult" in heartbeat&&heartbeat.lastExecutionResult==="failed"){observed=true;assert.equal(heartbeat.state,"running",workerError);break;}await new Promise(r=>setTimeout(r,50))}
  assert.equal(observed,true);const history=await service.runs(project.id,monitor.id);assert.equal(history.length,1);assert.equal(history[0]?.status,"failed");assert.ok(history[0]?.error);assert.ok(Date.parse((await store.getMonitor(project.id,monitor.id))!.nextRunAt!)>Date.now());
  }finally{if(child&&child.exitCode===null){const stopped=new Promise<void>(resolve=>child!.once("exit",()=>resolve()));child.kill("SIGKILL");await stopped;}await rm(root,{recursive:true,force:true})}
 });
