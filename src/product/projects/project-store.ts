@@ -123,8 +123,12 @@ export class ProductProjectFileStore {
     const path = join(this.locksDir(), `${sha256(`project:${projectId}`)}.lock`);
     const handle = await acquireLock(path);
     if (!handle) return { acquired: false };
+    // Repeated model samples may outlive the stale-lock window.
+    let refresh = Promise.resolve();
+    const timer = setInterval(() => { refresh = refresh.catch(() => undefined).then(async () => { const at = new Date(); await handle.utimes(at, at); }); void refresh.catch(() => undefined); }, 60_000);
+    timer.unref();
     try { return { acquired: true, value: await operation() }; }
-    finally { await handle.close(); await unlink(path).catch(() => undefined); }
+    finally { clearInterval(timer); await refresh.catch(() => undefined); await handle.close(); await unlink(path).catch(() => undefined); }
   }
 
   async withDomainLock<T>(normalizedDomain: string, operation: () => Promise<T>): Promise<T> {

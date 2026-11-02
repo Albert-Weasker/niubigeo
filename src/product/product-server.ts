@@ -1,3 +1,4 @@
+import { WorkerStatusStore } from "./scheduling/worker-status.js";
 import { customConnection, customConnections, withCustomConnection, withCustomConnections, withCustomProviderTransport, type customProviderFetch } from "../providers/custom-connection.js";
 import { connectionCatalog, requestCustomConnection, requestConnections, connectionKey } from "./connections/provider-connections.js";
 import { requestOpenRouterKey, validateOpenRouterKey } from "./connections/connection-http.js";
@@ -133,6 +134,7 @@ async function handle(req: IncomingMessage, res: ServerResponse, dependencies: P
   }
   if (await handleProductConfigurationApi({ method, route, projects, selections, baselines, catalog, readJson: () => readJson(req), send: (status, body) => send(res, status, body) })) return;
   if (await handleMeasurementApi({ method, route, readJson: () => readJson(req), send: (status, body) => send(res, status, body), projects, watchSets, measurements, stats })) return;
+  if(method === "GET" && route.join("/") === "api/scheduler/status"){send(res,200,await new WorkerStatusStore(productDataDir()).read());return;}
   if (await handleKeywordMonitorApi({ method, route, readJson: () => readJson(req), send: (status, body) => send(res, status, body), projects, service: keywordMonitors })) return;
   if (await handleScheduleApi({ method, route, readJson: () => readJson(req), send: (status, body) => send(res, status, body), service: schedules, keywordService: keywordMonitors })) return;
   if (await handleRecognitionReportApi({ method, route, service: reports, send: (status, body) => send(res, status, body) })) return;

@@ -95,6 +95,7 @@ export function renderProductLocalizationScript(): string {
     "最近删除": ["Recently deleted", "Excluídos recentemente"],
     "草稿": ["Draft", "Rascunho"],
     "运行中": ["Active", "Ativo"],
+    "已启用": ["Enabled", "Ativado"],
     "已删除": ["Deleted", "Excluído"],
     "恢复项目": ["Restore project", "Restaurar projeto"],
     "永久清除": ["Permanently delete", "Excluir permanentemente"],
