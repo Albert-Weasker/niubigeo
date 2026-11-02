@@ -35,12 +35,19 @@ export function citationFromUrl(
 }
 
 export function dedupeCitations(citations: Citation[]): Citation[] {
-  const seen = new Set<string>();
+  const positions = new Map<string, number>();
   const out: Citation[] = [];
   for (const citation of citations) {
-    const key = `${citation.source}:${citation.url}`;
-    if (seen.has(key)) continue;
-    seen.add(key);
+    let key = citation.url;
+    try { key = new URL(key).href; } catch { /* Preserve legacy non-URL records. */ }
+    const position = positions.get(key);
+    if (position !== undefined) {
+      if (out[position]!.source === "answer_text_url" && citation.source !== "answer_text_url") {
+        out[position] = { ...citation, citationIndex: position };
+      }
+      continue;
+    }
+    positions.set(key, out.length);
     out.push({ ...citation, citationIndex: out.length });
   }
   return out;

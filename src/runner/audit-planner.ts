@@ -9,7 +9,7 @@ import type {
   ProviderTarget,
 } from "../core/types.js";
 import { ANALYSIS_RULES_VERSION, PROMPT_SET_VERSION } from "../core/version.js";
-import { resolveProviderKey, runsDir } from "../config/env.js";
+import { hasProviderKey, resolveProviderKey, runsDir } from "../config/env.js";
 import { ProviderCatalog } from "../providers/catalog.js";
 import { PromptGenerator } from "../prompts/prompt-generator.js";
 import { DomainProfiler } from "../profile/domain-profiler.js";
@@ -149,12 +149,13 @@ export class AuditPlanner {
 
     const planId = timestampId("plan", input.target);
     const store = new FileStore(input.runsRoot || runsDir());
-    const firstTarget = input.providerTargets[0];
-    if (!firstTarget) throw new Error("At least one provider target is required.");
+    const availableTargets = input.providerTargets.filter(target => hasProviderKey(target.providerId));
+    const firstTarget = availableTargets[0];
+    if (!firstTarget) throw new Error("No selected provider has an API key configured.");
     const firstProvider = this.catalog.get(firstTarget.providerId);
     const firstApiKey = resolveProviderKey(firstTarget.providerId);
     const firstAnalysisModel = analysisModelFor(firstProvider, firstTarget.model);
-    const profileTarget = selectProfileTarget(input.providerTargets);
+    const profileTarget = selectProfileTarget(availableTargets);
     const profileProvider = this.catalog.get(profileTarget.providerId);
     const profileApiKey = resolveProviderKey(profileTarget.providerId);
     const profileAnalysisModel = analysisModelFor(profileProvider, profileTarget.model);
