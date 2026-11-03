@@ -54,22 +54,63 @@ export function stripMatchingQuotes(value: string): string {
   return value;
 }
 
+/** Pull the first balanced JSON object/array out of model text (fenced or inline).
+ *  A trailing `}` / `]` in prose must not extend the slice past the real container. */
 export function jsonContainer(text: string, opening: "{" | "[", closing: "}" | "]"): string {
   const trimmed = text.trim();
-  if (trimmed.startsWith(opening) && trimmed.endsWith(closing)) return trimmed;
   const firstFence = trimmed.indexOf("```");
   if (firstFence >= 0) {
     const contentStart = trimmed.indexOf("\n", firstFence + 3);
     const lastFence = trimmed.lastIndexOf("```");
     if (contentStart >= 0 && lastFence > contentStart) {
       const fenced = trimmed.slice(contentStart + 1, lastFence).trim();
-      if (fenced.startsWith(opening) && fenced.endsWith(closing)) return fenced;
+      if (fenced.startsWith(opening)) {
+        const fromFence = balancedContainer(fenced, 0, opening, closing);
+        if (fromFence !== null) return fromFence;
+      }
     }
   }
   const start = trimmed.indexOf(opening);
-  const end = trimmed.lastIndexOf(closing);
-  if (start >= 0 && end > start) return trimmed.slice(start, end + 1);
+  if (start >= 0) {
+    const found = balancedContainer(trimmed, start, opening, closing);
+    if (found !== null) return found;
+  }
   throw new Error("Structured JSON container was not found.");
+}
+
+/** First balanced `opening`…`closing` span at `start`, respecting JSON strings and escapes. */
+function balancedContainer(
+  text: string,
+  start: number,
+  opening: "{" | "[",
+  closing: "}" | "]",
+): string | null {
+  if (text.charAt(start) !== opening) return null;
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+  for (let index = start; index < text.length; index += 1) {
+    const char = text.charAt(index);
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+    if (char === "\\") {
+      escaped = true;
+      continue;
+    }
+    if (char === '"') {
+      inString = !inString;
+      continue;
+    }
+    if (inString) continue;
+    if (char === opening) depth += 1;
+    else if (char === closing) {
+      depth -= 1;
+      if (depth === 0) return text.slice(start, index + 1);
+    }
+  }
+  return null;
 }
 
 export function asciiSlug(value: string): string {
