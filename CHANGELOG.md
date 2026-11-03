@@ -1,5 +1,15 @@
 # Changelog
 
+## NiubiGEO v0.3.3 - 2026-11-03
+
+- Add UTC date/model filters, per-observation keyword charts and CSV/JSON evidence exports.
+- Export selected recognition reports and filtered measurement chart data.
+- Add bounded CLI repeated sampling with a no-inference request estimate.
+- Correct configured alias boundaries/Unicode matching and structured recommendation objects; preserve old history with a new matching protocol.
+- Include worker heartbeat/status, comparable Diff warnings, failed-model retry, tags and sampling controls from PR #248, and fixes from PR #247.
+- Clarify bilingual setup, result interpretation, local Ollama access and version documentation.
+- See [release and upgrade notes](docs/releases/v0.3.3.md) and the [73-issue triage ledger](docs/issue-triage-v0.3.3.md). Earlier releases: [v0.3.2](docs/releases/v0.3.2.md), [v0.3.1](docs/releases/v0.3.1.md), [v0.3.0](docs/releases/v0.3.0.md).
+
 ## NiubiGEO v0.2.1 - 2026-09-28
 
 - Add 16 clickable platform logos that open the matching API key form.

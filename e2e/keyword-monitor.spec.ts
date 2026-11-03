@@ -52,4 +52,9 @@ test("history retries only failures and exports the displayed pair",async({page}
  await page.locator('[data-history]').click();await expect(page.locator('[data-retry]')).toHaveCount(1);await page.locator('[data-retry]').click();await expect(page.locator('[data-retry]')).toHaveCount(0);expect(modelCalls).toHaveLength(6);expect(modelCalls.filter(id=>id==='a')).toHaveLength(2);
  await expect(page.locator('.history-card')).toContainText('fixture timeout');await page.locator('[data-diff]').click();await expect(page.locator('.diff-card')).toContainText('not an independent observation');
  const downloadPromise=page.waitForEvent('download');await page.getByRole('button',{name:'Export CSV'}).click();const download=await downloadPromise;const file=await download.path();expect(file).toBeTruthy();const csv=await readFile(file!,'utf8');expect(csv).toContain('fixture timeout');expect(csv).toContain('retry_snapshot');
+ await page.locator('#history-filters [name=modelId]').selectOption('a');await page.locator('#history-filters [type=submit]').click();await expect(page.locator('#history-trend')).toContainText('2 / 2');
+ const jsonDownload=page.waitForEvent('download');await page.locator('[data-history-export=json]').click();const downloaded=await jsonDownload;const exported=JSON.parse(await readFile((await downloaded.path())!,'utf8'));expect(exported.filter.modelId).toBe('a');expect(exported.runs.every((r:any)=>r.modelResults.every((m:any)=>m.modelId==='a'))).toBe(true);
+ await page.locator('#history-filters [name=from]').fill('2099-01-01');await page.locator('#history-filters [type=submit]').click();await expect(page.locator('#history-trend .muted')).toBeVisible();await expect(page.locator('.history-card article')).toHaveCount(0);
+ await page.locator('[data-reset-history]').click();await expect(page.locator('.history-card article')).toHaveCount(2);
+
 });

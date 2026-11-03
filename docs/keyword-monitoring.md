@@ -26,4 +26,6 @@ Temporary browser keys are not available to the separate scheduler worker; self-
 - Diff checks the saved prompt, language, brand/aliases, sample count, model/provider, returned model version and search settings. Changed, failed or missing samples are excluded. Legacy conditions and retry snapshots carry warnings; absence of a detected change does not prove stable visibility.
 - **Export CSV** exports the exact two displayed records, including dates, model/sample, mentions, positions, recommendations, source URLs, failures and comparability warnings. Position changes in the CSV require the accompanying warnings to be interpreted correctly.
 
-These additions are in the source branch; use a release containing them before expecting them in a versioned Docker image. No historical migration is required.
+These controls ship in v0.3.3. Existing history remains readable; back up your data before upgrading.
+
+History supports UTC date and model filters, per-observation mention bars, and CSV/JSON exports. See [reading evidence and CLI repeats](monitoring-guide.md) or [local Ollama setup](ollama.md). New observations use matching protocol v2; older records stay readable, but must not be retried with the new matcher.

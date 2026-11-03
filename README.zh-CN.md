@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.3.2"><img src="assets/readme/version.svg" alt="NiubiGEO v0.3.2" width="172" height="28"></a>
+  <a href="https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.3.3"><img src="assets/readme/version.svg" alt="NiubiGEO v0.3.3" width="172" height="28"></a>
   <a href="LICENSE"><img src="assets/readme/license.svg" alt="Apache-2.0" width="172" height="28"></a>
   <a href="docs/deployment/docker.md"><img src="assets/readme/self-hosted.svg" alt="Self-hosted" width="132" height="28"></a>
 </p>
@@ -86,14 +86,20 @@ NiubiGEO 从一个问题开始：**AI 到底如何描述一个产品？** 现在
 
 请通过[持续监测](#monitoring)和[版本历史](https://github.com/Albert-Weasker/niubigeo/releases)查看可验证的项目更新。
 
-## v0.2.1 新功能
+## 当前版本 · v0.3.3
+
+关键词历史新增 UTC 日期与模型筛选、逐次提及比例图和 CSV/JSON 导出；认知报告与持续测量图表也可导出当前选中的证据。重复采样支持 CLI 和请求次数预估。本版同时包含 Worker 状态、Diff 可比性提示、失败模型重试、标签和已配置别名识别修复。
+
+[发布说明](docs/releases/v0.3.3.md) · [监控结果解读](docs/monitoring-guide.zh-CN.md) · [本地 Ollama 设置](docs/ollama.md)
+
+## 历史功能 · v0.2.1
 
 - **点击 Logo 连接模型**：16 个平台入口，点击后输入自己的 API Key，自动预填适用的接口地址。
 - **多来源混选**：同一次测试可选择 OpenRouter、厂商直连与自定义 OpenAI 兼容接口；自动读取型号，也可手动填写模型 ID。
 - **结果独立保存**：按接口来源、型号和联网方式分别记录回答、引用与失败，同名模型不会混在一起。
 - **完整模型目录**：按主流平台、来源和联网能力筛选。自定义接口联网能力显示“未验证”；结构化分析要求支持 JSON Schema。
 
-[使用指南](docs/model-connections.zh-CN.md) · [下载 v0.3.2](https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.3.2) · [Docker 安装](docs/deployment/docker.md)
+[使用指南](docs/model-connections.zh-CN.md) · [下载 v0.3.3](https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.3.3) · [Docker 安装](docs/deployment/docker.md)
 
 ### v0.3 · 关键词持续侦测 NEW / BETA
 
@@ -128,7 +134,7 @@ v0.3 在工作台中加入独立的关键词持续侦测模块：支持自定义
 想测试自己的产品，准备 Node.js 22.13+ 和自己的 OpenRouter API Key：
 
 ```bash
-git clone --branch v0.3.2 --depth 1 https://github.com/Albert-Weasker/niubigeo.git
+git clone --branch v0.3.3 --depth 1 https://github.com/Albert-Weasker/niubigeo.git
 cd niubigeo
 npm ci
 cp .env.example .env
@@ -347,7 +353,7 @@ NiubiStar 同时为官方服务提供真人执行网络，支持实际使用环�
 - [工作原理](docs/how-it-works.md) · [架构说明](docs/ARCHITECTURE.md)
 - [测量方法](docs/measurement-methodology.md) · [来源与证据](docs/evidence-model.md)
 - [部署](docs/deployment/docker.md) · [备份与升级](docs/upgrade.md)
-- [已知问题](docs/known-issues.md) · [能力边界](docs/limitations.md) · [发布说明](https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.3.2)
+- [已知问题](docs/known-issues.md) · [能力边界](docs/limitations.md) · [发布说明](https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.3.3)
 - [贡献指南](CONTRIBUTING.md) · [安全政策](SECURITY.md) · [许可证](LICENSE)
 
 ---

@@ -47,6 +47,8 @@ function containsIdentity(text: string, anchor: string): boolean {
   return false;
 }
 
+export function containsConfiguredIdentity(text:string,term:string):boolean { const anchor=comparable(term);return Boolean(anchor)&&containsIdentity(comparable(text),anchor); }
+
 export function questionContainsTargetIdentity(question: string, target: Entity): boolean {
   const normalizedQuestion = comparable(question);
   return identityAnchors(target).some((anchor) => containsIdentity(normalizedQuestion, anchor));

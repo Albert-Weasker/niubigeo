@@ -1,0 +1,81 @@
+# Issue consolidation for v0.3.3
+
+Review date: 2026-11-03. This ledger covers all 73 open issues at the start of this pass. Duplicate closure means consolidation, not delivery. Broader requirements remain on the canonical issue or the backlog; no discussions are deleted.
+
+Release scope: keyword history/date/model filtering, CSV/JSON evidence export, repeat-sampling CLI, configured-alias correctness, clearer monitoring and deployment documentation. Existing unreleased fixes from PRs #247 and #248 are included. Regional proxy execution, automated reporting, scoring and provider integrations remain separate work.
+
+| Issue | Area | Disposition | Canonical |
+|---|---|---|---|
+| [#11](https://github.com/Albert-Weasker/niubigeo/issues/11) | matching | backlog | — |
+| [#78](https://github.com/Albert-Weasker/niubigeo/issues/78) | providers | backlog | — |
+| [#102](https://github.com/Albert-Weasker/niubigeo/issues/102) | ui | consolidated | [#187](https://github.com/Albert-Weasker/niubigeo/issues/187) |
+| [#103](https://github.com/Albert-Weasker/niubigeo/issues/103) | evidence | backlog | — |
+| [#107](https://github.com/Albert-Weasker/niubigeo/issues/107) | integrations | backlog | — |
+| [#108](https://github.com/Albert-Weasker/niubigeo/issues/108) | evidence | backlog | — |
+| [#109](https://github.com/Albert-Weasker/niubigeo/issues/109) | history | consolidated | [#125](https://github.com/Albert-Weasker/niubigeo/issues/125) |
+| [#110](https://github.com/Albert-Weasker/niubigeo/issues/110) | history | consolidated | [#125](https://github.com/Albert-Weasker/niubigeo/issues/125) |
+| [#111](https://github.com/Albert-Weasker/niubigeo/issues/111) | history | consolidated | [#125](https://github.com/Albert-Weasker/niubigeo/issues/125) |
+| [#112](https://github.com/Albert-Weasker/niubigeo/issues/112) | history | consolidated | [#125](https://github.com/Albert-Weasker/niubigeo/issues/125) |
+| [#115](https://github.com/Albert-Weasker/niubigeo/issues/115) | export | consolidated | [#191](https://github.com/Albert-Weasker/niubigeo/issues/191) |
+| [#116](https://github.com/Albert-Weasker/niubigeo/issues/116) | notifications | backlog | — |
+| [#117](https://github.com/Albert-Weasker/niubigeo/issues/117) | regional | backlog | — |
+| [#118](https://github.com/Albert-Weasker/niubigeo/issues/118) | evidence | backlog | — |
+| [#119](https://github.com/Albert-Weasker/niubigeo/issues/119) | docs | consolidated | [#190](https://github.com/Albert-Weasker/niubigeo/issues/190) |
+| [#120](https://github.com/Albert-Weasker/niubigeo/issues/120) | docs | consolidated | [#190](https://github.com/Albert-Weasker/niubigeo/issues/190) |
+| [#121](https://github.com/Albert-Weasker/niubigeo/issues/121) | docs | consolidated | [#190](https://github.com/Albert-Weasker/niubigeo/issues/190) |
+| [#122](https://github.com/Albert-Weasker/niubigeo/issues/122) | docs | consolidated | [#190](https://github.com/Albert-Weasker/niubigeo/issues/190) |
+| [#123](https://github.com/Albert-Weasker/niubigeo/issues/123) | docs | consolidated | [#190](https://github.com/Albert-Weasker/niubigeo/issues/190) |
+| [#125](https://github.com/Albert-Weasker/niubigeo/issues/125) | history | v0.3.3 | — |
+| [#127](https://github.com/Albert-Weasker/niubigeo/issues/127) | regional | backlog | — |
+| [#128](https://github.com/Albert-Weasker/niubigeo/issues/128) | triage | needs-info | — |
+| [#160](https://github.com/Albert-Weasker/niubigeo/issues/160) | export | consolidated | [#210](https://github.com/Albert-Weasker/niubigeo/issues/210) |
+| [#170](https://github.com/Albert-Weasker/niubigeo/issues/170) | history | v0.3.3 | — |
+| [#171](https://github.com/Albert-Weasker/niubigeo/issues/171) | export | consolidated | [#191](https://github.com/Albert-Weasker/niubigeo/issues/191) |
+| [#172](https://github.com/Albert-Weasker/niubigeo/issues/172) | history | consolidated | [#125](https://github.com/Albert-Weasker/niubigeo/issues/125) |
+| [#173](https://github.com/Albert-Weasker/niubigeo/issues/173) | matching | v0.3.3 | — |
+| [#174](https://github.com/Albert-Weasker/niubigeo/issues/174) | docs | consolidated | [#190](https://github.com/Albert-Weasker/niubigeo/issues/190) |
+| [#175](https://github.com/Albert-Weasker/niubigeo/issues/175) | export | consolidated | [#191](https://github.com/Albert-Weasker/niubigeo/issues/191) |
+| [#177](https://github.com/Albert-Weasker/niubigeo/issues/177) | notifications | verified-existing | — |
+| [#182](https://github.com/Albert-Weasker/niubigeo/issues/182) | history | consolidated | [#125](https://github.com/Albert-Weasker/niubigeo/issues/125) |
+| [#183](https://github.com/Albert-Weasker/niubigeo/issues/183) | triage | backlog | — |
+| [#184](https://github.com/Albert-Weasker/niubigeo/issues/184) | triage | needs-info | — |
+| [#186](https://github.com/Albert-Weasker/niubigeo/issues/186) | triage | needs-info | — |
+| [#187](https://github.com/Albert-Weasker/niubigeo/issues/187) | ui | backlog | — |
+| [#190](https://github.com/Albert-Weasker/niubigeo/issues/190) | docs | v0.3.3 | — |
+| [#191](https://github.com/Albert-Weasker/niubigeo/issues/191) | export | v0.3.3 | — |
+| [#193](https://github.com/Albert-Weasker/niubigeo/issues/193) | docs | consolidated | [#190](https://github.com/Albert-Weasker/niubigeo/issues/190) |
+| [#194](https://github.com/Albert-Weasker/niubigeo/issues/194) | docs | v0.3.3 | — |
+| [#195](https://github.com/Albert-Weasker/niubigeo/issues/195) | sampling | consolidated | [#214](https://github.com/Albert-Weasker/niubigeo/issues/214) |
+| [#197](https://github.com/Albert-Weasker/niubigeo/issues/197) | triage | needs-info | — |
+| [#198](https://github.com/Albert-Weasker/niubigeo/issues/198) | export | consolidated | [#191](https://github.com/Albert-Weasker/niubigeo/issues/191) |
+| [#199](https://github.com/Albert-Weasker/niubigeo/issues/199) | notifications | consolidated | [#116](https://github.com/Albert-Weasker/niubigeo/issues/116) |
+| [#201](https://github.com/Albert-Weasker/niubigeo/issues/201) | regional | consolidated | [#117](https://github.com/Albert-Weasker/niubigeo/issues/117) |
+| [#202](https://github.com/Albert-Weasker/niubigeo/issues/202) | export | consolidated | [#191](https://github.com/Albert-Weasker/niubigeo/issues/191) |
+| [#203](https://github.com/Albert-Weasker/niubigeo/issues/203) | providers | verified-existing | — |
+| [#204](https://github.com/Albert-Weasker/niubigeo/issues/204) | triage | needs-info | — |
+| [#205](https://github.com/Albert-Weasker/niubigeo/issues/205) | docs | consolidated | [#190](https://github.com/Albert-Weasker/niubigeo/issues/190) |
+| [#206](https://github.com/Albert-Weasker/niubigeo/issues/206) | export | consolidated | [#191](https://github.com/Albert-Weasker/niubigeo/issues/191) |
+| [#207](https://github.com/Albert-Weasker/niubigeo/issues/207) | docs | consolidated | [#190](https://github.com/Albert-Weasker/niubigeo/issues/190) |
+| [#208](https://github.com/Albert-Weasker/niubigeo/issues/208) | history | consolidated | [#170](https://github.com/Albert-Weasker/niubigeo/issues/170) |
+| [#209](https://github.com/Albert-Weasker/niubigeo/issues/209) | history | consolidated | [#125](https://github.com/Albert-Weasker/niubigeo/issues/125) |
+| [#210](https://github.com/Albert-Weasker/niubigeo/issues/210) | export | backlog | — |
+| [#211](https://github.com/Albert-Weasker/niubigeo/issues/211) | triage | needs-info | — |
+| [#212](https://github.com/Albert-Weasker/niubigeo/issues/212) | triage | needs-info | — |
+| [#214](https://github.com/Albert-Weasker/niubigeo/issues/214) | sampling | v0.3.3 | — |
+| [#215](https://github.com/Albert-Weasker/niubigeo/issues/215) | regional | consolidated | [#117](https://github.com/Albert-Weasker/niubigeo/issues/117) |
+| [#216](https://github.com/Albert-Weasker/niubigeo/issues/216) | history | consolidated | [#125](https://github.com/Albert-Weasker/niubigeo/issues/125) |
+| [#217](https://github.com/Albert-Weasker/niubigeo/issues/217) | history | consolidated | [#125](https://github.com/Albert-Weasker/niubigeo/issues/125) |
+| [#218](https://github.com/Albert-Weasker/niubigeo/issues/218) | ui | verified-existing | — |
+| [#219](https://github.com/Albert-Weasker/niubigeo/issues/219) | triage | needs-info | — |
+| [#220](https://github.com/Albert-Weasker/niubigeo/issues/220) | docs | v0.3.3 | — |
+| [#222](https://github.com/Albert-Weasker/niubigeo/issues/222) | regional | consolidated | [#117](https://github.com/Albert-Weasker/niubigeo/issues/117) |
+| [#224](https://github.com/Albert-Weasker/niubigeo/issues/224) | triage | needs-info | — |
+| [#225](https://github.com/Albert-Weasker/niubigeo/issues/225) | evidence | verified-existing | — |
+| [#226](https://github.com/Albert-Weasker/niubigeo/issues/226) | triage | needs-info | — |
+| [#227](https://github.com/Albert-Weasker/niubigeo/issues/227) | providers | verified-existing | — |
+| [#228](https://github.com/Albert-Weasker/niubigeo/issues/228) | export | consolidated | [#191](https://github.com/Albert-Weasker/niubigeo/issues/191) |
+| [#232](https://github.com/Albert-Weasker/niubigeo/issues/232) | notifications | backlog | — |
+| [#233](https://github.com/Albert-Weasker/niubigeo/issues/233) | history | consolidated | [#125](https://github.com/Albert-Weasker/niubigeo/issues/125) |
+| [#235](https://github.com/Albert-Weasker/niubigeo/issues/235) | regional | consolidated | [#117](https://github.com/Albert-Weasker/niubigeo/issues/117) |
+| [#237](https://github.com/Albert-Weasker/niubigeo/issues/237) | sampling | backlog | — |
+| [#238](https://github.com/Albert-Weasker/niubigeo/issues/238) | history | consolidated | [#125](https://github.com/Albert-Weasker/niubigeo/issues/125) |

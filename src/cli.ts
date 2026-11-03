@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import {runKeywordCli} from "./product/keyword-monitor-cli.js";
 import { existsSync, readFileSync } from "node:fs";
 import { AuditRunner } from "./runner/audit-runner.js";
 import { AuditPlanner } from "./runner/audit-planner.js";
@@ -366,6 +367,7 @@ async function schedule(options: Record<string, string | boolean>): Promise<void
 
 async function main(): Promise<void> {
   const { command, options } = parseArgs(process.argv.slice(2));
+  if(command === "keyword-run")return runKeywordCli(options);
   if (command === "audit") return runAudit(options);
   if (command === "verify-real") return verifyReal(options);
   if (command === "schedule") return schedule(options);
@@ -377,6 +379,7 @@ async function main(): Promise<void> {
   if (command === "monitor-due") return runDueMonitors();
   if (command === "monitor-worker") return runMonitorWorker(options);
   console.log("Usage:");
+  console.log("  npx tsx src/cli.ts keyword-run --project project-id --monitor monitor-id --repeats 5 [--dry-run]");
   console.log("  npm run audit -- --domain example.com --targets openrouter:model-id --prompt-count 8 --web-search");
   console.log("  npm run audit -- --domain example.com --keywords \"keyword one,keyword two\" --keyword-limit 4 --prompts-per-keyword 2");
   console.log("  npm run verify:real -- --domain example.com --provider openrouter --model model-id");

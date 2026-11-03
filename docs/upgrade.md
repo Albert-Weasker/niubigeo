@@ -1,5 +1,19 @@
 # 升级、备份与回滚
 
+## 当前版本 v0.3.3
+
+v0.3.2 用户升级前，先暂停任务，等待在途执行完成，停止 worker 与 server，备份实际挂载的整个 `data/product-v2` 数据目录及部署配置。不要只备份项目列表或在唯一副本上测试升级。Docker named volume 应备份实际卷内容。
+
+更新 Compose 中 Web 与 worker 的镜像为 `ghcr.io/albert-weasker/niubigeo:v0.3.3`，拉取并重建服务。先只启动 Web，核对项目、历史和导出；确认配置与服务端密钥后再恢复 worker。源码安装使用 v0.3.3 Tag、Node.js 22+ 和 `npm ci`。
+
+本版保留旧历史，新关键词观测采用 `keyword-monitor-v2` 别名识别协议。旧协议记录可以阅读和导出，但不能混用新规则重试；需要创建新观测。跨协议 Diff 会显示条件变化提示。回滚时使用升级前的备份副本与旧镜像，不假设旧版本能解释所有新记录。
+
+[发布说明与验收范围](releases/v0.3.3.md) · [Docker 安装](deployment/docker.md) · [监控解读](monitoring-guide.zh-CN.md)
+
+<details>
+<summary>历史候选验收与详细备份操作（v0.2.0-rc.1，不代表当前发布状态）</summary>
+
+
 [Markdown 案例](../examples/README.zh-CN.md) 可直接阅读，不需要第二个服务。停用案例专用预览不改变正常产品数据、运行 API、报告或图表，也不意味着删除任何旧案例归档。
 
 适用目标：当前产品候选 **v0.2.0-rc.1，UNPUBLISHED（未发布）**。rc4 候选已构建并验证备份读取，同时验证在上一个本地候选中重新打开备份副本；没有公开发布镜像。最终映射见本地 `release-manifest.json`（本地私有记录，未公开：`../validation/release-v0.2.0-rc.1/release-manifest.json`），该私有路径不是公开下载地址。镜像准备见 [Docker 部署](deployment/docker.md)。
@@ -88,3 +102,5 @@ final 副本验收通过且发布清单确认镜像内容后，用清单中已�
 如果旧版本是 Legacy，引擎和数据目录也必须成对恢复；新 product-v2 不能自动降级为旧 runs。不要移动已发布不可变标签为其他镜像，也不要通过覆盖原始回答使旧报告看起来一致。纯文档修正不需要重新请求模型；产品构建输入变化则要重新验证受影响行为。
 
 本轮发布状态仍为未发布。已执行的旧候选 copy + reopen 以上述 rollback-check 为证，final/跨版本回滚仍按实际结果另记。具体产品来源、文档版本、安装/回滚镜像 Digest 与验收范围由发布清单关联；清单未齐备前，不将 dirty HEAD 写成已冻结产品提交。其他统计、证据与调度限制见 [已知限制](limitations.md)。
+
+</details>
