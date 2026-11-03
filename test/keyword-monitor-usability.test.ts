@@ -53,7 +53,7 @@ test("API repeats and single-model retry preserve successes, old failures and pr
     const calls: string[] = [];
     let fail = true;
     const server = createProductServer({ modelCatalog: { async list() { return ["a", "b"].map(modelId => ({ providerId: "openrouter" as const, modelId, displayName: modelId, available: true, unavailableReason: null, nativeWebSearchSupported: false, checkedAt: new Date().toISOString(), source: "openrouter_catalog" as const })); } }, recognitionExecutor: { async execute(input) { calls.push(input.modelSnapshot.modelId); if (input.modelSnapshot.modelId === "b" && fail)
-                throw new Error("fixture failure"); return { providerId: "openrouter", providerName: "fixture", sourceType: "api", sourceLabel: "fixture", resultCaveat: "", model: input.modelSnapshot.modelId, modelVersion: "v1", text: "Brand", citations: [], webQueries: [], latencyMs: 1, createdAt: new Date().toISOString() }; } } });
+                throw new Error("fixture failure"); return { providerId: "openrouter", providerName: "fixture", sourceType: "api", sourceLabel: "fixture", resultCaveat: "", model: input.modelSnapshot.modelId, modelVersion: "v1", text: "Brand", structuredOutput:{transport:"response_json_schema",value:{mentions:[{name:"Brand",recommendation:"positive"}]}}, citations: [], webQueries: [], latencyMs: 1, createdAt: new Date().toISOString() }; } } });
     await new Promise<void>(r => server.listen(0, "127.0.0.1", r));
     const address = server.address();
     assert.ok(address && typeof address !== "string");
@@ -69,9 +69,15 @@ test("API repeats and single-model retry preserve successes, old failures and pr
         const { data: { monitor } } = await request(path + "/keyword-monitors", "POST", { keyword: "best tools", brandName: "Brand", tags: [" group ", "group"], repeats: 2 });
         assert.deepEqual(monitor.tags, ["group"]);
         const monitorPath = path + "/keyword-monitors/" + monitor.id;
+        const {execFileSync}=await import("node:child_process");
+        const dryRun=JSON.parse(execFileSync(process.execPath,[fileURLToPath(new URL("../src/cli.js",import.meta.url)),"keyword-run","--project",project.id,"--monitor",monitor.id,"--repeats","5","--dry-run"],{encoding:"utf8",env:{...process.env,PRODUCT_DATA_DIR:root}}));
+        assert.equal(dryRun.estimate.requests,10);assert.equal(dryRun.estimate.repeats,5);assert.equal(dryRun.estimate.costUsd,null);assert.equal(calls.length,0);
+        assert.equal((await request(monitorPath)).data.runs.length,0);
+
         const { data: { run } } = await request(monitorPath + "/run", "POST", {});
         assert.equal(calls.length, 4);
         assert.equal(run.conditions.repeats, 2);
+        assert.deepEqual(run.modelResults[0].recommended,["Brand"]);assert.equal(run.modelResults[0].position,0);
         assert.equal(run.modelResults.filter((r: any) => r.error).length, 2);
         fail = false;
         const { data: { run: retried }, status } = await request(monitorPath + "/retry", "POST", { runId: run.id, modelId: "b" });
@@ -96,6 +102,12 @@ test("API repeats and single-model retry preserve successes, old failures and pr
         assert.equal((await request(monitorPath+"/export","POST",{previousRunId:run.id,latestRunId:"foreign"})).status,422);
         await request(monitorPath+"/run","POST",{});
         assert.equal((await request(monitorPath+"/export","POST",{previousRunId:run.id,latestRunId:retried.id})).data.csv,pinned);
+        const filtered=await request(monitorPath+"?modelId=a");assert.ok(filtered.data.runs.every((r:any)=>r.modelResults.every((m:any)=>m.modelId==="a")));
+        assert.equal((await request(monitorPath+"?from=2026-02-30")).status,422);
+        const exported=await request(monitorPath+"/history-export","POST",{format:"json",modelId:"a"});assert.equal(exported.status,200);assert.ok(JSON.parse(exported.data.content).runs.every((r:any)=>r.modelResults.every((m:any)=>m.modelId==="a")));
+        assert.equal((await request(monitorPath+"/history-export","POST",{format:"pdf"})).status,422);
+        const {ProductProjectService}=await import("../src/product/projects/project-service.js");const {ProductProjectFileStore}=await import("../src/product/projects/project-store.js");await new ProductProjectService(new ProductProjectFileStore(root)).archive(project.id);const countBefore=calls.length;
+        assert.equal((await request(monitorPath+"/run","POST",{})).status,422);assert.equal(calls.length,countBefore);
     }
     finally {
         await new Promise<void>(r => server.close(() => r()));

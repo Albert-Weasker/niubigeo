@@ -11,7 +11,10 @@ assert.ok(image && version && source, "RELEASE_IMAGE, RELEASE_VERSION and RELEAS
 assert.ok(["linux/amd64", "linux/arm64"].includes(platform), "Choose a supported platform");
 const name = `niubigeo-release-${randomUUID()}`;
 const volume = `${name}-data`;
-const report = { image, version, source, platform, checks: [], providerInferenceCalls: 0, status: "failed" };
+const upgradeImage = process.env.RELEASE_UPGRADE_FROM;
+const upgradeVolume = `${name}-upgrade`;
+let activeVolume = volume;
+const report = { upgradeImage, image, version, source, platform, checks: [], providerInferenceCalls: 0, status: "failed" };
 const docker = (...args) => execFileSync("docker", args, { encoding: "utf8", timeout: 300000 }).trim();
 const sha = value => createHash("sha256").update(value).digest("hex");
 let base;
@@ -27,9 +30,9 @@ async function request(path, method = "GET", body) {
   });
   return { status: response.status, body: await response.json() };
 }
-async function start() {
+async function start(imageRef = image) {
   docker("run", "-d", "--name", name, "--platform", platform,
-    "-p", "127.0.0.1::8787", "-v", `${volume}:/app/data/product-v2`, image);
+    "-p", "127.0.0.1::8787", "-v", `${activeVolume}:/app/data/product-v2`, imageRef);
   const container = JSON.parse(docker("inspect", name))[0];
   base = `http://127.0.0.1:${container.NetworkSettings.Ports["8787/tcp"][0].HostPort}`;
   const deadline = Date.now() + 60000;
@@ -98,6 +101,42 @@ try {
   docker("rm", "-f", name);
   await start();
   verify("Deleted project stays deleted after recreation", (await request("/api/projects")).body.projects, []);
+  if (upgradeImage) {
+    docker("rm", "-f", name);
+    docker("pull", "--platform", platform, upgradeImage);
+    docker("volume", "create", upgradeVolume);
+    activeVolume = upgradeVolume;
+    await start(upgradeImage);
+    const previousPackage = JSON.parse(docker("exec", name, "node", "-p", "JSON.stringify(require('./package.json'))"));
+    verify("Upgrade starts from v0.3.2", previousPackage.version, "0.3.2");
+    const oldProject = await request("/api/projects", "POST", {primaryDomain:"upgrade.example", name:"Synthetic upgrade acceptance"});
+    verify("Old image creates project", oldProject.status, 201);
+    const projectId = oldProject.body.project.id;
+    const endpoint = `/api/projects/${projectId}/keyword-monitors`;
+    const monitor = await request(endpoint, "POST", {keyword:"synthetic upgrade question", brandName:"Example", aliases:["Alias"], frequency:"daily"});
+    verify("Old image creates keyword", monitor.status, 201);
+    const monitorId = monitor.body.monitor.id;
+    // Explicit fixture: persistence compatibility only, never an AI experiment.
+    const fixture = {id:"upgrade-fixture",projectId,monitorId,keyword:"synthetic upgrade question",status:"completed",startedAt:"2026-10-01T00:00:00.000Z",mentioned:["Example"],positions:{fixture:0},modelResults:[{modelId:"fixture",modelName:"Synthetic fixture",answer:"Example synthetic answer",mentioned:["Example"],recommended:["Example"],position:0,citations:["https://example.com"]}]};
+    docker("exec", name, "node", "--input-type=module", "-e", `
+      import {mkdirSync,writeFileSync} from 'node:fs';
+      const root='/app/data/product-v2/projects/'+${JSON.stringify(projectId)}+'/keyword-monitoring/runs';
+      mkdirSync(root,{recursive:true});
+      writeFileSync(root+'/upgrade-fixture.json',${JSON.stringify(JSON.stringify(fixture, null, 2))});
+    `);
+    const paths = [`projects/${projectId}/project.json`, `projects/${projectId}/keyword-monitoring/monitors/${monitorId}.json`, `projects/${projectId}/keyword-monitoring/runs/upgrade-fixture.json`];
+    const hashes = paths.map(path=>sha(docker("exec",name,"cat","/app/data/product-v2/"+path)));
+    docker("rm", "-f", name);
+    await start();
+    verify("Upgrade preserves project", (await request(`/api/projects/${projectId}`)).body.project.id,projectId);
+    verify("Upgrade preserves monitor", (await request(endpoint)).body.monitors[0].id,monitorId);
+    verify("Upgrade reads old fixture history", (await request(endpoint+"/"+monitorId)).body.runs[0].modelResults[0].answer, fixture.modelResults[0].answer);
+    const exported=await request(endpoint+"/"+monitorId+"/history-export","POST",{format:"json",from:"2026-10-01",to:"2026-10-01",modelId:"fixture"});
+    verify("Upgrade exports filtered old history",exported.status,200);
+    verify("Upgrade export retains evidence",JSON.parse(exported.body.content).runs[0].modelResults[0].answer,fixture.modelResults[0].answer);
+    verify("Upgrade reads do not rewrite old records",paths.map(path=>sha(docker("exec",name,"cat","/app/data/product-v2/"+path))),hashes);
+    report.upgradeFixtureOnly = true;
+  }
   report.status = "passed";
 } catch (error) {
   report.error = String(error);
@@ -105,6 +144,7 @@ try {
 } finally {
   try { docker("rm", "-f", name); } catch {}
   try { docker("volume", "rm", volume); } catch {}
+  if (upgradeImage) { try { docker("volume", "rm", upgradeVolume); } catch {} }
   report.finishedAt = new Date().toISOString();
   const path = process.env.RELEASE_CONTAINER_REPORT || `release-container-${platform.split("/")[1]}.json`;
   await writeFile(path, JSON.stringify(report, null, 2) + "\n");

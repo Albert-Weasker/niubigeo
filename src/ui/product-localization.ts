@@ -96,6 +96,8 @@ export function renderProductLocalizationScript(): string {
     "草稿": ["Draft", "Rascunho"],
     "运行中": ["Active", "Ativo"],
     "已启用": ["Enabled", "Ativado"],
+    "导出 CSV": ["Export CSV", "Exportar CSV"],
+    "导出 JSON": ["Export JSON", "Exportar JSON"],
     "已删除": ["Deleted", "Excluído"],
     "恢复项目": ["Restore project", "Restaurar projeto"],
     "永久清除": ["Permanently delete", "Excluir permanentemente"],

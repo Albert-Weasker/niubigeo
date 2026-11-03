@@ -6,6 +6,7 @@ type Read = () => Promise<Record<string, unknown>>;
 const text = (v: unknown) => typeof v === "string" ? v : undefined;
 const list = (v: unknown) => Array.isArray(v) && v.every(x => typeof x === "string") ? (v as string[]) : undefined;
 export async function handleKeywordMonitorApi(input: {
+    query?:URLSearchParams;
     method: string;
     route: string[];
     readJson: Read;
@@ -38,7 +39,8 @@ export async function handleKeywordMonitorApi(input: {
     if (!id)
         return false;
     if (route.length === 5 && method === "GET")
-        return send(200, { runs: await service.history(projectId, id) }), true;
+        return send(200, { runs: await service.history(projectId, id,Object.fromEntries(input.query||[])) }), true;
+    if(route.length===6&&route[5]==="history-export"&&method==="POST"){const b=await readJson();if(b.format!=="csv"&&b.format!=="json")throw new Error("Choose CSV or JSON.");for(const key of ["from","to","modelId"])if(b[key]!==undefined&&typeof b[key]!=="string")throw new Error("Invalid history filter.");return send(200,await service.exportHistory(projectId,id,{...(typeof b.from==="string"?{from:b.from}:{}),...(typeof b.to==="string"?{to:b.to}:{}),...(typeof b.modelId==="string"?{modelId:b.modelId}:{})},b.format)),true;}
     if(route.length===6&&route[5]==="export"&&method==="POST"){const b=await readJson();if(!text(b.previousRunId)||!text(b.latestRunId))throw new Error("Select two observations.");send(200,await service.exportDiff(projectId,id,text(b.previousRunId),text(b.latestRunId)));return true;}
     if (route.length === 6 && route[5] === "export" && method === "GET")
         return send(200, await service.exportDiff(projectId, id)), true;

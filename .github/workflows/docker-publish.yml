@@ -117,6 +117,7 @@ jobs:
           RELEASE_IMAGE: ${{ steps.policy.outputs.image }}@${{ steps.build.outputs.digest }}
           RELEASE_VERSION: ${{ steps.policy.outputs.tag }}
           RELEASE_SOURCE_SHA: ${{ github.sha }}
+          RELEASE_UPGRADE_FROM: ghcr.io/albert-weasker/niubigeo:v0.3.2
         run: |
           node scripts/verify-release-container.mjs linux/amd64
           docker image rm "$RELEASE_IMAGE"

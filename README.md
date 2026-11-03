@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.3.2"><img src="assets/readme/version.svg" alt="NiubiGEO v0.3.2" width="172" height="28"></a>
+  <a href="https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.3.3"><img src="assets/readme/version.svg" alt="NiubiGEO v0.3.3" width="172" height="28"></a>
   <a href="LICENSE"><img src="assets/readme/license.svg" alt="Apache-2.0" width="172" height="28"></a>
   <a href="docs/deployment/docker.en.md"><img src="assets/readme/self-hosted.svg" alt="Self-hosted" width="132" height="28"></a>
 </p>
@@ -85,14 +85,20 @@ NiubiGEO began with one question: **what does AI actually say about a product?**
 
 See the [monitoring section](#monitoring) and [release history](https://github.com/Albert-Weasker/niubigeo/releases) for verifiable updates.
 
-## New in v0.2.1
+## Current release · v0.3.3
+
+Keyword history now supports UTC date/model filters, per-observation mention charts and CSV/JSON exports. Reports and measurement charts export their selected evidence. Repeated sampling also has a CLI with a request-count dry run. This release includes worker status, comparable Diff warnings, failed-model retries, tags and configured-alias fixes.
+
+[Release notes](docs/releases/v0.3.3.md) · [Read monitoring results](docs/monitoring-guide.md) · [Ollama setup](docs/ollama.md)
+
+## Previously shipped · v0.2.1
 
 - **Connect through platform logos**: 16 platform shortcuts open an API key form with the applicable endpoint prefilled.
 - **Mix model sources**: choose OpenRouter, direct provider APIs and custom OpenAI-compatible endpoints in the same test. Discover model IDs automatically or enter them manually.
 - **Keep results separate**: answers, citations and failures retain their endpoint, model and search setting, even when model names match.
 - **Browse the full model catalog**: filter by mainstream platform, source and search support. Custom search support is labeled unverified; structured analysis requires JSON Schema support.
 
-[Connection guide](docs/model-connections.md) · [Download v0.3.2](https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.3.2) · [Docker installation](docs/deployment/docker.en.md)
+[Connection guide](docs/model-connections.md) · [Download v0.3.3](https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.3.3) · [Docker installation](docs/deployment/docker.en.md)
 
 ### v0.3 · Keyword Monitoring NEW / BETA
 
@@ -127,7 +133,7 @@ This release does not include a separate competitor detection dashboard. The cur
 To test your own product, you will need Node.js 22.13+ and your own OpenRouter API key:
 
 ```bash
-git clone --branch v0.3.2 --depth 1 https://github.com/Albert-Weasker/niubigeo.git
+git clone --branch v0.3.3 --depth 1 https://github.com/Albert-Weasker/niubigeo.git
 cd niubigeo
 npm ci
 cp .env.example .env
@@ -346,7 +352,7 @@ NiubiStar supports NiubiGEO’s open-source development and provides the global 
 - [How it works](docs/how-it-works.md) · [Architecture](docs/ARCHITECTURE.md)
 - [Measurement methodology](docs/measurement-methodology.md) · [Sources and evidence](docs/evidence-model.md)
 - [Deployment](docs/deployment/docker.en.md) · [Backups and upgrades](docs/upgrade.md)
-- [Known issues](docs/known-issues.md) · [Limitations](docs/limitations.md) · [Release notes](https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.3.2)
+- [Known issues](docs/known-issues.md) · [Limitations](docs/limitations.md) · [Release notes](https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.3.3)
 - [Contributing](CONTRIBUTING.md) · [Security policy](SECURITY.md) · [License](LICENSE)
 
 ---

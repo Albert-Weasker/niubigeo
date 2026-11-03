@@ -172,6 +172,8 @@ test("B02 switches a single report snapshot between all, A, C, and all models", 
   await page.getByRole("button", { name: "Fixture Model A", exact: true }).click();
   await expect(page.getByTestId("report-model-card")).toHaveCount(1);
   await expect(page.getByText("开发者文档工具", { exact: true })).toBeVisible();
+  const downloadPromise=page.waitForEvent("download");await page.locator('[data-phase4-export=json]').click();const download=await downloadPromise;const rows=JSON.parse(await readFile((await download.path())!,"utf8"));expect(rows).toHaveLength(1);expect(rows[0].displayName).toBe("Fixture Model A");expect(rows[0].rawAnswer).toBeTruthy();
+
   await page.getByRole("button", { name: "Fixture Model C", exact: true }).click();
   await expect(page.getByTestId("report-model-card")).toHaveCount(1);
   await expect(page.getByText("团队知识库工具", { exact: true })).toBeVisible();
