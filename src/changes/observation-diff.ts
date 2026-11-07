@@ -19,7 +19,7 @@ function competitorsWithoutTarget(observation: Observation): string[] {
 }
 
 function identity(observation: Observation): string {
-  return [observation.promptId, observation.providerId, observation.model, observation.sampleIndex].join("::");
+  return JSON.stringify([observation.projectId, observation.baselineId, observation.promptId, observation.providerId, observation.model, observation.sampleIndex]);
 }
 
 function changeId(kind: ObservationChangeKind, current: Observation, previous: Observation): string {

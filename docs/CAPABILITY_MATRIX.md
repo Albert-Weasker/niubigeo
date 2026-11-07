@@ -40,3 +40,6 @@ A capability counts as complete only when real-provider code exists, self-checks
 - Confirmed competitors must have entity evidence; unclear same-name entities must remain possible related brands.
 - Main source sections must show only related sources; possible and excluded sources must be collapsed.
 - Generated reports must be understandable without knowing GEO, SOV, prompt matrices, or provider internals.
+
+<!-- Evidence comparison contract -->
+Change comparisons require successful answered observations within the same project and baseline; failed calls are not evidence of brand disappearance.
