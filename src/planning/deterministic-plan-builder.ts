@@ -55,7 +55,7 @@ function promptSetHash(input: {
       domain: input.spec.target.domain,
       aliases: [...input.spec.target.aliases].sort((left, right) => left.localeCompare(right)),
     },
-    competitors: input.spec.competitors.map((entity) => ({ id: entity.id, name: entity.name, domain: entity.domain })),
+    competitors: input.spec.competitors.map((entity) => ({ id: entity.id, name: entity.name, domain: entity.domain, aliases: [...entity.aliases].sort((left, right) => left.localeCompare(right)), githubRepo: entity.githubRepo || "" })),
     prompts: input.prompts.map((prompt) => ({
       id: prompt.id,
       text: prompt.text,
