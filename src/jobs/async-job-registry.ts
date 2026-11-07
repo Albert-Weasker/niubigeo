@@ -67,6 +67,8 @@ export class AsyncJobRegistry<Progress, Result> {
         updatedAt: finishedAt,
         finishedAt,
       });
+    } finally {
+      this.trim();
     }
   }
 
