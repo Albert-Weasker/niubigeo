@@ -1,4 +1,5 @@
 import { PRODUCT_NAME, PRODUCT_TITLE, renderNiubigeoLockup } from "./brand.js";
+import { renderThemeHead } from "./theme-runtime.js";
 
 /**
  * Phase 1 workspace: a product project exists before any audit configuration
@@ -10,10 +11,10 @@ export function renderProductProjectAppHtml(): string {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="color-scheme" content="dark">
+  ${renderThemeHead()}
   <title>${PRODUCT_TITLE}</title>
   <style>
-    :root { --bg:#050505; --sidebar:#080808; --panel:#111111; --panel-hover:#171717; --line:#262626; --line-strong:#383838; --text:#f5f5f5; --muted:#a1a1aa; --weak:#666; --blue:#4c8dff; --green:#20d68f; --red:#ff5c5c; --yellow:#f5b942; }
+    :root { --bg:var(--canvas); --sidebar:var(--sidebar-surface); --panel:var(--surface); --panel-hover:var(--surface-hover); /* Project aliases preserve its own line and muted values. */ --line:var(--border-default); --line-strong:var(--border-project-strong); --text:var(--text-primary); --muted:var(--text-muted); --weak:var(--text-subtle); --blue:var(--accent-blue); --green:var(--accent-green); --red:var(--accent-red); --yellow:var(--accent-amber); }
     * { box-sizing:border-box; }
     body { margin:0; min-height:100vh; background:var(--bg); color:var(--text); font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
     button, input, select { font:inherit; }
