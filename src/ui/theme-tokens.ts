@@ -122,4 +122,7 @@ export const THEME_TOKENS_CSS = String.raw`
   --dialog-submit-bg: #172033;
   --dialog-submit-fg: #ffffff;
 }
+/* The supplied lockup is a white SVG; darken that image only in light mode. */
+:root[data-theme="light"] img[src="/assets/brand/niubigeo-lockup.svg"] { filter: brightness(0); }
+:root[data-theme="light"] svg[aria-label="NiubiGEO"] g { fill: var(--text-primary); }
 `;
