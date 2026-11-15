@@ -1,4 +1,5 @@
 import { THEME_TOKENS_CSS } from "./theme-tokens.js";
+import { THEME_LABELS } from "./product-localization.js";
 
 /** Runs in the head, before styles and first paint. */
 export const THEME_HEAD_SCRIPT = String.raw`<script>
@@ -10,11 +11,7 @@ export const THEME_HEAD_SCRIPT = String.raw`<script>
     const saved = window.localStorage.getItem(key);
     if (saved === 'dark' || saved === 'light' || saved === 'system') preference = saved;
   } catch { /* Private browsing can disable storage. */ }
-  const labels = {
-    'zh-CN': { dark: '深色', light: '浅色', system: '跟随系统', action: '切换主题' },
-    en: { dark: 'Dark', light: 'Light', system: 'System', action: 'Switch theme' },
-    'pt-BR': { dark: 'Escuro', light: 'Claro', system: 'Sistema', action: 'Alternar tema' },
-  };
+  const labels = ${JSON.stringify(THEME_LABELS)};
   const locale = () => {
     try {
       const saved = window.localStorage.getItem('niubigeo.product.locale');
