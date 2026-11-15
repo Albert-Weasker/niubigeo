@@ -2,6 +2,7 @@ import type { AuditReportModel } from "./report-model.js";
 import { htmlEscape } from "./format.js";
 import { PRODUCT_NAME, renderNiubigeoMarkSvg } from "../ui/brand.js";
 import { WORKBENCH_CSS } from "../ui/workbench-style.js";
+import { renderThemeHead } from "../ui/theme-runtime.js";
 import type { AnswerStory, EvidenceStatement, HumanReport, SourceStory } from "./human-report.js";
 import { buildHumanReport } from "./human-report.js";
 
@@ -1070,6 +1071,7 @@ export function renderDashboardHtml(model: AuditReportModel): string {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  ${renderThemeHead()}
   <title>${htmlEscape(report.title)} - ${htmlEscape(PRODUCT_NAME)}</title>
   ${renderStyle()}
 </head>
