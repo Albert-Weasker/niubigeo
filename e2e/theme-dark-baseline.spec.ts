@@ -130,3 +130,11 @@ test("generated HTML report dark baseline", async ({ page }) => {
   await expect(page.locator("h1")).toBeVisible();
   await expectDarkScreenshot(page, "generated-report-dark.png");
 });
+
+test("generated HTML report light palette", async ({ page }) => {
+  await page.setContent(generatedReportHtml(), { waitUntil: "load" });
+  await page.evaluate(() => (window as Window & { niubigeoTheme: { setPreference: (value: string) => void } }).niubigeoTheme.setPreference("light"));
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  await expect(page.locator(".source-note")).toHaveCSS("background-color", "rgb(255, 255, 255)");
+  await expect(page).toHaveScreenshot("generated-report-light.png", screenshotOptions);
+});
