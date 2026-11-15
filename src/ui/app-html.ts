@@ -1,6 +1,7 @@
 import { PRODUCT_NAME, PRODUCT_TITLE, renderNiubigeoLockup } from "./brand.js";
 import { WORKBENCH_CSS } from "./workbench-style.js";
 import { renderWorkbenchScript } from "./workbench-script.js";
+import { renderThemeHead } from "./theme-runtime.js";
 
 function navButton(index: string, view: string, key: string, active = false): string {
   return `<button class="nav-button${active ? " active" : ""}" type="button" data-view="${view}"><span class="nav-index">${index}</span><span data-i18n="${key}">${key}</span></button>`;
@@ -16,7 +17,7 @@ export function renderAppHtml(): string {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="color-scheme" content="dark">
+  ${renderThemeHead()}
   <title>${PRODUCT_TITLE}</title>
   <style>${WORKBENCH_CSS}</style>
 </head>
