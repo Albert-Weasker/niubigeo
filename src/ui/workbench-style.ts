@@ -1,21 +1,21 @@
 export const WORKBENCH_CSS = String.raw`
 :root {
-  color-scheme: dark;
-  --bg: #050505;
-  --sidebar: #080808;
-  --panel: #111111;
-  --panel-hover: #171717;
-  --panel-raised: #141414;
-  --border: #262626;
-  --line: #1c1c1c;
-  --text: #f5f5f5;
-  --secondary: #a1a1aa;
-  --muted: #666666;
-  --blue: #4c8dff;
-  --green: #20d68f;
-  --red: #ff5c5c;
-  --amber: #f5b942;
-  --purple: #a873ff;
+  --bg: var(--canvas);
+  --sidebar: var(--sidebar-surface);
+  --panel: var(--surface);
+  --panel-hover: var(--surface-hover);
+  --panel-raised: color-mix(in srgb, var(--surface) 50%, var(--surface-hover));
+  --border: var(--border-default);
+  /* Workbench aliases retain this page's existing muted and line values. */
+  --line: var(--border-subtle);
+  --text: var(--text-primary);
+  --secondary: var(--text-muted);
+  --muted: var(--text-subtle);
+  --blue: var(--accent-blue);
+  --green: var(--accent-green);
+  --red: var(--accent-red);
+  --amber: var(--accent-amber);
+  --purple: var(--accent-purple);
   --sidebar-width: 248px;
   --radius: 8px;
 }
