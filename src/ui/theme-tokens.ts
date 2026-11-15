@@ -7,6 +7,7 @@ export const THEME_TOKENS_CSS = String.raw`
   --surface: #111111;
   --input-bg: #0d0d0d;
   --surface-hover: #171717;
+  --alert-surface: #10100d;
   --border-subtle: #1c1c1c;
   --border-default: #262626;
   --border-control: #393939;
@@ -15,8 +16,10 @@ export const THEME_TOKENS_CSS = String.raw`
   --text-primary: #f5f5f5;
   --text-muted: #a1a1aa;
   --text-subtle: #666666;
+  --text-faint: #71717a;
   --accent-blue: #4c8dff;
   --accent-blue-hover: #397de9;
+  --accent-blue-soft: #63a7ff;
   --accent-green: #20d68f;
   --accent-red: #ff5c5c;
   --accent-amber: #f5b942;
@@ -57,6 +60,7 @@ export const THEME_TOKENS_CSS = String.raw`
   --surface: #ffffff;
   --input-bg: #ffffff;
   --surface-hover: #eff4fb;
+  --alert-surface: #fffaeb;
   --border-subtle: #e4e7ec;
   --border-default: #d0d5dd;
   --border-control: #8a909c;
@@ -65,8 +69,10 @@ export const THEME_TOKENS_CSS = String.raw`
   --text-primary: #172033;
   --text-muted: #465368;
   --text-subtle: #5c677a;
+  --text-faint: #5c677a;
   --accent-blue: #155fcb;
   --accent-blue-hover: #0f55b8;
+  --accent-blue-soft: #155fcb;
   --accent-green: #146b48;
   --accent-red: #b42332;
   --accent-amber: #8b5e00;
