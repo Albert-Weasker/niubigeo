@@ -38,3 +38,32 @@ test("theme definitions are literal and UI colors live in the token sheet", () =
     assert.equal(/#[0-9a-fA-F]{3,8}\b|rgba?\(/.test(source), false, name);
   }
 });
+
+test("light control, chart, and status colors meet their contrast targets", () => {
+  const light = THEME_TOKENS_CSS.split(':root[data-theme="light"] {')[1]?.split("}")[0];
+  assert.ok(light);
+  const hex = (name: string): string => {
+    const value = light.match(new RegExp(`${name}: (#[0-9a-fA-F]{6});`))?.[1];
+    assert.ok(value, name);
+    return value;
+  };
+  const luminance = (value: string): number => {
+    const channels = [1, 3, 5].map((start) => parseInt(value.slice(start, start + 2), 16) / 255);
+    const linear = channels.map((channel) => channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4);
+    return linear[0]! * 0.2126 + linear[1]! * 0.7152 + linear[2]! * 0.0722;
+  };
+  const contrast = (left: string, right: string): number => {
+    const a = luminance(hex(left));
+    const b = luminance(hex(right));
+    return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+  };
+  assert.ok(contrast("--border-control", "--surface") >= 3);
+  for (const series of ["--accent-blue", "--accent-green", "--accent-purple", "--accent-amber", "--accent-red", "--chart-sky"]) {
+    assert.ok(contrast(series, "--surface") >= 3, series);
+  }
+  for (const status of ["success", "error", "warning", "info", "advisor"]) {
+    const background = status === "advisor" ? "--advisor-surface" : `--${status}-bg`;
+    const ratio = contrast(`--${status}-border`, background);
+    assert.ok(ratio >= 2 && ratio <= 3, `${status}: ${ratio.toFixed(2)}`);
+  }
+});
