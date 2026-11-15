@@ -32,10 +32,21 @@ test("every rendered UI shell initializes the theme before paint", () => {
 
 test("theme definitions are literal and UI colors live in the token sheet", () => {
   assert.equal(THEME_TOKENS_CSS.includes("color-mix("), false);
+  const hexDigits = "0123456789abcdefABCDEF";
+  const hasColorLiteral = (source: string): boolean => {
+    if (source.includes("rgb(") || source.includes("rgba(")) return true;
+    for (let index = 0; index < source.length; index += 1) {
+      if (source[index] !== "#") continue;
+      let end = index + 1;
+      while (end < source.length && hexDigits.includes(source[end]!)) end += 1;
+      if (end - index - 1 >= 3 && end - index - 1 <= 8) return true;
+    }
+    return false;
+  };
   for (const name of readdirSync("src/ui").filter((file) => file.endsWith(".ts"))) {
     if (["theme-tokens.ts", "brand.ts", "video-advisor.ts"].includes(name)) continue;
     const source = readFileSync(join("src/ui", name), "utf8");
-    assert.equal(/#[0-9a-fA-F]{3,8}\b|rgba?\(/.test(source), false, name);
+    assert.equal(hasColorLiteral(source), false, name);
   }
 });
 
@@ -43,8 +54,9 @@ test("light control, chart, and status colors meet their contrast targets", () =
   const light = THEME_TOKENS_CSS.split(':root[data-theme="light"] {')[1]?.split("}")[0];
   assert.ok(light);
   const hex = (name: string): string => {
-    const value = light.match(new RegExp(`${name}: (#[0-9a-fA-F]{6});`))?.[1];
-    assert.ok(value, name);
+    const line = light.split("\n").find((item) => item.trimStart().startsWith(`${name}: `));
+    const value = line?.trim().slice(name.length + 2).split(";")[0];
+    if (!value?.startsWith("#") || value.length !== 7) throw new Error(`Missing literal ${name}`);
     return value;
   };
   const luminance = (value: string): number => {
