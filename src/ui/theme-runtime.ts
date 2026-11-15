@@ -5,7 +5,7 @@ import { THEME_LABELS } from "./product-localization.js";
 export const THEME_HEAD_SCRIPT = String.raw`<script>
 (() => {
   const key = 'niubigeo-theme';
-  const media = window.matchMedia('(prefers-color-scheme: dark)');
+  const media = window.matchMedia('(prefers-color-scheme: light)');
   let preference = 'dark';
   try {
     const saved = window.localStorage.getItem(key);
@@ -29,7 +29,7 @@ export const THEME_HEAD_SCRIPT = String.raw`<script>
     });
   };
   const apply = () => {
-    document.documentElement.dataset.theme = preference === 'system' ? (media.matches ? 'dark' : 'light') : preference;
+    document.documentElement.dataset.theme = preference === 'system' ? (media.matches ? 'light' : 'dark') : preference;
     document.documentElement.dataset.themePreference = preference;
     paintButton();
   };
