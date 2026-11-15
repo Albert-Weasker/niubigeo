@@ -3,6 +3,7 @@ import { MODEL_PLATFORMS } from "../product/connections/model-directory.js";
 import { PRODUCT_NAME, PRODUCT_TITLE, renderNiubigeoLockup, renderNiubigeoMarkSvg } from "./brand.js";
 import { renderProductLocalizationScript } from "./product-localization.js";
 import { renderVideoAdvisor } from "./video-advisor.js";
+import { renderThemeHead } from "./theme-runtime.js";
 
 export function renderProductPhase2AppHtml(): string {
   return `<!doctype html>
@@ -10,10 +11,10 @@ export function renderProductPhase2AppHtml(): string {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="color-scheme" content="dark">
+  ${renderThemeHead()}
   <title>${PRODUCT_TITLE}</title>
   <style>
-    :root { --bg:#050505; --sidebar:#080808; --panel:#111111; --panel-hover:#171717; --line:#262626; --line-strong:#393939; --text:#f5f5f5; --muted:#a1a1aa; --weak:#666; --blue:#4c8dff; --green:#20d68f; --red:#ff5c5c; --yellow:#f5b942; --purple:#a873ff; --motion-fast:120ms; --motion-normal:220ms; --motion-slow:420ms; --ease-standard:cubic-bezier(.22,1,.36,1); --ease-press:cubic-bezier(.2,.8,.2,1); --glow-blue:rgba(67,124,255,.55); --glow-green:rgba(58,255,170,.45); --glow-purple:rgba(159,100,255,.5); }
+    :root { --bg:var(--canvas); --sidebar:var(--sidebar-surface); --panel:var(--surface); --panel-hover:var(--surface-hover); /* Phase 2 aliases preserve its own dark line and muted values. */ --line:var(--border-default); --line-strong:var(--border-strong); --text:var(--text-primary); --muted:var(--text-muted); --weak:var(--text-subtle); --blue:var(--accent-blue); --green:var(--accent-green); --red:var(--accent-red); --yellow:var(--accent-amber); --purple:var(--accent-purple); --motion-fast:120ms; --motion-normal:220ms; --motion-slow:420ms; --ease-standard:cubic-bezier(.22,1,.36,1); --ease-press:cubic-bezier(.2,.8,.2,1); }
     * { box-sizing:border-box; }
     body { margin:0; min-height:100vh; background:var(--bg); color:var(--text); font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
     button,input,select { font:inherit; }
