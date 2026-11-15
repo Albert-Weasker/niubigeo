@@ -1673,13 +1673,13 @@ export function renderWorkbenchScript(): string {
       const points = ready[0].points;
       const grid = [0, .25, .5, .75, 1].map((value) => {
         const y = 16 + (1 - value) * 196;
-        return '<line class="chart-grid" x1="34" y1="' + y + '" x2="790" y2="' + y + '"></line><text class="chart-axis-label" x="0" y="' + (y + 4) + '" fill="#666" font-size="10">' + Math.round(value * 100) + '%</text>';
+        return '<line class="chart-grid" x1="34" y1="' + y + '" x2="790" y2="' + y + '"></line><text class="chart-axis-label" x="0" y="' + (y + 4) + '" style="fill:var(--text-subtle)" font-size="10">' + Math.round(value * 100) + '%</text>';
       }).join("");
       const labels = points.map((point, index) => {
         if (points.length > 8 && index % Math.ceil(points.length / 6) !== 0 && index !== points.length - 1) return "";
         const x = 34 + (index / Math.max(points.length - 1, 1)) * 756;
         const options = state.period === "1d" ? { hour: "2-digit", minute: "2-digit" } : { month: "short", day: "numeric" };
-        return '<text class="chart-axis-label" x="' + x.toFixed(1) + '" y="235" text-anchor="middle" fill="#666" font-size="10">' + html(new Intl.DateTimeFormat(locale() === "zh" ? "zh-CN" : locale(), options).format(new Date(point.observedAt))) + '</text>';
+        return '<text class="chart-axis-label" x="' + x.toFixed(1) + '" y="235" text-anchor="middle" style="fill:var(--text-subtle)" font-size="10">' + html(new Intl.DateTimeFormat(locale() === "zh" ? "zh-CN" : locale(), options).format(new Date(point.observedAt))) + '</text>';
       }).join("");
       return '<div class="chart-panel' + (compact ? ' compact' : '') + '">' + chartHeader +
         definitions +
@@ -1705,13 +1705,13 @@ export function renderWorkbenchScript(): string {
       const points = lines[0].points;
       const grid = [0, .25, .5, .75, 1].map((value) => {
         const y = 16 + (1 - value) * 196;
-        return '<line class="chart-grid" x1="34" y1="' + y + '" x2="790" y2="' + y + '"></line><text class="chart-axis-label" x="0" y="' + (y + 4) + '" fill="#666" font-size="10">' + Math.round(value * 100) + '%</text>';
+        return '<line class="chart-grid" x1="34" y1="' + y + '" x2="790" y2="' + y + '"></line><text class="chart-axis-label" x="0" y="' + (y + 4) + '" style="fill:var(--text-subtle)" font-size="10">' + Math.round(value * 100) + '%</text>';
       }).join("");
       const labels = points.map((point, index) => {
         if (points.length > 8 && index % Math.ceil(points.length / 6) !== 0 && index !== points.length - 1) return "";
         const x = 34 + (index / Math.max(points.length - 1, 1)) * 756;
         const options = state.period === "1d" ? { hour: "2-digit", minute: "2-digit" } : { month: "short", day: "numeric" };
-        return '<text class="chart-axis-label" x="' + x.toFixed(1) + '" y="235" text-anchor="middle" fill="#666" font-size="10">' + html(new Intl.DateTimeFormat(locale() === "zh" ? "zh-CN" : locale(), options).format(new Date(point.observedAt))) + '</text>';
+        return '<text class="chart-axis-label" x="' + x.toFixed(1) + '" y="235" text-anchor="middle" style="fill:var(--text-subtle)" font-size="10">' + html(new Intl.DateTimeFormat(locale() === "zh" ? "zh-CN" : locale(), options).format(new Date(point.observedAt))) + '</text>';
       }).join("");
       const classes = ["", "secondary", "tertiary", "quaternary", "quinary"];
       const legend = lines.map((brand, index) => '<span class="brand-legend brand-legend-' + index + '">' + html(brand.name) + '</span>').join("");
