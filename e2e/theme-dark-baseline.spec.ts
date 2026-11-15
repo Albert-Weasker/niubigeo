@@ -16,6 +16,12 @@ let priorKey: string | undefined;
 
 const screenshotOptions = { fullPage: true, animations: "disabled" as const, maxDiffPixelRatio: 0.001 };
 
+async function expectDarkScreenshot(page: Page, name: string): Promise<void> {
+  // The new theme control is the one intentional dark UI addition in this PR.
+  await page.addStyleTag({ content: "[data-theme-toggle] { visibility: hidden !important; }" });
+  await expect(page).toHaveScreenshot(name, screenshotOptions);
+}
+
 test.beforeAll(async () => {
   dataRoot = await mkdtemp(join(tmpdir(), "niubigeo-theme-baseline-"));
   priorDataDir = process.env.PRODUCT_DATA_DIR;
@@ -52,7 +58,7 @@ test.afterAll(async () => {
 async function screenshotPage(page: Page, path: string, name: string): Promise<void> {
   await page.goto(`${baseUrl}${path}`);
   await expect(page.locator("body")).toBeVisible();
-  await expect(page).toHaveScreenshot(name, screenshotOptions);
+  await expectDarkScreenshot(page, name);
 }
 
 test("dashboard dark baseline", async ({ page }) => {
@@ -62,20 +68,20 @@ test("dashboard dark baseline", async ({ page }) => {
 test("measurements dark baseline", async ({ page }) => {
   await page.goto(`${baseUrl}/?view=measurements`);
   await expect(page.getByTestId("phase5-workbench")).toBeVisible();
-  await expect(page).toHaveScreenshot("measurements-dark.png", screenshotOptions);
+  await expectDarkScreenshot(page, "measurements-dark.png");
 });
 
 test("keyword monitoring dark baseline", async ({ page }) => {
   await page.goto(`${baseUrl}/?view=keyword-monitoring`);
   await expect(page.locator("h1")).toBeVisible();
-  await expect(page).toHaveScreenshot("keyword-monitoring-dark.png", screenshotOptions);
+  await expectDarkScreenshot(page, "keyword-monitoring-dark.png");
 });
 
 test("provider key dialog dark baseline", async ({ page }) => {
   await page.goto(baseUrl);
   await page.locator("[data-connect-key]").click();
   await expect(page.locator("#openrouter-key-dialog")).toBeVisible();
-  await expect(page).toHaveScreenshot("provider-key-dialog-dark.png", screenshotOptions);
+  await expectDarkScreenshot(page, "provider-key-dialog-dark.png");
 });
 
 function generatedReportHtml(): string {
@@ -122,5 +128,5 @@ function generatedReportHtml(): string {
 test("generated HTML report dark baseline", async ({ page }) => {
   await page.setContent(generatedReportHtml(), { waitUntil: "load" });
   await expect(page.locator("h1")).toBeVisible();
-  await expect(page).toHaveScreenshot("generated-report-dark.png", screenshotOptions);
+  await expectDarkScreenshot(page, "generated-report-dark.png");
 });
