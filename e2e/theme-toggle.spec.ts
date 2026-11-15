@@ -73,6 +73,21 @@ test("provider key dialog uses light surfaces and its own submit colors", async 
   await expect(page.locator("#save-openrouter-key")).toHaveCSS("color", "rgb(255, 255, 255)");
 });
 
+for (const [locale, names] of [
+  ["zh", ["切换主题: 深色", "切换主题: 浅色", "切换主题: 跟随系统"]],
+  ["pt-BR", ["Alternar tema: Escuro", "Alternar tema: Claro", "Alternar tema: Sistema"]],
+] as const) {
+  test(`${locale} theme control labels`, async ({ page }) => {
+    await page.addInitScript((value) => localStorage.setItem("niubigeo.product.locale", value), locale);
+    await page.goto(baseUrl);
+    const toggle = page.locator("[data-theme-toggle]");
+    for (const name of names) {
+      await expect(toggle).toHaveAccessibleName(name);
+      await toggle.click();
+    }
+  });
+}
+
 for (const [route, name, ready] of [
   ["/", "dashboard", "[data-connect-key]"],
   ["/?view=measurements", "measurements", "[data-testid=phase5-workbench]"],
