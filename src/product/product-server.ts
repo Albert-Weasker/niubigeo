@@ -41,6 +41,7 @@ import { renderKeywordMonitoringAppHtml } from "../ui/keyword-monitoring-app.js"
 import { KeywordMonitorStore } from "./keyword-monitor-store.js";
 import { KeywordMonitorService } from "./keyword-monitor-service.js";
 import { handleKeywordMonitorApi } from "./keyword-monitor-http.js";
+import { createMetricsHandler } from "./metrics/metrics-http.js";
 
 loadDotEnv();
 
@@ -145,10 +146,12 @@ async function handle(req: IncomingMessage, res: ServerResponse, dependencies: P
 }
 
 export function createProductServer(dependencies: ProductServerDependencies = {}) {
+  const metrics = createMetricsHandler();
   return createServer((req, res) => {
     const execute = async () => {
       const origin = req.headers.origin;
       if (req.headers["sec-fetch-site"] === "cross-site" || (origin && new URL(origin).host !== req.headers.host)) throw new ProviderConnectionInputError("Cross-origin requests are not allowed.", 403);
+      if (metrics && req.method === "GET" && new URL(req.url || "/", "http://localhost").pathname === "/metrics") return metrics(req, res);
       const single = requestCustomConnection(req);
       const multiple = requestConnections(req);
       const key = requestOpenRouterKey(req);
