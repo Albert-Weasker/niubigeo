@@ -353,6 +353,7 @@ NiubiStar 同时为官方服务提供真人执行网络，支持实际使用环�
 - [工作原理](docs/how-it-works.md) · [架构说明](docs/ARCHITECTURE.md)
 - [测量方法](docs/measurement-methodology.md) · [来源与证据](docs/evidence-model.md)
 - [部署](docs/deployment/docker.md) · [备份与升级](docs/upgrade.md)
+- [Prometheus 与 Grafana 集成](docs/integrations/prometheus.zh-CN.md)
 - [已知问题](docs/known-issues.md) · [能力边界](docs/limitations.md) · [发布说明](https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.3.3)
 - [贡献指南](CONTRIBUTING.md) · [安全政策](SECURITY.md) · [许可证](LICENSE)
 
