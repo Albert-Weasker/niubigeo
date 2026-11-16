@@ -18,14 +18,14 @@ const help = {
   keyword_monitors: "Number of stored keyword monitors by project and state.",
   keyword_runs: "Number of stored keyword runs by monitor and status.",
   keyword_last_run_timestamp_seconds: "Unix timestamp of the latest finished keyword run.",
-  keyword_mention_ratio: "Fraction of valid samples mentioning the monitored identity in the latest completed run.",
-  keyword_best_position: "Best rank among valid samples in the latest completed run (1 = top).",
-  keyword_model_errors: "Number of errored model samples in the latest completed run.",
+  keyword_mention_ratio: "Fraction of valid samples mentioning the monitored identity in the latest finished run.",
+  keyword_best_position: "Best rank among valid samples in the latest finished run (1 = top).",
+  keyword_model_errors: "Number of errored model samples in the latest finished run.",
   workers: "Number of stored scheduler workers in each state.",
   worker_last_heartbeat_timestamp_seconds: "Newest scheduler worker heartbeat as a Unix timestamp.",
   project_info: "Project domain information.",
   keyword_monitor_info: "Keyword monitor information.",
-  model_info: "Model name information from the latest completed runs.",
+  model_info: "Model name information from the latest finished runs.",
 };
 
 type Metric = keyof typeof help;
@@ -99,14 +99,11 @@ export async function collectProductMetrics(
       for (const status of runStatuses) {
         add("keyword_runs", history.filter(run => run.status === status).length, { ...monitorLabels, status });
       }
-      const finished = history.find(run => run.status === "completed" || run.status === "failed");
-      if (finished) {
-        const timestamp = Date.parse(finished.completedAt ?? finished.startedAt);
-        if (Number.isFinite(timestamp)) add("keyword_last_run_timestamp_seconds", timestamp / 1000, monitorLabels);
-      }
-
-      const latest = history.find(run => run.status === "completed");
+      const latest = history.find(run => run.status === "completed" || run.status === "failed");
       if (!latest) continue;
+      const timestamp = Date.parse(latest.completedAt ?? latest.startedAt);
+      if (Number.isFinite(timestamp)) add("keyword_last_run_timestamp_seconds", timestamp / 1000, monitorLabels);
+
       const bestPositions = new Map<string, number>();
       for (const sample of latest.modelResults ?? []) {
         const position = sample.position;

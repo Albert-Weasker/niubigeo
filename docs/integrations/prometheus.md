@@ -69,19 +69,19 @@ For an unauthenticated scrape on a trusted network, omit the `authorization` blo
 
 Use Prometheus as the Grafana data source. Use time-series panels to track changes between scrapes. For the first three queries, use `{{model_id}}` in the legend and filter `project_id` and `monitor_id` as needed.
 
-**Mention ratio per model** uses a 0–1 percentage unit. Errored samples are excluded, and the series is absent when the latest completed run has no valid samples for the model.
+**Mention ratio per model** uses a 0–1 percentage unit. Errored samples are excluded, and the series is absent when the latest finished run has no valid samples for the model.
 
 ```promql
 niubigeo_keyword_mention_ratio{job="niubigeo"}
 ```
 
-**Best ranking position per model** uses rank 1 for the top result. An unranked model has no series.
+**Best ranking position per model** uses rank 1 for the top result in the latest finished run. An unranked model has no series.
 
 ```promql
 niubigeo_keyword_best_position{job="niubigeo"}
 ```
 
-**Errored samples per model** counts failed samples in each monitor's latest completed run, including errors carried forward in retry snapshots.
+**Errored samples per model** counts failed samples in each monitor's latest finished run, including errors carried forward in retry snapshots.
 
 ```promql
 niubigeo_keyword_model_errors{job="niubigeo"}
@@ -104,8 +104,8 @@ time() - niubigeo_worker_last_heartbeat_timestamp_seconds{job="niubigeo"}
 
 ## Metrics and cardinality
 
-The collector includes non-deleted projects and their stored monitors, including archived projects and disabled monitors. Run counts include every stored run for a monitor. The last-run timestamp uses the latest finished run's completion time, falling back to its start time for older records. Model samples come from the latest completed run, which can predate a more recent fully failed run. Product-wide provider call and token metrics are a follow-up.
+The collector includes non-deleted projects and their stored monitors, including archived projects and disabled monitors. Run counts include every stored run for a monitor. The timestamp and model metrics use the same latest finished run, with either `completed` or `failed` status. A finished run's timestamp uses its completion time, falling back to its start time for older records. When a run fails before recording any model samples, the scrape reports its timestamp and run count and omits that monitor's model metrics. Product-wide provider call and token metrics are a follow-up.
 
-For each project, let **M** be its number of monitors and **K** the number of model–monitor pairs in their latest completed runs. It contributes up to **2 + 4M + 3K** series per scrape. That covers two monitor-state counts per project, three run-status counts and up to one timestamp per monitor, and up to three gauges per model–monitor pair. Enabling names adds **1 + M** project and monitor info series per project and up to **U** global model info series, where **U** is the number of distinct exported model IDs across all projects. Each model ID uses the most recently observed name.
+For each project, let **M** be its number of monitors and **K** the number of model–monitor pairs in their latest finished runs. It contributes up to **2 + 4M + 3K** series per scrape. That covers two monitor-state counts per project, three run-status counts and up to one timestamp per monitor, and up to three gauges per model–monitor pair. Enabling names adds **1 + M** project and monitor info series per project and up to **U** global model info series, where **U** is the number of distinct exported model IDs across all projects. Each model ID uses the most recently observed name.
 
 The instance emits **6** additional series globally, one each for build info and project count and four for worker counts, plus up to **1** for the newest heartbeat. Run history length and worker restarts do not add series to a scrape. State and name changes can create new historical series in Prometheus.

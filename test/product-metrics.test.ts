@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import test from "node:test";
+import test, { type TestContext } from "node:test";
 import { customModelId } from "../src/product/connections/provider-connections.js";
 import { keywordRunSummary } from "../src/product/keyword-monitor-insights.js";
 import type { KeywordModelResult, KeywordMonitorRun } from "../src/product/keyword-monitor-schema.js";
@@ -14,7 +14,7 @@ import { ProductProjectFileStore } from "../src/product/projects/project-store.j
 import { WorkerStatusStore } from "../src/product/scheduling/worker-status.js";
 import { sha256 } from "../src/utils/hash.js";
 
-test("metrics use saved retry summaries, count runs and aggregate worker states", async t => {
+async function metricsFixture(t: TestContext) {
   const root = await mkdtemp(join(tmpdir(), "product-metrics-"));
   t.after(() => rm(root, { recursive: true, force: true }));
   const projectStore = new ProductProjectFileStore(root);
@@ -23,6 +23,11 @@ test("metrics use saved retry summaries, count runs and aggregate worker states"
   const monitors = new KeywordMonitorService(projects, keywords);
   const workers = new WorkerStatusStore(root);
   const collect = (includeNames = false) => collectProductMetrics({ projects, keywords, workers }, { version: "1.2.3", includeNames });
+  return { projects, keywords, monitors, workers, collect };
+}
+
+test("metrics use saved retry summaries, count runs and aggregate worker states", async t => {
+  const { projects, keywords, monitors, workers, collect } = await metricsFixture(t);
 
   const empty = (await collect()).split("\n");
   assert.ok(empty.includes('niubigeo_build_info{version="1.2.3"} 1'));
@@ -61,8 +66,7 @@ test("metrics use saved retry summaries, count runs and aggregate worker states"
   };
   await keywords.saveRun(original);
   await keywords.saveRun(retry);
-  const newestFinished = "2026-01-03T00:00:00Z";
-  await keywords.saveRun({ ...original, id: "failed", startedAt: newestFinished, status: "failed" });
+  await keywords.saveRun({ ...original, id: "failed", startedAt: "2026-01-01T12:00:00Z", status: "failed", modelResults: [] });
   await keywords.saveRun({ ...original, id: "queued", startedAt: "2026-01-04T00:00:00Z", status: "queued" });
 
   const at = new Date();
@@ -83,7 +87,7 @@ test("metrics use saved retry summaries, count runs and aggregate worker states"
   for (const [status, count] of Object.entries({ completed: 2, failed: 1, queued: 1 })) {
     assert.ok(lines.includes(`niubigeo_keyword_runs{${monitorLabels},status="${status}"} ${count}`));
   }
-  assert.ok(lines.includes(`niubigeo_keyword_last_run_timestamp_seconds{${monitorLabels}} ${Date.parse(newestFinished) / 1000}`));
+  assert.ok(lines.includes(`niubigeo_keyword_last_run_timestamp_seconds{${monitorLabels}} ${Date.parse(retry.startedAt) / 1000}`));
 
   const exportedCustomId = "custom-" + sha256(custom).slice(0, 12);
   for (const summary of keywordRunSummary(retry)) {
@@ -111,4 +115,68 @@ test("metrics use saved retry summaries, count runs and aggregate worker states"
   for (const text of [endpoint, custom, sample.answer, sample.citations[0]!, "Private error"]) {
     assert.ok(!named.includes(text));
   }
+});
+
+async function observedMonitor(t: TestContext) {
+  const { projects, keywords, monitors, collect } = await metricsFixture(t);
+  const project = await projects.createDraft({ primaryDomain: "finished-run.example" });
+  const monitor = await monitors.create(project.id, { keyword: "Keyword", brandName: "Brand" });
+  const sample: KeywordModelResult = {
+    modelId: "vendor/model", modelName: "Model", answer: "Brand",
+    mentioned: ["Brand"], recommended: ["Brand"], position: 0, citations: [],
+  };
+  const completed: KeywordMonitorRun = {
+    id: "completed", projectId: project.id, monitorId: monitor.id, keyword: monitor.keyword,
+    status: "completed", startedAt: "2026-01-01T00:00:00Z",
+    mentioned: ["Brand"], positions: { [sample.modelId]: 0 }, modelResults: [sample],
+  };
+  await keywords.saveRun(completed);
+  const labels = `monitor_id="${monitor.id}",project_id="${project.id}"`;
+  return { keywords, collect, sample, completed, labels };
+}
+
+test("latest finished run with only errors replaces the older mention and rank with an error count", async t => {
+  const { keywords, collect, sample, completed, labels } = await observedMonitor(t);
+  const error: KeywordModelResult = { ...sample, answer: "", mentioned: [], recommended: [], position: null, error: "Timeout" };
+  await keywords.saveRun({
+    ...completed, id: "failed", status: "failed", startedAt: "2026-01-02T00:00:00Z",
+    mentioned: [], positions: { [sample.modelId]: null },
+    modelResults: [{ ...error, sampleIndex: 1 }, { ...error, sampleIndex: 2 }],
+  });
+
+  const lines = (await collect()).split("\n");
+  const modelLabels = `{model_id="${sample.modelId}",${labels}}`;
+  assert.ok(!lines.some(line => line.startsWith("niubigeo_keyword_mention_ratio" + modelLabels)));
+  assert.ok(!lines.some(line => line.startsWith("niubigeo_keyword_best_position" + modelLabels)));
+  assert.ok(lines.includes(`niubigeo_keyword_model_errors${modelLabels} 2`));
+});
+
+test("latest finished run with no samples exposes a failed run count and timestamp only", async t => {
+  const { keywords, collect, completed, labels } = await observedMonitor(t);
+  const failed: KeywordMonitorRun = {
+    ...completed, id: "failed", status: "failed", startedAt: "2026-01-02T00:00:00Z",
+    completedAt: "2026-01-02T00:01:00Z", mentioned: [], positions: {}, error: "Setup failed",
+  };
+  delete failed.modelResults;
+  await keywords.saveRun(failed);
+
+  const lines = (await collect()).split("\n");
+  assert.ok(!lines.some(line => line.startsWith("niubigeo_keyword_") && line.includes("model_id=")));
+  assert.ok(lines.includes(`niubigeo_keyword_runs{${labels},status="failed"} 1`));
+  assert.ok(lines.includes(`niubigeo_keyword_last_run_timestamp_seconds{${labels}} ${Date.parse(failed.completedAt!) / 1000}`));
+});
+
+test("an unranked successful sample has a mention ratio and no ranking series", async t => {
+  const { keywords, collect, sample, completed, labels } = await observedMonitor(t);
+  const unranked: KeywordModelResult = { ...sample, modelId: "vendor/unranked", position: null };
+  await keywords.saveRun({
+    ...completed,
+    positions: { ...completed.positions, [unranked.modelId]: null },
+    modelResults: [sample, unranked],
+  });
+
+  const lines = (await collect()).split("\n");
+  const modelLabels = `{model_id="${unranked.modelId}",${labels}}`;
+  assert.ok(lines.includes(`niubigeo_keyword_mention_ratio${modelLabels} 1`));
+  assert.ok(!lines.some(line => line.startsWith("niubigeo_keyword_best_position" + modelLabels)));
 });
