@@ -1,7 +1,7 @@
 export const THEME_LABELS = {
-  "zh-CN": { dark: "深色", light: "浅色", system: "跟随系统", action: "切换主题" },
-  en: { dark: "Dark", light: "Light", system: "System", action: "Switch theme" },
-  "pt-BR": { dark: "Escuro", light: "Claro", system: "Sistema", action: "Alternar tema" },
+  "zh-CN": { dark: "深色", light: "浅色", system: "跟随系统", visible: "主题：", aria: "主题：{current}。按下可切换为{next}。" },
+  en: { dark: "Dark", light: "Light", system: "System", visible: "Theme: ", aria: "Theme: {current}. Activate to switch to {next}." },
+  "pt-BR": { dark: "Escuro", light: "Claro", system: "Sistema", visible: "Tema: ", aria: "Tema: {current}. Ative para mudar para {next}." },
 } as const;
 
 export function renderProductLocalizationScript(): string {

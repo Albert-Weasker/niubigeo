@@ -20,12 +20,14 @@ export const THEME_HEAD_SCRIPT = String.raw`<script>
     const lang = document.documentElement.lang;
     return lang === 'en' || lang === 'pt-BR' ? lang : 'zh-CN';
   };
+  const nextPreference = () => preference === 'dark' ? 'light' : preference === 'light' ? 'system' : 'dark';
   const paintButton = () => {
     const copy = labels[locale()];
     document.querySelectorAll('[data-theme-toggle]').forEach(button => {
-      button.textContent = copy[preference];
-      button.setAttribute('aria-label', copy.action + ': ' + copy[preference]);
-      button.setAttribute('title', copy.action + ': ' + copy[preference]);
+      const label = copy.aria.replaceAll('{current}', copy[preference]).replaceAll('{next}', copy[nextPreference()]);
+      button.textContent = copy.visible + copy[preference];
+      button.setAttribute('aria-label', label);
+      button.setAttribute('title', label);
     });
   };
   const apply = () => {
@@ -42,7 +44,7 @@ export const THEME_HEAD_SCRIPT = String.raw`<script>
   media.addEventListener('change', () => { if (preference === 'system') apply(); });
   document.addEventListener('click', event => {
     if (!event.target.closest?.('[data-theme-toggle]')) return;
-    setPreference(preference === 'dark' ? 'light' : preference === 'light' ? 'system' : 'dark');
+    setPreference(nextPreference());
   });
   document.addEventListener('DOMContentLoaded', paintButton);
   window.addEventListener('storage', event => {

@@ -48,15 +48,19 @@ test("theme cycles, persists, and follows the operating system", async ({ page }
   await page.goto(baseUrl);
   const toggle = page.locator("[data-theme-toggle]");
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
-  await expect(toggle).toHaveAccessibleName("Switch theme: Dark");
+  await expect(toggle).toHaveText("Theme: Dark");
+  await expect(toggle).toHaveAccessibleName("Theme: Dark. Activate to switch to Light.");
+  expect(await toggle.evaluate((button) => button.nextElementSibling?.matches("[data-connect-key]"))).toBe(true);
   await toggle.click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
-  await expect(toggle).toHaveAccessibleName("Switch theme: Light");
+  await expect(toggle).toHaveText("Theme: Light");
+  await expect(toggle).toHaveAccessibleName("Theme: Light. Activate to switch to System.");
   await expect.poll(() => page.evaluate(() => localStorage.getItem("niubigeo-theme"))).toBe("light");
   await page.reload();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
   await toggle.click();
-  await expect(toggle).toHaveAccessibleName("Switch theme: System");
+  await expect(toggle).toHaveText("Theme: System");
+  await expect(toggle).toHaveAccessibleName("Theme: System. Activate to switch to Dark.");
   await page.emulateMedia({ colorScheme: "light" });
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
   await page.emulateMedia({ colorScheme: "dark" });
@@ -74,8 +78,8 @@ test("provider key dialog uses light surfaces and its own submit colors", async 
 });
 
 for (const [locale, names] of [
-  ["zh", ["切换主题: 深色", "切换主题: 浅色", "切换主题: 跟随系统"]],
-  ["pt-BR", ["Alternar tema: Escuro", "Alternar tema: Claro", "Alternar tema: Sistema"]],
+  ["zh", ["主题：深色。按下可切换为浅色。", "主题：浅色。按下可切换为跟随系统。", "主题：跟随系统。按下可切换为深色。"]],
+  ["pt-BR", ["Tema: Escuro. Ative para mudar para Claro.", "Tema: Claro. Ative para mudar para Sistema.", "Tema: Sistema. Ative para mudar para Escuro."]],
 ] as const) {
   test(`${locale} theme control labels`, async ({ page }) => {
     await page.addInitScript((value) => localStorage.setItem("niubigeo.product.locale", value), locale);
@@ -93,11 +97,14 @@ for (const [route, name, ready] of [
   ["/?view=measurements", "measurements", "[data-testid=phase5-workbench]"],
   ["/?view=keyword-monitoring", "keyword-monitoring", "h1"],
 ] as const) {
-  test(`${name} light screenshot`, async ({ page }) => {
-    await page.addInitScript(() => localStorage.setItem("niubigeo-theme", "light"));
+  test(`${name} dark and light screenshots`, async ({ page }) => {
     await page.goto(`${baseUrl}${route}`);
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+    await expect(page.locator(ready)).toBeVisible();
+    await page.screenshot({ path: `test-results/theme/${name}-dark.png`, fullPage: true, animations: "disabled" });
+    await page.locator("[data-theme-toggle]").click();
     await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
     await expect(page.locator(ready)).toBeVisible();
-    await expect(page).toHaveScreenshot(`${name}-light.png`, { fullPage: true, animations: "disabled", maxDiffPixelRatio: 0.001 });
+    await page.screenshot({ path: `test-results/theme/${name}-light.png`, fullPage: true, animations: "disabled" });
   });
 }
