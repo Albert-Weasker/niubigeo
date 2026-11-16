@@ -88,6 +88,7 @@ export class GeminiProvider implements AnswerProvider {
       model: input.model,
       modelVersion: input.model,
       text,
+      rawProviderResponse: raw,
       citations,
       webQueries,
       search,
