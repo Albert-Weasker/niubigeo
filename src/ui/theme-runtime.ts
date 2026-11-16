@@ -20,14 +20,19 @@ export const THEME_HEAD_SCRIPT = String.raw`<script>
     const lang = document.documentElement.lang;
     return lang === 'en' || lang === 'pt-BR' ? lang : 'zh-CN';
   };
-  const nextPreference = () => preference === 'dark' ? 'light' : preference === 'light' ? 'system' : 'dark';
   const paintButton = () => {
     const copy = labels[locale()];
     document.querySelectorAll('[data-theme-toggle]').forEach(button => {
-      const label = copy.aria.replaceAll('{current}', copy[preference]).replaceAll('{next}', copy[nextPreference()]);
-      button.textContent = copy.visible + copy[preference];
+      const label = copy.menu.replace('{current}', copy[preference]);
       button.setAttribute('aria-label', label);
       button.setAttribute('title', label);
+    });
+    document.querySelectorAll('[data-theme-options]').forEach(menu => {
+      menu.setAttribute('aria-label', copy.menu.replace('{current}', copy[preference]));
+      menu.querySelectorAll('[data-theme-option]').forEach(option => {
+        option.textContent = copy[option.dataset.themeOption];
+        option.setAttribute('aria-checked', String(option.dataset.themeOption === preference));
+      });
     });
   };
   const apply = () => {
@@ -42,9 +47,55 @@ export const THEME_HEAD_SCRIPT = String.raw`<script>
   };
   apply();
   media.addEventListener('change', () => { if (preference === 'system') apply(); });
+  const closeMenu = menu => {
+    menu.hidden = true;
+    menu.parentElement.querySelector('[data-theme-toggle]').setAttribute('aria-expanded', 'false');
+  };
+  const openMenu = (menu, focusOption = false) => {
+    menu.hidden = false;
+    menu.parentElement.querySelector('[data-theme-toggle]').setAttribute('aria-expanded', 'true');
+    if (focusOption) menu.querySelector('[data-theme-option="' + preference + '"]').focus();
+  };
   document.addEventListener('click', event => {
-    if (!event.target.closest?.('[data-theme-toggle]')) return;
-    setPreference(nextPreference());
+    const option = event.target.closest?.('[data-theme-option]');
+    if (option) {
+      setPreference(option.dataset.themeOption);
+      closeMenu(option.closest('[data-theme-options]'));
+      option.closest('.theme-menu').querySelector('[data-theme-toggle]').focus();
+      return;
+    }
+    const toggle = event.target.closest?.('[data-theme-toggle]');
+    if (toggle) {
+      const menu = toggle.parentElement.querySelector('[data-theme-options]');
+      if (menu.hidden) openMenu(menu);
+      else closeMenu(menu);
+      return;
+    }
+    document.querySelectorAll('[data-theme-options]:not([hidden])').forEach(closeMenu);
+  });
+  document.addEventListener('focusin', event => {
+    if (!event.target.closest?.('.theme-menu')) document.querySelectorAll('[data-theme-options]:not([hidden])').forEach(closeMenu);
+  });
+  document.addEventListener('keydown', event => {
+    const toggle = event.target.closest?.('[data-theme-toggle]');
+    const menu = event.target.closest?.('[data-theme-options]') || toggle?.parentElement.querySelector('[data-theme-options]');
+    if (!menu) return;
+    if (event.key === 'Escape') {
+      closeMenu(menu);
+      menu.parentElement.querySelector('[data-theme-toggle]').focus();
+      return;
+    }
+    if (toggle && (event.key === 'ArrowDown' || event.key === 'ArrowUp')) {
+      event.preventDefault();
+      openMenu(menu, true);
+      return;
+    }
+    if (event.target.closest?.('[data-theme-option]') && (event.key === 'ArrowDown' || event.key === 'ArrowUp')) {
+      event.preventDefault();
+      const options = [...menu.querySelectorAll('[data-theme-option]')];
+      const step = event.key === 'ArrowDown' ? 1 : -1;
+      options[(options.indexOf(event.target) + step + options.length) % options.length].focus();
+    }
   });
   document.addEventListener('DOMContentLoaded', paintButton);
   window.addEventListener('storage', event => {

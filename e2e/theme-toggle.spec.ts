@@ -44,23 +44,49 @@ test.afterAll(async () => {
   else process.env.OPENROUTER_API_KEY = priorKey;
 });
 
-test("theme cycles, persists, and follows the operating system", async ({ page }) => {
+test("theme menu selects, persists, and follows the operating system", async ({ page }) => {
   await page.goto(baseUrl);
   const toggle = page.locator("[data-theme-toggle]");
+  const menu = page.locator("[data-theme-options]");
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
-  await expect(toggle).toHaveText("Theme: Dark");
-  await expect(toggle).toHaveAccessibleName("Theme: Dark. Activate to switch to Light.");
-  expect(await toggle.evaluate((button) => button.nextElementSibling?.matches("[data-connect-key]"))).toBe(true);
+  await expect(toggle).toHaveAccessibleName("Theme: Dark. Choose theme.");
+  await expect(toggle).toHaveAttribute("aria-expanded", "false");
+  expect(await toggle.evaluate((button) => button.parentElement?.previousElementSibling?.matches("[data-connect-key]"))).toBe(true);
+  for (const width of [1280, 375]) {
+    await page.setViewportSize({ width, height: 720 });
+    const positions = await page.evaluate(() => ({
+      bar: document.querySelector(".key-workbench-bar")!.getBoundingClientRect().right,
+      theme: document.querySelector("[data-theme-toggle]")!.getBoundingClientRect().right,
+      connect: document.querySelector("[data-connect-key]")!.getBoundingClientRect().right,
+    }));
+    expect(positions.theme).toBeGreaterThan(positions.connect);
+    expect(positions.bar - positions.theme).toBeLessThanOrEqual(24);
+  }
+  await expect(menu).toBeHidden();
   await toggle.click();
+  await expect(menu).toBeVisible();
+  await expect(toggle).toHaveAttribute("aria-expanded", "true");
+  await expect(menu.getByRole("menuitemradio", { name: "Dark" })).toHaveAttribute("aria-checked", "true");
+  await menu.getByRole("menuitemradio", { name: "Light" }).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
-  await expect(toggle).toHaveText("Theme: Light");
-  await expect(toggle).toHaveAccessibleName("Theme: Light. Activate to switch to System.");
+  await expect(toggle).toHaveAccessibleName("Theme: Light. Choose theme.");
+  await expect(menu).toBeHidden();
   await expect.poll(() => page.evaluate(() => localStorage.getItem("niubigeo-theme"))).toBe("light");
   await page.reload();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  await toggle.focus();
+  await page.keyboard.press("ArrowDown");
+  await expect(menu).toBeVisible();
+  await expect(menu.getByRole("menuitemradio", { name: "Light" })).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(menu).toBeHidden();
+  await expect(toggle).toBeFocused();
   await toggle.click();
-  await expect(toggle).toHaveText("Theme: System");
-  await expect(toggle).toHaveAccessibleName("Theme: System. Activate to switch to Dark.");
+  await page.keyboard.press("Shift+Tab");
+  await expect(menu).toBeHidden();
+  await toggle.click();
+  await menu.getByRole("menuitemradio", { name: "System" }).click();
+  await expect(toggle).toHaveAccessibleName("Theme: System. Choose theme.");
   await page.emulateMedia({ colorScheme: "light" });
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
   await page.emulateMedia({ colorScheme: "dark" });
@@ -78,17 +104,20 @@ test("provider key dialog uses light surfaces and its own submit colors", async 
 });
 
 for (const [locale, names] of [
-  ["zh", ["主题：深色。按下可切换为浅色。", "主题：浅色。按下可切换为跟随系统。", "主题：跟随系统。按下可切换为深色。"]],
-  ["pt-BR", ["Tema: Escuro. Ative para mudar para Claro.", "Tema: Claro. Ative para mudar para Sistema.", "Tema: Sistema. Ative para mudar para Escuro."]],
+  ["zh", ["主题：深色。选择主题。", "主题：浅色。选择主题。", "主题：跟随系统。选择主题。", "浅色", "跟随系统"]],
+  ["pt-BR", ["Tema: Escuro. Escolher tema.", "Tema: Claro. Escolher tema.", "Tema: Sistema. Escolher tema.", "Claro", "Sistema"]],
 ] as const) {
   test(`${locale} theme control labels`, async ({ page }) => {
     await page.addInitScript((value) => localStorage.setItem("niubigeo.product.locale", value), locale);
     await page.goto(baseUrl);
     const toggle = page.locator("[data-theme-toggle]");
-    for (const name of names) {
-      await expect(toggle).toHaveAccessibleName(name);
-      await toggle.click();
-    }
+    await expect(toggle).toHaveAccessibleName(names[0]);
+    await toggle.click();
+    await page.getByRole("menuitemradio", { name: names[3] }).click();
+    await expect(toggle).toHaveAccessibleName(names[1]);
+    await toggle.click();
+    await page.getByRole("menuitemradio", { name: names[4] }).click();
+    await expect(toggle).toHaveAccessibleName(names[2]);
   });
 }
 
@@ -103,6 +132,7 @@ for (const [route, name, ready] of [
     await expect(page.locator(ready)).toBeVisible();
     await page.screenshot({ path: `test-results/theme/${name}-dark.png`, fullPage: true, animations: "disabled" });
     await page.locator("[data-theme-toggle]").click();
+    await page.locator('[data-theme-option="light"]').click();
     await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
     await expect(page.locator(ready)).toBeVisible();
     await page.screenshot({ path: `test-results/theme/${name}-light.png`, fullPage: true, animations: "disabled" });
