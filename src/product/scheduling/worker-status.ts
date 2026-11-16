@@ -28,7 +28,7 @@ export class WorkerStatusStore {
         } finally {await rm(temp,{force:true}).catch(()=>undefined);}
 
     }
-    async read(at = new Date()) {
+    private async readHeartbeats(): Promise<WorkerHeartbeat[]> {
         const dir = join(this.root, "worker-status");
         let files: string[];
         try {
@@ -36,7 +36,7 @@ export class WorkerStatusStore {
         }
         catch (error) {
             if ((error as NodeJS.ErrnoException).code === "ENOENT")
-                return { state: "unavailable", reason: "worker_not_started" };
+                return [];
             throw error;
         }
         const rows: WorkerHeartbeat[] = [];
@@ -49,10 +49,19 @@ export class WorkerStatusStore {
             }
         }
         rows.sort((a, b) => b.heartbeatAt.localeCompare(a.heartbeatAt));
-        const fresh = (row: WorkerHeartbeat) => at.getTime() - Date.parse(row.heartbeatAt) <= Math.max(30, row.pollSeconds * 3) * 1000;
-        const worker = rows.find(row => row.state === "running" && fresh(row)) || rows[0];
-        if (!worker)
-            return { state: "unavailable", reason: "worker_not_started" };
-        return { ...worker, state: worker.state === "running" && !fresh(worker) ? "stale" : worker.state, reason: worker.state === "running" ? (fresh(worker) ? null : "heartbeat_expired") : "worker_" + worker.state };
+        return rows;
+    }
+
+    async readAll(at = new Date()) {
+        return (await this.readHeartbeats()).map(row => {
+            if (row.state !== "running") return { ...row, reason: "worker_" + row.state };
+            const fresh = at.getTime() - Date.parse(row.heartbeatAt) <= Math.max(30, row.pollSeconds * 3) * 1000;
+            return { ...row, state: fresh ? "running" as const : "stale" as const, reason: fresh ? null : "heartbeat_expired" };
+        });
+    }
+
+    async read(at = new Date()) {
+        const rows = await this.readAll(at);
+        return rows.find(row => row.state === "running") ?? rows[0] ?? { state: "unavailable", reason: "worker_not_started" };
     }
 }

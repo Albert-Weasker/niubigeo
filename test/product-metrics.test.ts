@@ -1,0 +1,114 @@
+import assert from "node:assert/strict";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import test from "node:test";
+import { customModelId } from "../src/product/connections/provider-connections.js";
+import { keywordRunSummary } from "../src/product/keyword-monitor-insights.js";
+import type { KeywordModelResult, KeywordMonitorRun } from "../src/product/keyword-monitor-schema.js";
+import { KeywordMonitorService } from "../src/product/keyword-monitor-service.js";
+import { KeywordMonitorStore } from "../src/product/keyword-monitor-store.js";
+import { collectProductMetrics } from "../src/product/metrics/product-metrics.js";
+import { ProductProjectService } from "../src/product/projects/project-service.js";
+import { ProductProjectFileStore } from "../src/product/projects/project-store.js";
+import { WorkerStatusStore } from "../src/product/scheduling/worker-status.js";
+import { sha256 } from "../src/utils/hash.js";
+
+test("metrics use saved retry summaries, count runs and aggregate worker states", async t => {
+  const root = await mkdtemp(join(tmpdir(), "product-metrics-"));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const projectStore = new ProductProjectFileStore(root);
+  const projects = new ProductProjectService(projectStore);
+  const keywords = new KeywordMonitorStore(projectStore);
+  const monitors = new KeywordMonitorService(projects, keywords);
+  const workers = new WorkerStatusStore(root);
+  const collect = (includeNames = false) => collectProductMetrics({ projects, keywords, workers }, { version: "1.2.3", includeNames });
+
+  const empty = (await collect()).split("\n");
+  assert.ok(empty.includes('niubigeo_build_info{version="1.2.3"} 1'));
+  assert.ok(empty.includes("niubigeo_projects 0"));
+  for (const state of ["running", "stale", "stopped", "failed"]) {
+    assert.ok(empty.includes(`niubigeo_workers{state="${state}"} 0`));
+  }
+  assert.ok(!empty.some(line => line.startsWith("niubigeo_worker_last_heartbeat_timestamp_seconds")));
+
+  const project = await projects.createDraft({ primaryDomain: "metrics-project.example" });
+  const monitor = await monitors.create(project.id, { keyword: "Private keyword", frequency: "weekly" });
+  await monitors.update(project.id, monitor.id, { enabled: false });
+  await projects.archive(project.id);
+  const endpoint = "https://private-endpoint.example/v1";
+  const custom = customModelId(endpoint, "local-chat");
+  const publicId = "vendor/catalog-model";
+  const failedId = "vendor/failed-model";
+  const sample: KeywordModelResult = {
+    modelId: publicId, modelName: "Catalog model", answer: "Private answer",
+    mentioned: ["Brand"], recommended: [], position: 0, citations: ["https://citation.example/"],
+  };
+  const original: KeywordMonitorRun = {
+    id: "original", projectId: project.id, monitorId: monitor.id, status: "completed",
+    keyword: monitor.keyword, startedAt: "2026-01-01T00:00:00Z", mentioned: [], positions: {},
+    modelResults: [sample, { ...sample, modelId: custom, modelName: "Custom", error: "Private error" }],
+  };
+  const retry: KeywordMonitorRun = {
+    ...original, id: "retry", startedAt: "2026-01-02T00:00:00Z", retryOfRunId: original.id, retryModelId: custom,
+    modelResults: [
+      { ...sample, sampleIndex: 1, carriedFromRunId: original.id },
+      { ...sample, sampleIndex: 2, mentioned: [], position: null, carriedFromRunId: original.id },
+      { ...sample, sampleIndex: 3, error: "Private error", carriedFromRunId: original.id },
+      { ...sample, modelId: failedId, error: "Private error", carriedFromRunId: original.id },
+      { ...sample, modelId: custom, modelName: "local-chat · " + endpoint, position: null },
+    ],
+  };
+  await keywords.saveRun(original);
+  await keywords.saveRun(retry);
+  const newestFinished = "2026-01-03T00:00:00Z";
+  await keywords.saveRun({ ...original, id: "failed", startedAt: newestFinished, status: "failed" });
+  await keywords.saveRun({ ...original, id: "queued", startedAt: "2026-01-04T00:00:00Z", status: "queued" });
+
+  const at = new Date();
+  await workers.write({ id: "running-worker", state: "running", heartbeatAt: at.toISOString(), pollSeconds: 60 });
+  await workers.write({ id: "stale-worker", state: "running", heartbeatAt: new Date(at.getTime() - 300_000).toISOString(), pollSeconds: 60 });
+  await workers.write({ id: "stopped-worker", state: "stopped", heartbeatAt: new Date(at.getTime() - 1000).toISOString(), pollSeconds: 60 });
+  await workers.write({ id: "failed-worker", state: "failed", heartbeatAt: new Date(at.getTime() - 2000).toISOString(), pollSeconds: 60 });
+  assert.equal((await workers.read(at)).state, "running");
+  assert.deepEqual((await workers.readAll(at)).map(row => row.state).sort(), ["failed", "running", "stale", "stopped"]);
+
+  const body = await collect();
+  const lines = body.split("\n");
+  const monitorLabels = `monitor_id="${monitor.id}",project_id="${project.id}"`;
+  assert.equal(await collect(), body);
+  assert.ok(lines.includes("niubigeo_projects 1"));
+  assert.ok(lines.includes(`niubigeo_keyword_monitors{project_id="${project.id}",state="disabled"} 1`));
+  assert.ok(lines.includes(`niubigeo_keyword_monitors{project_id="${project.id}",state="enabled"} 0`));
+  for (const [status, count] of Object.entries({ completed: 2, failed: 1, queued: 1 })) {
+    assert.ok(lines.includes(`niubigeo_keyword_runs{${monitorLabels},status="${status}"} ${count}`));
+  }
+  assert.ok(lines.includes(`niubigeo_keyword_last_run_timestamp_seconds{${monitorLabels}} ${Date.parse(newestFinished) / 1000}`));
+
+  const exportedCustomId = "custom-" + sha256(custom).slice(0, 12);
+  for (const summary of keywordRunSummary(retry)) {
+    const modelId = summary.modelId === custom ? exportedCustomId : summary.modelId;
+    const labels = `{model_id="${modelId}",${monitorLabels}}`;
+    assert.ok(lines.includes(`niubigeo_keyword_model_errors${labels} ${summary.failed}`));
+    const ratio = "niubigeo_keyword_mention_ratio" + labels + " ";
+    assert.equal(lines.find(line => line.startsWith(ratio)), summary.mentionRate === null ? undefined : ratio + summary.mentionRate);
+  }
+  assert.deepEqual(lines.filter(line => line.startsWith("niubigeo_keyword_best_position")), [
+    `niubigeo_keyword_best_position{model_id="${publicId}",${monitorLabels}} 1`,
+  ]);
+  assert.ok(lines.includes(`niubigeo_worker_last_heartbeat_timestamp_seconds ${at.getTime() / 1000}`));
+  for (const state of ["running", "stale", "stopped", "failed"]) {
+    assert.ok(lines.includes(`niubigeo_workers{state="${state}"} 1`));
+  }
+  for (const text of [project.primaryDomain, monitor.keyword, sample.modelName, "local-chat", "worker_id"]) {
+    assert.ok(!body.includes(text));
+  }
+  const named = await collect(true);
+  assert.ok(named.includes(`niubigeo_project_info{domain="${project.primaryDomain}",project_id="${project.id}"} 1`));
+  assert.ok(named.includes(`niubigeo_keyword_monitor_info{frequency="weekly",keyword="${monitor.keyword}",kind="discovery",monitor_id="${monitor.id}"} 1`));
+  assert.ok(named.includes(`niubigeo_model_info{model_id="${exportedCustomId}",model_name="local-chat"} 1`));
+  assert.ok(named.includes(`niubigeo_model_info{model_id="${publicId}",model_name="${sample.modelName}"} 1`));
+  for (const text of [endpoint, custom, sample.answer, sample.citations[0]!, "Private error"]) {
+    assert.ok(!named.includes(text));
+  }
+});
