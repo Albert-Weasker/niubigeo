@@ -1,3 +1,9 @@
+export const THEME_LABELS = {
+  "zh-CN": { dark: "深色", light: "浅色", system: "跟随系统", menu: "主题：{current}。选择主题。" },
+  en: { dark: "Dark", light: "Light", system: "System", menu: "Theme: {current}. Choose theme." },
+  "pt-BR": { dark: "Escuro", light: "Claro", system: "Sistema", menu: "Tema: {current}. Escolher tema." },
+} as const;
+
 export function renderProductLocalizationScript(): string {
   return `<script>
 (() => {

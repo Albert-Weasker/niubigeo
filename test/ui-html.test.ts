@@ -45,9 +45,11 @@ test("app shell renders the project monitoring workspace and restrained dark des
     assert.equal(html.includes(endpoint), true, endpoint);
   }
   for (const step of ["1", "2", "3", "4", "5"]) assert.equal(html.includes(`data-step="${step}"`), true, step);
-  assert.equal(html.includes("--bg: #050505"), true);
-  assert.equal(html.includes("--sidebar: #080808"), true);
-  assert.equal(html.includes("--panel: #111111"), true);
+  assert.equal(html.includes("--bg: var(--canvas)"), true);
+  assert.equal(html.includes("--sidebar: var(--sidebar-surface)"), true);
+  assert.equal(html.includes("--panel: var(--surface)"), true);
+  assert.equal(html.includes('data-theme="light"'), true);
+  assert.equal(html.includes("niubigeo-theme"), true);
   assert.equal(html.includes("linear-gradient"), false);
   assert.equal(html.includes("backdrop-filter"), false);
   assert.equal(html.includes("AI 魔法"), false);

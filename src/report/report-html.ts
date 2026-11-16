@@ -2,6 +2,7 @@ import type { AuditReportModel } from "./report-model.js";
 import { htmlEscape } from "./format.js";
 import { PRODUCT_NAME, renderNiubigeoMarkSvg } from "../ui/brand.js";
 import { WORKBENCH_CSS } from "../ui/workbench-style.js";
+import { renderThemeHead } from "../ui/theme-runtime.js";
 import type { AnswerStory, EvidenceStatement, HumanReport, SourceStory } from "./human-report.js";
 import { buildHumanReport } from "./human-report.js";
 
@@ -962,7 +963,7 @@ function renderStyle(): string {
       color-scheme: dark;
       --ink: var(--text);
       --strong: var(--blue);
-      --soft: #0d182a;
+      --soft: var(--info-bg);
     }
     body { background: var(--bg); color: var(--text); line-height: 1.6; }
     a { color: var(--blue); }
@@ -1015,7 +1016,7 @@ function renderStyle(): string {
     .model-table-wrap, .data-table-wrap { border-color: var(--border); background: var(--panel); }
     .model-table { border-color: var(--border); border-radius: 8px; background: var(--panel); }
     .model-table th, .model-table td { border-color: var(--line); color: var(--secondary); }
-    .model-table th { background: #0d0d0d; color: var(--muted); }
+    .model-table th { background: var(--input-bg); color: var(--muted); }
     .model-table td strong, .model-table td:first-child { color: var(--text); }
     .brand-read article, .competitor-card, .model-card, .source-card,
     .competition-stack article, .compact-details, .all-sources, .answer-card, .intent-result {
@@ -1031,23 +1032,23 @@ function renderStyle(): string {
       min-height: 28px;
       border-color: var(--border);
       border-radius: 6px;
-      background: #0d0d0d;
-      color: #83adff;
+      background: var(--input-bg);
+      color: color-mix(in srgb, var(--info-text) 80%, var(--accent-blue));
       font-size: 11px;
     }
-    .card-head span, .source-status { border: 1px solid var(--border); border-radius: 5px; background: #0d0d0d; color: var(--secondary); }
-    .source-status.related { border-color: #174a37; background: #0b2119; color: var(--green); }
-    .source-status.possible { border-color: #594618; background: #241c09; color: var(--amber); }
-    .source-status.excluded { background: #0d0d0d; color: var(--muted); }
+    .card-head span, .source-status { border: 1px solid var(--border); border-radius: 5px; background: var(--input-bg); color: var(--secondary); }
+    .source-status.related { border-color: color-mix(in srgb, var(--success-border) 56%, var(--success-bg)); background: var(--success-bg); color: var(--green); }
+    .source-status.possible { border-color: color-mix(in srgb, var(--warning-border) 90%, var(--warning-bg)); background: var(--warning-bg); color: var(--amber); }
+    .source-status.excluded { background: var(--input-bg); color: var(--muted); }
     .source-card p, .compact-details p, .answer-card summary strong, dt, .task-block span, .entity-block span { color: var(--secondary); }
     .answer-card summary { padding: 14px 16px; }
-    .answer-card[open] { border-color: #343434; }
+    .answer-card[open] { border-color: color-mix(in srgb, var(--border-strong) 73.684211%, var(--border-default)); }
     .answer-body { border-color: var(--line); }
-    .intent-result { background: #0d0d0d; }
+    .intent-result { background: var(--input-bg); }
     .task-block li, .entity-block li { border-color: var(--line); }
     .task-block p, .actual-answer p { color: var(--secondary); }
-    blockquote { border-left: 2px solid var(--blue); background: #0d0d0d; color: var(--secondary); }
-    .empty { border-color: var(--border); background: #0d0d0d; color: var(--muted); }
+    blockquote { border-left: 2px solid var(--blue); background: var(--input-bg); color: var(--secondary); }
+    .empty { border-color: var(--border); background: var(--input-bg); color: var(--muted); }
     @media (max-width: 840px) {
       .layout { display: block; }
       .sidebar { position: relative; height: auto; padding: 12px; border-right: 0; border-bottom: 1px solid var(--line); }
@@ -1058,6 +1059,43 @@ function renderStyle(): string {
       .hero h1 { font-size: 24px; }
       .conclusion { font-size: 18px; }
     }
+    /* Keep the legacy warm palette above for a separate cleanup; this higher-specificity
+       layer makes every surviving report color follow the new light tokens. */
+    :root[data-theme="light"] {
+      --ink: var(--text-primary);
+      --strong: var(--accent-blue);
+      --accent: var(--accent-red);
+      --soft: var(--info-bg);
+      --shadow: 0 18px 55px var(--shadow-color);
+    }
+    :root[data-theme="light"] .sidebar { background: var(--sidebar-surface); }
+    :root[data-theme="light"] nav a { color: var(--text-muted); }
+    :root[data-theme="light"] nav a:hover { background: var(--surface-hover); color: var(--text-primary); }
+    :root[data-theme="light"] .source-note { border-color: var(--border-default); background: var(--surface); color: var(--text-muted); }
+    :root[data-theme="light"] .model-table,
+    :root[data-theme="light"] .brand-read article,
+    :root[data-theme="light"] .competitor-card,
+    :root[data-theme="light"] .model-card,
+    :root[data-theme="light"] .source-card,
+    :root[data-theme="light"] .competition-stack article,
+    :root[data-theme="light"] .compact-details,
+    :root[data-theme="light"] .all-sources,
+    :root[data-theme="light"] .answer-card { background: var(--surface); }
+    :root[data-theme="light"] .evidence-link,
+    :root[data-theme="light"] .source-actions a { border-color: var(--border-control); background: var(--surface); color: var(--accent-blue); }
+    :root[data-theme="light"] .card-head span { background: var(--info-bg); color: var(--info-text); }
+    :root[data-theme="light"] .source-status { border-color: var(--border-default); background: var(--surface-hover); color: var(--text-muted); }
+    :root[data-theme="light"] .source-status.related { border-color: var(--success-border); background: var(--success-bg); color: var(--success-text); }
+    :root[data-theme="light"] .source-status.possible { border-color: var(--warning-border); background: var(--warning-bg); color: var(--warning-text); }
+    :root[data-theme="light"] .source-status.excluded { background: var(--surface-hover); color: var(--text-muted); }
+    :root[data-theme="light"] .answer-card[open] { border-color: var(--border-strong); }
+    :root[data-theme="light"] .intent-result { background: var(--input-bg); }
+    :root[data-theme="light"] .task-block li,
+    :root[data-theme="light"] .entity-block li { border-color: var(--border-subtle); }
+    :root[data-theme="light"] .task-block p,
+    :root[data-theme="light"] .actual-answer p { color: var(--text-muted); }
+    :root[data-theme="light"] blockquote { background: var(--input-bg); color: var(--text-muted); }
+    :root[data-theme="light"] .empty { background: var(--surface-hover); color: var(--text-muted); }
   </style>`;
 }
 
@@ -1070,6 +1108,7 @@ export function renderDashboardHtml(model: AuditReportModel): string {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  ${renderThemeHead()}
   <title>${htmlEscape(report.title)} - ${htmlEscape(PRODUCT_NAME)}</title>
   ${renderStyle()}
 </head>

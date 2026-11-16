@@ -3,6 +3,7 @@ export const PRODUCT_TITLE = "niubigeo OSS";
 export const NIUBIGEO_LOCKUP_ASSET = "/assets/brand/niubigeo-lockup.svg";
 
 export function renderNiubigeoMarkSvg(className = "niubigeo-mark"): string {
+  // This white source mark is kept for exact dark artwork; light CSS overrides its SVG presentation fill.
   return `<svg class="${className}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 642 642" role="img" aria-label="NiubiGEO">
     <title>NiubiGEO</title>
     <desc>NiubiGEO emblem</desc>
