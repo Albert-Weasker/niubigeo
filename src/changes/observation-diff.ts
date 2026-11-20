@@ -45,6 +45,9 @@ function row(kind: ObservationChangeKind, current: Observation, previous: Observ
 
 export class ObservationDiff {
   compare(current: Observation[], previous: Observation[]): ObservationChange[] {
+    const usable = (observation: Observation): boolean => observation.status === "completed" && observation.evidence.hasAnswer;
+    current = current.filter(usable);
+    previous = previous.filter(usable);
     const previousByIdentity = new Map(previous.map((observation) => [identity(observation), observation]));
     const changes: ObservationChange[] = [];
     for (const currentObservation of current) {
