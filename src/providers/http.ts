@@ -1,3 +1,4 @@
+import { ProviderRequestError } from "./provider-error.js";
 import { AsyncLocalStorage } from "node:async_hooks";
 import { isRequestProviderScope, redactRequestSecrets } from "../config/env.js";
 
@@ -47,13 +48,17 @@ export async function postJsonWithRetry(url: string, init: RequestInit, attempts
     const timeout = setTimeout(() => controller.abort(), requestTimeoutMs());
     try {
       const response = await (customConnection() && url.startsWith(customConnection()!.baseUrl + "/") ? customProviderFetch : fetch)(url, { ...init, ...(isRequestProviderScope() ? { redirect: "error" as const } : {}), signal: controller.signal });
-      const data = redactRequestSecrets(await response.json().catch(() => ({})));
+      const data = redactRequestSecrets(await response.json().catch(() => {
+        if (response.ok) throw new ProviderRequestError({ code: "invalid_response", message: "Provider returned a successful response that was not valid JSON.", status: response.status });
+        return {};
+      }));
       const latencyMs = Date.now() - started;
       if (response.ok || !isTransient(response.status) || attempt === attempts) {
         return { status: response.status, ok: response.ok, data, latencyMs };
       }
       lastError = new Error(`HTTP ${response.status}`);
     } catch (error) {
+      if (error instanceof ProviderRequestError && error.code === "invalid_response") throw error;
       lastError = isRequestProviderScope() ? new Error(redactRequestSecrets(error instanceof Error ? error.message : String(error))) : error;
       if (attempt === attempts) throw lastError;
     } finally {
