@@ -83,7 +83,7 @@ export class DeterministicPlanBuilder {
       scopeConfirmed: spec.scopeConfirmed,
     });
     const prompts = spec.questions.map((question, index) => monitoringPrompt({ question, index, spec }));
-    const runCountPerPrompt = spec.runCountPerQuestion || 1;
+    const runCountPerPrompt = spec.runCountPerQuestion ?? 1;
     if (!Number.isInteger(runCountPerPrompt) || runCountPerPrompt <= 0) throw new Error("invalid_run_count");
     const hash = promptSetHash({ prompts, spec, runCountPerPrompt });
     const plannedAt = options.plannedAt || new Date().toISOString();
