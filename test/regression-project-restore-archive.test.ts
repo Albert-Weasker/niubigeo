@@ -1,0 +1,10 @@
+import assert from "node:assert/strict";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import test from "node:test";
+import { ProductProjectFileStore } from "../src/product/projects/project-store.js";
+import { ProductProjectService } from "../src/product/projects/project-service.js";
+import { KeywordMonitorStore } from "../src/product/keyword-monitor-store.js";
+import { KeywordMonitorService } from "../src/product/keyword-monitor-service.js";
+test("restore deletion preserves earlier archive lifecycle",async()=>{const root=await mkdtemp(join(tmpdir(),"restore-archive-"));try{const projects=new ProductProjectService(new ProductProjectFileStore(root));const project=await projects.createDraft({primaryDomain:"example.com"});await projects.archive(project.id);await projects.delete(project.id);const restored=await projects.restore(project.id);assert.equal(restored.status,"archived");assert.equal(restored.statusBeforeArchive,"draft");assert.ok(restored.archivedAt);const unarchived=await projects.restore(project.id);assert.equal(unarchived.status,"draft");assert.equal(unarchived.archivedAt,undefined)}finally{await rm(root,{recursive:true,force:true})}});
