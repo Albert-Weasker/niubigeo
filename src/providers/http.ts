@@ -40,6 +40,7 @@ function isTransient(status: number): boolean {
 }
 
 export async function postJsonWithRetry(url: string, init: RequestInit, attempts = requestAttempts()): Promise<JsonResponse> {
+  if (!Number.isInteger(attempts) || attempts < 1 || attempts > 8) throw new Error("Invalid HTTP attempt limit");
   let lastError: unknown;
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     const started = Date.now();
