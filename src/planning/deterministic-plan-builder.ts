@@ -83,6 +83,7 @@ export class DeterministicPlanBuilder {
       scopeConfirmed: spec.scopeConfirmed,
     });
     const prompts = spec.questions.map((question, index) => monitoringPrompt({ question, index, spec }));
+    if (new Set(prompts.map((prompt) => prompt.id)).size !== prompts.length) throw new Error("duplicate_question_id");
     const runCountPerPrompt = spec.runCountPerQuestion || 1;
     if (!Number.isInteger(runCountPerPrompt) || runCountPerPrompt <= 0) throw new Error("invalid_run_count");
     const hash = promptSetHash({ prompts, spec, runCountPerPrompt });
