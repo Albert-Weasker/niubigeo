@@ -46,7 +46,8 @@ function vendorName(name: string, modelId: string): string {
 
 function releasedAt(value: unknown): string | null {
   if (typeof value !== "number" || !Number.isFinite(value) || value <= 0) return null;
-  return new Date(value * 1000).toISOString();
+  const date = new Date(value * 1000);
+  return Number.isFinite(date.getTime()) ? date.toISOString() : null;
 }
 
 export class OpenRouterModelCatalog implements OpenRouterModelCapabilitySource {
