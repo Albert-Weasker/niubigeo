@@ -13,6 +13,7 @@
 </p>
 
 <p align="center">
+  <a href="https://trendshift.io/repositories/212064?utm_source=repository-badge&amp;utm_medium=badge&amp;utm_campaign=badge-repository-212064" target="_blank" rel="noopener noreferrer"><img src="https://trendshift.io/api/badge/repositories/212064" alt="Albert-Weasker%2Fniubigeo | Trendshift" width="250" height="55"/></a>
   <a href="https://trendshift.io/repositories/212064?utm_source=trendshift-badge&amp;utm_medium=badge&amp;utm_campaign=badge-trendshift-212064" target="_blank" rel="noopener noreferrer"><img src="https://trendshift.io/api/badge/trendshift/repositories/212064/daily?language=TypeScript" alt="Albert-Weasker/niubigeo | Trendshift" width="250" height="55"></a>
   <a href="https://www.producthunt.com/products/niubigeo?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-niubigeo" target="_blank" rel="noopener noreferrer"><img alt="NiubiGEO - Open-source AI visibility. Human-powered growth. | Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1256676&amp;theme=light&amp;t=1789989066112"></a>
 </p>
