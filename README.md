@@ -353,6 +353,7 @@ NiubiStar supports NiubiGEO’s open-source development and provides the global 
 - [How it works](docs/how-it-works.md) · [Architecture](docs/ARCHITECTURE.md)
 - [Measurement methodology](docs/measurement-methodology.md) · [Sources and evidence](docs/evidence-model.md)
 - [Deployment](docs/deployment/docker.en.md) · [Backups and upgrades](docs/upgrade.md)
+- [Prometheus and Grafana integration](docs/integrations/prometheus.md)
 - [Known issues](docs/known-issues.md) · [Limitations](docs/limitations.md) · [Release notes](https://github.com/Albert-Weasker/niubigeo/releases/tag/v0.3.3)
 - [Contributing](CONTRIBUTING.md) · [Security policy](SECURITY.md) · [License](LICENSE)
 
